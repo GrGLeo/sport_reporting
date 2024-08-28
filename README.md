@@ -10,7 +10,9 @@ This platform is designed to analyze swim, bike, and run workouts using key metr
 
 **Formula**:
 
-$\text{TSS} = \frac{\text{Duration} \times \text{IF}^2 \times 100}{\text{FTP}}$
+```math
+\text{TSS} = \frac{\text{Duration} \times \text{IF}^2 \times 100}{\text{FTP}}
+```
 
 
 - **Duration**: The time spent on the workout in minutes.
@@ -34,8 +36,9 @@ $\text{TSS} = \frac{\text{Duration} \times \text{IF}^2 \times 100}{\text{FTP}}$
 
 **Formula**:
 
-$\text{ATL}_\text{today} = \text{ATL}_\text{yesterday} + \frac{\text{TSS}_\text{today} - \text{ATL}_\text{yesterday}}{7}$
-
+```math
+\text{ATL}_\text{today} = \text{ATL}_\text{yesterday} + \frac{\text{TSS}_\text{today} - \text{ATL}_\text{yesterday}}{7}
+```
 
 ### Training Stress Balance (TSB)
 
@@ -43,5 +46,7 @@ $\text{ATL}_\text{today} = \text{ATL}_\text{yesterday} + \frac{\text{TSS}_\text{
 
 **Formula**:
 
-$\text{TSB} = \text{CTL} - \text{ATL}$
+```math
+\text{TSB} = \text{CTL} - \text{ATL}
+```
 
