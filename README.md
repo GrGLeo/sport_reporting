@@ -23,9 +23,9 @@ $\text{TSS} = \frac{\text{Duration} \times \text{IF}^2 \times 100}{\text{FTP}}$
 
 **Formula**:
 
-$$
+```math
 \text{CTL}_\text{today} = \text{CTL}_\text{yesterday} + \frac{\text{TSS}_\text{today} - \text{CTL}_\text{yesterday}}{42}
-$$
+```
 
 
 ### Acute Training Load (ATL)
