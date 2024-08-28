@@ -9,9 +9,9 @@ This platform is designed to analyze swim, bike, and run workouts using key metr
 **TSS** quantifies the training load of a workout based on its intensity and duration.
 
 **Formula**:
-\[
-\text{TSS} = \frac{\text{Duration} \times \text{IF}^2 \times 100}{\text{FTP}}
-\]
+
+$text{TSS} = \frac{\text{Duration} \times \text{IF}^2 \times 100}{\text{FTP}}$
+
 
 - **Duration**: The time spent on the workout in minutes.
 - **IF (Intensity Factor)**: The ratio of the normalized power (or pace) to the athlete’s functional threshold power (FTP) or pace.
