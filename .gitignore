@@ -1,2 +1,4 @@
 sub9/
 *.env
+*.fit
+__pycache__/
