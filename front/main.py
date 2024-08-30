@@ -1,30 +1,25 @@
 import streamlit as st
-from parsing import fit_parsing
+from datetime import datetime
+from db_setup import Base, engine, session
 
+st.title("Welcome to the dashboard!")
 
-st.title("Welcome to My Multi-Page Streamlit App")
-st.write("Use the sidebar to navigate between pages.")
+if 'db_session' not in st.session_state:
+    st.session_state.db_engine = engine
+    st.session_state.db_session = session
+    st.session_state.db_base = Base
+    print("Hello")
 
-# File uploader widget
-uploaded_file = st.file_uploader("Choose a file", type=['fit', 'fits'])
+target_date = datetime(2025, 6, 1)
+today = datetime.now()
+difference = target_date - today
 
-if uploaded_file is not None:
-    if uploaded_file.type == "application/fit" or uploaded_file.type == "application/fits":
-        df = fit_parsing(uploaded_file)
-        st.write(df)
+weeks = difference.days // 7
+days = difference.days % 7
 
-        power = df.power
-        power = power.rolling(window=30).mean()
-        power = power ** 4
-        power = power.mean()
-        np = power ** 0.25
-        intf = np / 305
-        duration = df.index.size
-        tss = (duration * np * intf) / (305 * 3600) * 100
-        st.write(np, intf, duration)
-        st.write(tss)
-
-    else:
-        st.write("Uploaded file is not a fit file")
-else:
-    st.write("Please upload a file.")
+st.write(f"IRONMAN HAMBURG Date: {target_date.strftime('%Y-%m-%d')}")
+col1, col2 = st.columns(2)
+with col1:
+    st.write(f"Weeks remaining: {weeks}")
+with col2:
+    st.write(f"Days remaining: {days}")

@@ -1,7 +1,9 @@
 import requests
 import streamlit as st
+import pandas as pd
 
-st.title("File Upload Example")
+
+st.title("Fit File Upload")
 
 uploaded_file = st.file_uploader("Choose a file", type=['fit', 'fits'])
 
@@ -11,10 +13,10 @@ if uploaded_file is not None:
             file = {"file": uploaded_file.getvalue()}
             response = requests.post("http://127.0.0.1:8000/uploadfile/", files=file)
             if response.status_code == 200:
-                st.write(response.json()["data"])
+                df = pd.DataFrame(response.json()["data"])
+                st.session_state['activity'] = df
+                st.write(df.columns)
             else:
                 st.write("error")
     else:
         st.write("Uploaded file is not a fit file")
-else:
-    st.write("Please upload a file.")

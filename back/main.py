@@ -1,5 +1,7 @@
 from fastapi import FastAPI, File, UploadFile
 from fitparse import FitFile
+import pandas as pd
+from data.etl import Running_Feeder
 
 
 app = FastAPI()
@@ -11,12 +13,29 @@ async def upload_file(file: UploadFile = File(...)):
 
     fitfile = FitFile(contents)
 
-    records = []
+    records = get_data(fitfile, 'record')
+    laps = get_data(fitfile, 'lap')
+    activity = get_data(fitfile, 'sport')[0]['sport']
+    activity_id = int(records[0]["timestamp"].timestamp())
 
-    for record in fitfile.get_messages('record'):
-        record_data = {}
-        for data in record:
-            record_data[data.name] = data.value
-        records.append(record_data)
+    wkt = {
+        f"record_{activity}": pd.DataFrame(records),
+        f"lap_{activity}": pd.DataFrame(laps)
+    }
 
-    return {"data": records}
+    if activity == "running":
+        feeder = Running_Feeder(wkt, activity_id)
+        feeder.process_laps()
+    return {
+        "data": activity,
+            }
+
+
+def get_data(fitfile, field):
+    field_data = []
+    for line in fitfile.get_messages(field):
+        line_data = {}
+        for data in line:
+            line_data[data.name] = data.value
+        field_data.append(line_data)
+    return field_data
