@@ -1,0 +1,15 @@
+[server]
+headless = true
+enableCORS = false
+enableWebsocketCompression = true
+port = 8501
+
+[theme]
+primaryColor = "#F63366"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F0F2F6"
+textColor = "#000000"
+
+[browser]
+# Adjust the display mode to wide
+displayMode = "wide"

@@ -17,8 +17,7 @@ if uploaded_file is not None:
                 files=file
             )
             if response.status_code == 200:
-                st.write("Upload completed")
-            else:
-                st.write("error")
+                completion = response.json()["data"]
+                st.write(completion)
     else:
         st.write("Uploaded file is not a fit file")

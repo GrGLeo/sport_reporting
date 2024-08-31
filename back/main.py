@@ -25,9 +25,12 @@ async def upload_file(file: UploadFile = File(...)):
 
     if activity == "running":
         feeder = Running_Feeder(wkt, activity_id)
-        feeder.process_laps()
+        completion = feeder.process_laps()
+        feeder.process_records()
+        feeder.get_wkt_syn()
+        completion = "haha"
     return {
-        "data": activity,
+        "data": completion,
             }
 
 

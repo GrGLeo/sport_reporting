@@ -35,3 +35,16 @@ class LapRun(Base):
     hr = Column(Integer)
     cadence = Column(Integer)
     pace = Column(Float)
+
+
+class Threshold(Base):
+    __tablename__ = "threshold"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    swim = Column(Float)
+    ftp = Column(Integer)
+    run_pace = Column(Float)
+    date = Column(DateTime)
+
+
+Base.metadata.create_all(engine)
