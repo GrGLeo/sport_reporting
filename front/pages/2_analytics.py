@@ -14,7 +14,9 @@ st.title("Workout analystics")
 
 db_engine = st.session_state.db_engine
 
-df = pd.read_sql("SELECT * FROM lap_running", db_engine)
+activity_id = st.session_state.activity_id
+if activity_id:
+    df = pd.read_sql(f"SELECT * FROM lap_running where activity_id = {activity_id}", db_engine)
 st.write(df)
 
 df['time_seconds'] = df['timer'].apply(time_to_seconds)

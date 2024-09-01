@@ -8,7 +8,6 @@ def create_session():
     Session = sessionmaker(bind=engine)
     return Session()
 
-
 Base = declarative_base()
 
 
