@@ -13,14 +13,15 @@ engine = st.session_state.db_engine
 calendar_options = {
     "editable": "true",
     "selectable": "true",
+    "height": 630,
     "headerToolbar": {
         "left": "today prev,next",
         "center": "title",
-        "right": "resourceTimelineDay,resourceTimelineWeek,resourceTimelineMonth",
+        "right": "dayGridMonth,listWeek",
     },
     "slotMinTime": "06:00:00",
     "slotMaxTime": "18:00:00",
-    "initialView": "resourceTimelineMonth",
+    "initialView": "dayGridMonth",
     "resources": [
         {"id": "swim", "building": "Swim"},
         {"id": "bike", "building": "Bike"},
@@ -57,7 +58,8 @@ calendar_event = [
         'start': d['date'].strftime('%Y-%m-%dT%H:%M:%S'),
         'end': d['end'].strftime('%Y-%m-%dT%H:%M:%S'),
         'resourceId': d['title'],
-        'id': d['activity_id']
+        'id': d['activity_id'],
+        'backgroundColor': 'red'
     }
     for d in test]
 
