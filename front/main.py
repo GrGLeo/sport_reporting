@@ -18,6 +18,7 @@ st.set_page_config(
 
 st.title("Welcome to the dashboard!")
 
+conn = st.connection('postgresql', type='sql')
 if 'db_session' not in st.session_state:
     st.session_state.db_engine = engine
     st.session_state.db_session = session
@@ -42,8 +43,14 @@ threshold_col, _ = st.columns([0.2, 0.8])
 
 with threshold_col:
     st.title("Threshold")
-    threshold = session.query(Threshold).order_by(desc(Threshold.date)).first()
-    if threshold:
+    query = """
+        SELECT *
+        FROM threshold
+        ORDER BY date DESC
+        LIMIT 1
+        """
+    threshold = conn.query(query)
+    if not threshold.empty:
         col1, col2, col3 = st.columns(3)
         with col1:
             st.metric(label="swim css", value=threshold.swim)
@@ -74,7 +81,7 @@ with col2:
 
 # CTL, FORM, FITNESS
 end_date = datetime.today()
-start_date = end_date - timedelta(days=183)
+start_date = end_date - timedelta(days=92)
 date_range = pd.date_range(start=start_date, end=end_date)
 date_range = date_range.strftime('%Y-%m-%d')
 df = pd.DataFrame({'date': date_range})
@@ -125,8 +132,10 @@ fig.update_layout(
     yaxis_title='Values',
     barmode='overlay',
     xaxis=dict(
+        type='category',  # Treat x-axis as categorical data
+        rangeslider=dict(visible=False),  # Show range slider
+        fixedrange=False
     )
 )
 
-# Show the plot
 st.plotly_chart(fig)

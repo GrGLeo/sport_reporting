@@ -4,6 +4,8 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+conn = st.connection('postgresql', type='sql')
+
 
 def insert_space(number: int):
     for i in range(number):
@@ -26,8 +28,8 @@ activity_id = st.session_state.activity_id
 col1, col2 = st.columns([0.3, 0.7])
 if activity_id:
     params = {'activity_id': activity_id}
-    query = "SELECT * FROM lap_running where activity_id = %(activity_id)s"
-    df = pd.read_sql(query, db_engine, params=params)
+    query = "SELECT * FROM lap_running where activity_id = :activity_id"
+    df = conn.query(query, params=params)
 
     df = df.drop('activity_id', axis=1)
     df['distance'] = df['distance'] / 1000
@@ -69,9 +71,9 @@ if activity_id:
         st.plotly_chart(fig)
 
 # Record specific
-    query = "select * from workout_running where activity_id = %(activity_id)s"
+    query = "select * from workout_running where activity_id = :activity_id"
     params = {"activity_id": activity_id}
-    df = pd.read_sql(query, db_engine, params=params)
+    df = conn.query(query, params=params)
 
     altitude_min = df['altitude'].min()
     altitude_max = df['altitude'].max()

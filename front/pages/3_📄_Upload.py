@@ -17,7 +17,8 @@ if uploaded_file is not None:
                 files=file
             )
             if response.status_code == 200:
-                completion = response.json()["data"]
-                st.write(completion)
+                st.switch_page('pages/1_🗓__Calendar.py')
+            else:
+                st.write('Upload failed, try again later')
     else:
         st.write("Uploaded file is not a fit file")

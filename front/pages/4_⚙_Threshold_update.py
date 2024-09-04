@@ -1,8 +1,8 @@
-import st
+import streamlit as st
+from sqlalchemy import text
 import datetime
 
-Threshold = st.session_state.db_threshold
-session = st.session_state.db_session
+conn = st.connection('postgresql', type='sql')
 
 st.title("Update Threshold")
 with st.form(key='threshold_form'):
@@ -24,12 +24,17 @@ with st.form(key='threshold_form'):
 
 
 if submit_button:
-    new_threshold = Threshold(
-        swim=round(css_minutes + (css_seconds / 100), 2),
-        ftp=ftp,
-        run_pace=round(run_pace_minutes + (run_pace_seconds / 100), 2),
-        date=datetime.now()
-    )
-    session.add(new_threshold)
-    session.commit()
+    query = """
+        INSERT INTO threshold (swim, ftp, run_pace, date)
+        VALUES (:swim, :ftp, :run_pace, :current_date);
+        """
+    params = {
+        'swim': round(css_minutes + (css_seconds / 100), 2),
+        'ftp': ftp,
+        'run_pace': round(run_pace_minutes + (run_pace_seconds / 100), 2),
+        'current_date': datetime.datetime.now()
+    }
+    with conn.session as session:
+        session.execute(text(query), params=params)
+        session.commit()
     st.success('Threshold updated', icon="✅")
