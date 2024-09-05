@@ -1,23 +1,25 @@
 import bcrypt
+from utils.exception import UserTaken, EmailTaken
 from data.tables import UserCRUD
 
 
 def auth_user(username, password):
     db_user = UserCRUD('postgresql://leo:postgres@localhost:5432/sporting')
-    hashed = db_user.get_password(username)
-    print(hashed)
+    user = db_user.get_user(username)
+    if not user:
+        return
+    hashed = user.password
     if bcrypt.checkpw(password.encode(), hashed.encode()):
-        return 'yes'
+        return user.user_id
 
 
 def create_user(username, password, email):
     db_user = UserCRUD('postgresql://leo:postgres@localhost:5432/sporting')
     u_exist, e_exist = db_user.check_user_exist(username, email)
     if u_exist:
-        # create exception
-        return Exception
+        raise UserTaken('Username already taken')
     elif e_exist:
-        raise Exception
+        raise EmailTaken('Email already taken')
     else:
         password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
         db_user.add_user(username, password.decode(), email)

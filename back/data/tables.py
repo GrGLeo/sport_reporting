@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy import Column, Integer, Float, Time, DateTime, String
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -5,42 +6,6 @@ from sqlalchemy import create_engine
 
 
 Base = declarative_base()
-
-
-class DataBase:
-    def __init__(self, db_url: str):
-        self.engine = create_engine(db_url)
-        self.Session = sessionmaker(bind=self.engine)
-        Base.metadata.create_all(self.engine)
-
-    def get_session(self) -> Session:
-        return self.Session()
-
-
-class UserCRUD(DataBase):
-    def __init__(self, db_url: str):
-        super().__init__(db_url)
-
-    def add_user(self, username: str, password: str, email: str):
-        session = self.get_session()
-        new_user = UserInfo(user=username, password=password, email=email)
-        session.add(new_user)
-        session.commit()
-        session.close()
-
-    def check_user_exist(self, username: str, email: str) -> tuple[bool, bool]:
-        session = self.get_session()
-        # Check if the username is taken
-        username_taken = session.query(UserInfo).filter_by(user=username).first() is not None
-        # Check if the email is taken
-        email_taken = session.query(UserInfo).filter_by(email=email).first() is not None
-        session.close()
-        return (username_taken, email_taken)
-
-    def get_password(self, username):
-        session = self.get_session()
-        password = session.query(UserInfo).filter_by(user=username).first()
-        return password.password
 
 
 class UserInfo(Base):
@@ -100,3 +65,39 @@ class User(Base):
     run_pace = Column(Float)
     ftp = Column(Integer)
     date = Column(DateTime)
+
+
+class DataBase:
+    def __init__(self, db_url: str):
+        self.engine = create_engine(db_url)
+        self.Session = sessionmaker(bind=self.engine)
+        Base.metadata.create_all(self.engine)
+
+    def get_session(self) -> Session:
+        return self.Session()
+
+
+class UserCRUD(DataBase):
+    def __init__(self, db_url: str):
+        super().__init__(db_url)
+
+    def add_user(self, username: str, password: str, email: str):
+        session = self.get_session()
+        new_user = UserInfo(user=username, password=password, email=email)
+        session.add(new_user)
+        session.commit()
+        session.close()
+
+    def check_user_exist(self, username: str, email: str) -> tuple[bool, bool]:
+        session = self.get_session()
+        # Check if the username is taken
+        username_taken = session.query(UserInfo).filter_by(user=username).first() is not None
+        # Check if the email is taken
+        email_taken = session.query(UserInfo).filter_by(email=email).first() is not None
+        session.close()
+        return (username_taken, email_taken)
+
+    def get_user(self, username: str) -> Optional[UserInfo]:
+        session = self.get_session()
+        user = session.query(UserInfo).filter_by(user=username).first()
+        return user

@@ -3,6 +3,7 @@ from fitparse import FitFile
 import pandas as pd
 from data.etl import Running_Feeder
 from api_model import LoginModel, UserModel
+from utils.exception import UserTaken, EmailTaken
 from auth import auth_user, create_user
 
 
@@ -57,8 +58,8 @@ def get_data(fitfile, field):
 
 @app.post("/create_user")
 async def create_new_user(new_user: UserModel):
-    print('hello')
     try:
-        create_user(new_user.username, new_user.password, new_user.email)
-    except Exception as e:
-        raise HTTPException(status_code=401, detail=e)
+        token = create_user(new_user.username, new_user.password, new_user.email)
+    except (UserTaken, EmailTaken) as e:
+        raise HTTPException(status_code=401, detail=f'{e}')
+    return {"token": token}
