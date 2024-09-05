@@ -17,7 +17,7 @@ if uploaded_file is not None:
                 files=file
             )
             if response.status_code == 200:
-                st.switch_page('pages/1_🗓__Calendar.py')
+                st.switch_page('pages/1_Calendar.py')
             else:
                 st.write('Upload failed, try again later')
     else:

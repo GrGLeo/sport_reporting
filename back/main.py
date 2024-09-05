@@ -1,7 +1,9 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from fitparse import FitFile
 import pandas as pd
 from data.etl import Running_Feeder
+from api_model import LoginModel, UserModel
+from auth import auth_user, create_user
 
 
 app = FastAPI()
@@ -34,6 +36,15 @@ async def upload_file(file: UploadFile = File(...)):
             }
 
 
+@app.post("/login")
+async def login(login_data: LoginModel):
+    token = auth_user(login_data.username, login_data.password)
+
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    return {"token": token}
+
+
 def get_data(fitfile, field):
     field_data = []
     for line in fitfile.get_messages(field):
@@ -42,3 +53,12 @@ def get_data(fitfile, field):
             line_data[data.name] = data.value
         field_data.append(line_data)
     return field_data
+
+
+@app.post("/create_user")
+async def create_new_user(new_user: UserModel):
+    print('hello')
+    try:
+        create_user(new_user.username, new_user.password, new_user.email)
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=e)
