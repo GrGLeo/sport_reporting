@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import Optional
 from sqlalchemy import Column, Integer, Float, Time, DateTime, String
 from sqlalchemy.orm import Session, sessionmaker
@@ -10,11 +11,21 @@ Base = declarative_base()
 
 class UserInfo(Base):
     __tablename__ = "user_info"
+    __table_args__ = {'schema': 'settings'}
 
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     user = Column(String)
     password = Column(String)
     email = Column(String)
+
+
+class LoginAttempts(Base):
+    __tablename__ = "login_attempts"
+    __table_args__ = {'schema': 'settings'}
+
+    username = Column(String, primary_key=True)
+    attempts = Column(Integer, nullable=False, default=0)
+    last_attempts = Column(DateTime)
 
 
 class WorkoutRun(Base):
@@ -101,3 +112,46 @@ class UserCRUD(DataBase):
         session = self.get_session()
         user = session.query(UserInfo).filter_by(user=username).first()
         return user
+
+    def query_login_attempts(self, username):
+        session = self.get_session()
+        return session, session.query(LoginAttempts).filter_by(username=username).first()
+
+    def record_failed_attempt(self, username):
+        session, result = self.query_login_attempts(username)
+        if result:
+            if datetime.now() - result.last_attempts > timedelta(minutes=5):
+                print(datetime.now(), result.last_attempts)
+                result.attempts = 0
+            result.attempts += 1
+            result.last_attempts = datetime.now()
+            session.commit()
+            attempt = result.attempts
+
+        else:
+            attempt = 1
+            new_attempt = LoginAttempts(
+                username=username,
+                attempts=attempt,
+                last_attempts=datetime.now()
+            )
+            session.add(new_attempt)
+            session.commit()
+        session.close()
+        return attempt
+
+    def verify_locked(self, username):
+        session, result = self.query_login_attempts(username)
+
+        if result:
+            if datetime.now() - result.last_attempts <= timedelta(minutes=15) and result.attempts >= 5:
+                return True
+        else:
+            False
+
+    def reset_attempts(self, username):
+        session, result = self.query_login_attempts(username)
+
+        if result:
+            session.delete(result)
+            session.close()

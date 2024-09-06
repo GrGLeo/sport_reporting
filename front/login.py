@@ -18,7 +18,7 @@ def login_page():
                 st.success("Login sucess")
                 st.rerun()
             else:
-                st.error("Invalid username or password")
+                st.error(token["detail"])
 
     create_user_button = st.button("Create account")
     if create_user_button:
@@ -59,7 +59,7 @@ def auth_user(username, password):
         token = response.json()["token"]
         return True, token
     elif response.status_code == 401:
-        return False, None
+        return False, response.json()
 
 
 def create_user(username, password, email):

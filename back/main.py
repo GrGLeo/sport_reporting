@@ -1,13 +1,26 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fitparse import FitFile
 import pandas as pd
+from sqlalchemy import create_engine
 from data.etl import Running_Feeder
+from data.tables import Base
+from data.utils import create_schema
 from api_model import LoginModel, UserModel
-from utils.exception import UserTaken, EmailTaken
+from utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttempt, UserLocked
+from utils.data_handler import get_data
 from auth import auth_user, create_user
 
 
 app = FastAPI()
+
+
+@app.on_event("startup")
+async def startup_event():
+    DATABASE_URL = "postgresql://leo:postgres@localhost:5432/sporting"
+    engine = create_engine(DATABASE_URL)
+    create_schema(engine, ['settings'])
+    Base.metadata.create_all(bind=engine)
+    print("All tables are created or verified!")
 
 
 @app.post("/uploadfile/")
@@ -39,21 +52,14 @@ async def upload_file(file: UploadFile = File(...)):
 
 @app.post("/login")
 async def login(login_data: LoginModel):
-    token = auth_user(login_data.username, login_data.password)
+    try:
+        token = auth_user(login_data.username, login_data.password)
+    except (UnknownUser, UserLocked, FailedAttempt) as e:
+        raise HTTPException(status_code=401, detail=f'{e}')
 
     if not token:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return {"token": token}
-
-
-def get_data(fitfile, field):
-    field_data = []
-    for line in fitfile.get_messages(field):
-        line_data = {}
-        for data in line:
-            line_data[data.name] = data.value
-        field_data.append(line_data)
-    return field_data
 
 
 @app.post("/create_user")
