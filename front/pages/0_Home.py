@@ -1,20 +1,12 @@
 import streamlit as st
 from datetime import datetime, timedelta
 import pandas as pd
-from sqlalchemy import desc
 import plotly.express as px
 import plotly.graph_objects as go
 
 from db_setup import Base, engine, session, Threshold
 from metrics import calculate_all
 
-
-st.set_page_config(
-    page_title='Training',
-    page_icon="🧊",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 st.title("Welcome to the dashboard!")
 

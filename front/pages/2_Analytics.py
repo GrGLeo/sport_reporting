@@ -22,6 +22,10 @@ st.title("Workout analystics")
 
 db_engine = st.session_state.db_engine
 
+if 'activity_id' not in st.session_state:
+    st.error('Please select an activity in the calendar')
+    st.stop()
+
 activity_id = st.session_state.activity_id
 
 # Activity specific

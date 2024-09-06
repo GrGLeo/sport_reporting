@@ -67,9 +67,10 @@ calendar = calendar(events=calendar_event, options=calendar_options, custom_css=
 
 upload = st.button('Upload')
 if upload:
-    st.switch_page('pages/3_📄_Upload.py')
+    st.switch_page('pages/3_Upload.py')
 
-if calendar['callback'] == "eventClick":
-    st.write(calendar['eventClick']['event']['id'])
-    st.session_state.activity_id = calendar['eventClick']['event']['id']
-    st.switch_page('pages/2_📈_Analytics.py')
+if 'callback' in calendar:
+    if calendar['callback'] == "eventClick":
+        st.write(calendar['eventClick']['event']['id'])
+        st.session_state.activity_id = calendar['eventClick']['event']['id']
+        st.switch_page('pages/2_Analytics.py')
