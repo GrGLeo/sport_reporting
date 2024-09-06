@@ -1,7 +1,6 @@
 import pandas as pd
-from sqlalchemy import inspect
+import numpy as np
 from datetime import time
-from data.tables import Base
 from data.connexion import create_connection, create_session
 from sqlalchemy.exc import IntegrityError
 pd.options.mode.copy_on_write = True
@@ -13,21 +12,14 @@ class Feeder:
         self.id = id
         self.connection = create_connection()
         self.engine = create_session()
-        self._create_tables()
-
-    def _create_tables(self):
-        inspector = inspect(self.engine)
-        Base.metadata.bind = self.engine
-        created_tables = inspector.get_table_names()
-        for table in self.tables:
-            if table not in created_tables:
-                Base.metadata.create_all(self.engine)
-                print(f"Created table {table}")
 
     def put(self, table, table_name):
+        table['user_id'] = self.user_id
+        table['activity_id'] = self.id
         try:
             table.to_sql(
                 table_name,
+                schema=self.schema,
                 con=self.engine,
                 if_exists='append',
                 index=False
@@ -40,8 +32,10 @@ class Feeder:
 
 
 class Running_Feeder(Feeder):
-    def __init__(self, tables, id):
+    def __init__(self, tables, id, user_id):
         super().__init__(tables, id)
+        self.user_id = user_id
+        self.schema = 'running'
 
     def process_laps(self) -> str:
         laps = self.tables["lap_running"]
@@ -60,12 +54,10 @@ class Running_Feeder(Feeder):
         )
 
         laps = laps[cols.values()]
-        laps['activity_id'] = self.id
         laps['pace'] = laps['distance'] / laps['timer']
-        laps['pace'] = laps['pace'].apply(speed_to_pace)
         laps['timer'] = laps['timer'].apply(lambda x: seconds_to_time(int(x)))
 
-        completion = self.put(laps, 'lap_running')
+        completion = self.put(laps, 'lap')
         return completion
 
     def process_records(self):
@@ -87,20 +79,21 @@ class Running_Feeder(Feeder):
                 inplace=True
         )
         records = records[cols.values()]
-        records['activity_id'] = self.id
         records['record_id'] = records.index
         records['pace'] = records['pace'].apply(speed_to_pace)
         records['pace'] = records['pace'].rolling(window=5).mean()
+        records['pace'] = np.where(records['pace'] > 12, 10, records['pace'])
         records['pace'] = records['pace'].round(2)
         self.records = records
-        self.put(records, 'workout_running')
+        self.put(records, 'workout')
 
     def get_wkt_syn(self):
         syn = pd.DataFrame(index=range(1))
-        syn['activity_id'] = self.id
         syn['date'] = self.records['timestamp'].iloc[0]
         duration = len(self.records)
-        hours, minutes, seconds = duration//3600, (duration%3600)//60, duration%60
+        hours = duration//3600
+        minutes = (duration % 3600)//60
+        seconds = duration % 60
         duration = time(hour=hours, minute=minutes, second=seconds)
         syn['duration'] = duration
         syn['avg_hr'] = self.records['hr'].mean()
@@ -109,8 +102,7 @@ class Running_Feeder(Feeder):
         distance = self.records['distance'].iloc[-1]
         syn['distance'] = distance
         syn['tss'] = int((distance / 1609) * 10)
-        print(syn)
-        self.put(syn, 'syn_running')
+        self.put(syn, 'syn')
 
 
 def speed_to_pace(speed):

@@ -29,8 +29,10 @@ class LoginAttempts(Base):
 
 
 class WorkoutRun(Base):
-    __tablename__ = "workout_running"
+    __tablename__ = "workout"
+    __table_args__ = {'schema': 'running'}
 
+    user_id = Column(Integer, primary_key=True)
     activity_id = Column(Integer, primary_key=True)
     record_id = Column(Integer, primary_key=True)
     timestamp = Column(DateTime)
@@ -44,8 +46,10 @@ class WorkoutRun(Base):
 
 
 class LapRun(Base):
-    __tablename__ = "lap_running"
+    __tablename__ = "lap"
+    __table_args__ = {'schema': 'running'}
 
+    user_id = Column(Integer, primary_key=True)
     activity_id = Column(Integer, primary_key=True)
     lap_id = Column(Integer, primary_key=True)
     timer = Column(Time)
@@ -56,8 +60,10 @@ class LapRun(Base):
 
 
 class SynRun(Base):
-    __tablename__ = "syn_running"
+    __tablename__ = "syn"
+    __table_args__ = {'schema': 'running'}
 
+    user_id = Column(Integer, primary_key=True)
     activity_id = Column(Integer, primary_key=True)
     date = Column(DateTime)
     duration = Column(Time)
@@ -71,7 +77,7 @@ class SynRun(Base):
 class User(Base):
     __tablename__ = "user"
 
-    id = Column("Integer", primary_key=True, autoincrement=True)
+    user_id = Column("Integer", primary_key=True)
     swim = Column(Float)
     run_pace = Column(Float)
     ftp = Column(Integer)

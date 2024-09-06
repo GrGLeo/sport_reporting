@@ -14,7 +14,8 @@ if uploaded_file is not None:
             file = {"file": uploaded_file.getvalue()}
             response = requests.post(
                 "http://127.0.0.1:8000/uploadfile/",
-                files=file
+                files=file,
+                user_id=st.session_state['token']
             )
             if response.status_code == 200:
                 st.switch_page('pages/1_Calendar.py')
