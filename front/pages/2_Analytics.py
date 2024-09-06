@@ -31,8 +31,8 @@ activity_id = st.session_state.activity_id
 # Activity specific
 col1, col2 = st.columns([0.3, 0.7])
 if activity_id:
-    params = {'activity_id': activity_id}
-    query = "SELECT * FROM lap_running where activity_id = :activity_id"
+    params = {'activity_id': activity_id, 'user_id': st.session_state['user_token']}
+    query = "SELECT * FROM running.lap where activity_id = :activity_id and user_id = :user_id"
     df = conn.query(query, params=params)
 
     df = df.drop('activity_id', axis=1)
@@ -75,8 +75,7 @@ if activity_id:
         st.plotly_chart(fig)
 
 # Record specific
-    query = "select * from workout_running where activity_id = :activity_id"
-    params = {"activity_id": activity_id}
+    query = "select * from running.workout where activity_id = :activity_id and user_id = :user_id"
     df = conn.query(query, params=params)
 
     altitude_min = df['altitude'].min()

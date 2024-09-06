@@ -27,7 +27,9 @@ class Feeder:
             print(f'Inserted {len(table)} rows')
             return "Upload completed"
 
-        except IntegrityError:
+        except IntegrityError as e:
+            print(e)
+            print('pas glop')
             return "Activity already uploaded"
 
 
@@ -36,6 +38,7 @@ class Running_Feeder(Feeder):
         super().__init__(tables, id)
         self.user_id = user_id
         self.schema = 'running'
+        print(self.user_id)
 
     def process_laps(self) -> str:
         laps = self.tables["lap_running"]
@@ -55,7 +58,9 @@ class Running_Feeder(Feeder):
 
         laps = laps[cols.values()]
         laps['pace'] = laps['distance'] / laps['timer']
+        laps['pace'] = laps['pace'].apply(speed_to_pace)
         laps['timer'] = laps['timer'].apply(lambda x: seconds_to_time(int(x)))
+        print(laps.head())
 
         completion = self.put(laps, 'lap')
         return completion
