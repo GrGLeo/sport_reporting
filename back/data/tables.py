@@ -121,7 +121,6 @@ class UserCRUD(DataBase):
         session, result = self.query_login_attempts(username)
         if result:
             if datetime.now() - result.last_attempts > timedelta(minutes=5):
-                print(datetime.now(), result.last_attempts)
                 result.attempts = 0
             result.attempts += 1
             result.last_attempts = datetime.now()
@@ -144,7 +143,7 @@ class UserCRUD(DataBase):
         session, result = self.query_login_attempts(username)
 
         if result:
-            if datetime.now() - result.last_attempts <= timedelta(minutes=15) and result.attempts >= 5:
+            if datetime.now() - result.last_attempts <= timedelta(minutes=5) and result.attempts >= 5:
                 return True
         else:
             False

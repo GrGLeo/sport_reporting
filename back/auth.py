@@ -13,7 +13,7 @@ def auth_user(username, password):
         hashed = user.password
         if bcrypt.checkpw(password.encode(), hashed.encode()):
             # erase from login attempts table
-            db_user.reset_attemps(username)
+            db_user.reset_attempts(username)
             return user.user_id
         else:
             attempts = db_user.record_failed_attempt(username)
