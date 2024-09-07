@@ -2,10 +2,11 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fitparse import FitFile
 import pandas as pd
 from sqlalchemy import create_engine
-from data.etl import Running_Feeder
+from data.etl.running_feeder import Running_Feeder
+from data.etl.comment_feeder import CommentFeeder
 from data.tables import Base
 from data.utils import create_schema
-from api_model import LoginModel, UserModel
+from api_model import LoginModel, UserModel, CommentModel
 from utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttempt, UserLocked
 from utils.data_handler import get_data
 from auth import auth_user, create_user
@@ -51,6 +52,21 @@ async def upload_file(
     return {
         "data": completion,
             }
+
+
+@app.post("/post_comment")
+async def post_comment(comment: CommentModel):
+    print(comment)
+    if len(comment.comment_text.strip()) == 0:
+        raise HTTPException(status_code=400, detail="Comment can not be empty")
+
+    try:
+        comment_table = {'comment': comment.comment_text}
+        user_id = comment.user_id
+        activity_id = comment.activity_id
+        CommentFeeder(comment_table, activity_id, user_id)
+    except:
+        pass
 
 
 @app.post("/login")

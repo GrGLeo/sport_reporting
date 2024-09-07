@@ -3,13 +3,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from utilities.comment import add_comment, write_comment
 
 conn = st.connection('postgresql', type='sql')
-
-
-def insert_space(number: int):
-    for i in range(number):
-        st.write("\n")
 
 
 def time_to_seconds(t):
@@ -29,18 +25,17 @@ if 'activity_id' not in st.session_state:
 activity_id = st.session_state.activity_id
 
 # Activity specific
-col1, col2 = st.columns([0.3, 0.7])
+col1, col2, col3 = st.columns([0.25, 0.45, 0.3])
 if activity_id:
     params = {'activity_id': activity_id, 'user_id': st.session_state['user_token']}
     query = "SELECT * FROM running.lap where activity_id = :activity_id and user_id = :user_id"
     df = conn.query(query, params=params)
 
-    df = df.drop('activity_id', axis=1)
+    df = df.drop(['activity_id', 'user_id', 'lap_id'], axis=1)
     df['distance'] = df['distance'] / 1000
     df['distance'] = df['distance'].round(2)
 
     with col1:
-        insert_space(3)
         st.dataframe(df, hide_index=True)
 
     df['time_seconds'] = df['timer'].apply(time_to_seconds)
@@ -54,7 +49,6 @@ if activity_id:
     fig = px.timeline(df, x_start='start_time', x_end='end_time', y='pace',
                       labels={'start_time': 'Start Time', 'end_time': 'End Time'})
 
-    # Update layout
     fig.update_layout(
         xaxis_title='Activity Duration',
         yaxis_title='Pace',
@@ -73,6 +67,10 @@ if activity_id:
 
     with col2:
         st.plotly_chart(fig)
+
+    with col3:
+        add_comment(activity_id)
+        write_comment(conn, activity_id)
 
 # Record specific
     query = "select * from running.workout where activity_id = :activity_id and user_id = :user_id"

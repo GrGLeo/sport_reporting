@@ -27,9 +27,7 @@ class Feeder:
             print(f'Inserted {len(table)} rows')
             return "Upload completed"
 
-        except IntegrityError as e:
-            print(e)
-            print('pas glop')
+        except IntegrityError:
             return "Activity already uploaded"
 
 
@@ -38,7 +36,6 @@ class Running_Feeder(Feeder):
         super().__init__(tables, id)
         self.user_id = user_id
         self.schema = 'running'
-        print(self.user_id)
 
     def process_laps(self) -> str:
         laps = self.tables["lap_running"]
