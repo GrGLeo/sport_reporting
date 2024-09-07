@@ -9,6 +9,7 @@ def time_to_timedelta(t):
 
 
 engine = st.session_state.db_engine
+conn = st.connection('postgresql', type='sql')
 
 calendar_options = {
     "editable": "true",
@@ -45,7 +46,9 @@ custom_css = """
 """
 cols = ['activity_id', 'date', 'duration']
 
-df_run = pd.read_sql('select * from syn_running', engine)
+
+query = "SELECT * FROM running.syn WHERE user_id = :user_id"
+df_run = conn.query(query, params={'user_id': st.session_state['user_token']})
 df_run = df_run[cols]
 df_run['title'] = 'run'
 df_run['end'] = df_run.apply(lambda row: row['date'] + time_to_timedelta(row['duration']), axis=1)

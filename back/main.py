@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fitparse import FitFile
 import pandas as pd
 from sqlalchemy import create_engine
@@ -24,7 +24,10 @@ async def startup_event():
 
 
 @app.post("/uploadfile/")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(
+    file: UploadFile = File(...),
+    user_id: int = Form(...)
+):
     contents = await file.read()
 
     fitfile = FitFile(contents)
@@ -40,7 +43,7 @@ async def upload_file(file: UploadFile = File(...)):
     }
 
     if activity == "running":
-        feeder = Running_Feeder(wkt, activity_id)
+        feeder = Running_Feeder(wkt, activity_id, int(user_id))
         completion = feeder.process_laps()
         feeder.process_records()
         feeder.get_wkt_syn()
