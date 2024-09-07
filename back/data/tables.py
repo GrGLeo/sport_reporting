@@ -28,6 +28,16 @@ class LoginAttempts(Base):
     last_attempts = Column(DateTime)
 
 
+class Comments(Base):
+    __tablename__ = "activity_comments"
+    __table_args__ = {'schema': 'param'}
+
+    comment_id = Column(Integer, primary_key=True, autoincrement=True)
+    activity_id = Column(Integer)
+    user_id = Column(Integer)
+    comment = Column(String)
+
+
 class WorkoutRun(Base):
     __tablename__ = "workout"
     __table_args__ = {'schema': 'running'}

@@ -1,4 +1,5 @@
 import datetime
+import requests
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -152,3 +153,48 @@ if activity_id:
     )
 
     st.plotly_chart(fig)
+
+st.title("Add a Comment")
+comment = st.text_area("Write your comment here")
+
+if st.button("Submit"):
+    st.write(comment)
+    json = {
+                "activity_id": activity_id,
+                "comment_text": comment,
+                "user_id": st.session_state['user_token']
+            }
+    response = requests.post(
+            "http://127.0.0.1:8000/post_comment",
+            json=json
+    )
+
+# Code snippet for comment section
+import streamlit as st
+
+# Sample comments for demonstration
+comments = [
+]
+
+# Construct the scrollable comment section HTML in one block
+comment_section = """
+    <div style='
+        max-height: 200px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        overflow-y: scroll;
+        background-color: #f9f9f9;
+    '>
+"""
+
+# Add each comment to the section
+for comment in comments:
+    comment_section += f"<div style='padding: 5px; margin-bottom: 5px; border-bottom: 1px solid #ddd;'>{comment}</div>"
+
+# Close the scrollable container div
+comment_section += "</div>"
+
+# Render the entire comment section in one st.markdown call
+st.markdown(comment_section, unsafe_allow_html=True)
+
