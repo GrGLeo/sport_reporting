@@ -7,7 +7,6 @@ def add_comment(activity_id):
         comment = st.text_area("Write your comment here")
 
         if st.button("Submit"):
-            st.write(comment)
             json = {
                         "activity_id": activity_id,
                         "comment_text": comment,

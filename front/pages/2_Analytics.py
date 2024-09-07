@@ -8,11 +8,6 @@ from utilities.comment import add_comment, write_comment
 conn = st.connection('postgresql', type='sql')
 
 
-def insert_space(number: int):
-    for i in range(number):
-        st.write("\n")
-
-
 def time_to_seconds(t):
     h, m, s = t.hour, t.minute, t.second
     time = datetime.timedelta(hours=h, minutes=m, seconds=s).total_seconds()
@@ -41,7 +36,6 @@ if activity_id:
     df['distance'] = df['distance'].round(2)
 
     with col1:
-        insert_space(3)
         st.dataframe(df, hide_index=True)
 
     df['time_seconds'] = df['timer'].apply(time_to_seconds)
