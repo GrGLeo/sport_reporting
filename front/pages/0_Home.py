@@ -54,7 +54,13 @@ with threshold_col:
 # TODO Refacto df with all day; join three sport then group by day and week
 
 st.title("Weekly Stats")
-df_syn_run = pd.read_sql('select * from syn_running', engine)
+query = """
+    SELECT *
+    FROM running.syn
+    WHERE user_id = :user_id
+"""
+params = {"user_id": st.session_state['user_token']}
+df_syn_run = conn.query(query, params=params)
 df_week = df_syn_run.copy()
 df_week['week'] = df_week['date'].dt.isocalendar().week
 df_week['hour'] = df_week['duration'].apply(lambda x: x.hour)
@@ -110,7 +116,6 @@ fig.add_trace(go.Scatter(
     name='Form',
 ))
 
-# Add bar plot for BarValue
 fig.add_trace(go.Bar(
     x=df_daily['date'],
     y=df_daily['tss'],
@@ -124,8 +129,8 @@ fig.update_layout(
     yaxis_title='Values',
     barmode='overlay',
     xaxis=dict(
-        type='category',  # Treat x-axis as categorical data
-        rangeslider=dict(visible=False),  # Show range slider
+        type='category',
+        rangeslider=dict(visible=False),
         fixedrange=False
     )
 )
