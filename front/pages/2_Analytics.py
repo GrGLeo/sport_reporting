@@ -1,9 +1,9 @@
 import datetime
-import requests
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from utilities.comment import add_comment, write_comment
 
 conn = st.connection('postgresql', type='sql')
 
@@ -30,13 +30,13 @@ if 'activity_id' not in st.session_state:
 activity_id = st.session_state.activity_id
 
 # Activity specific
-col1, col2 = st.columns([0.3, 0.7])
+col1, col2, col3 = st.columns([0.25, 0.45, 0.3])
 if activity_id:
     params = {'activity_id': activity_id, 'user_id': st.session_state['user_token']}
     query = "SELECT * FROM running.lap where activity_id = :activity_id and user_id = :user_id"
     df = conn.query(query, params=params)
 
-    df = df.drop('activity_id', axis=1)
+    df = df.drop(['activity_id', 'user_id', 'lap_id'], axis=1)
     df['distance'] = df['distance'] / 1000
     df['distance'] = df['distance'].round(2)
 
@@ -55,7 +55,6 @@ if activity_id:
     fig = px.timeline(df, x_start='start_time', x_end='end_time', y='pace',
                       labels={'start_time': 'Start Time', 'end_time': 'End Time'})
 
-    # Update layout
     fig.update_layout(
         xaxis_title='Activity Duration',
         yaxis_title='Pace',
@@ -74,6 +73,10 @@ if activity_id:
 
     with col2:
         st.plotly_chart(fig)
+
+    with col3:
+        add_comment(activity_id)
+        write_comment(conn, activity_id)
 
 # Record specific
     query = "select * from running.workout where activity_id = :activity_id and user_id = :user_id"
@@ -153,48 +156,3 @@ if activity_id:
     )
 
     st.plotly_chart(fig)
-
-st.title("Add a Comment")
-comment = st.text_area("Write your comment here")
-
-if st.button("Submit"):
-    st.write(comment)
-    json = {
-                "activity_id": activity_id,
-                "comment_text": comment,
-                "user_id": st.session_state['user_token']
-            }
-    response = requests.post(
-            "http://127.0.0.1:8000/post_comment",
-            json=json
-    )
-
-# Code snippet for comment section
-import streamlit as st
-
-# Sample comments for demonstration
-comments = [
-]
-
-# Construct the scrollable comment section HTML in one block
-comment_section = """
-    <div style='
-        max-height: 200px;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        overflow-y: scroll;
-        background-color: #f9f9f9;
-    '>
-"""
-
-# Add each comment to the section
-for comment in comments:
-    comment_section += f"<div style='padding: 5px; margin-bottom: 5px; border-bottom: 1px solid #ddd;'>{comment}</div>"
-
-# Close the scrollable container div
-comment_section += "</div>"
-
-# Render the entire comment section in one st.markdown call
-st.markdown(comment_section, unsafe_allow_html=True)
-
