@@ -14,6 +14,7 @@ conn = st.connection('postgresql', type='sql')
 calendar_options = {
     "editable": "true",
     "selectable": "true",
+    "firstDay": 1,
     "height": 630,
     "headerToolbar": {
         "left": "today prev,next",

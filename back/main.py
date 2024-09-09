@@ -4,9 +4,10 @@ import pandas as pd
 from sqlalchemy import create_engine
 from data.etl.running_feeder import Running_Feeder
 from data.etl.comment_feeder import CommentFeeder
+from data.etl.event_feeder import EventFeeder
 from data.tables import Base
 from data.utils import create_schema
-from api_model import LoginModel, UserModel, CommentModel
+from api_model import LoginModel, UserModel, CommentModel, EventModel
 from utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttempt, UserLocked
 from utils.data_handler import get_data
 from auth import auth_user, create_user
@@ -65,8 +66,16 @@ async def post_comment(comment: CommentModel):
         user_id = comment.user_id
         activity_id = comment.activity_id
         CommentFeeder(comment_table, activity_id, user_id)
-    except:
+    except Exception as e:
+        print(e)
         pass
+
+
+@app.post("/post_event")
+async def post_event(event: EventModel):
+    print(event)
+    user_id = event.user_id
+    EventFeeder(event, user_id=user_id).process()
 
 
 @app.post("/login")
