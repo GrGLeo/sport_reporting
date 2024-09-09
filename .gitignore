@@ -2,3 +2,5 @@ sub9/
 *.env
 *.fit
 __pycache__/
+setup.py
+*.egg-info

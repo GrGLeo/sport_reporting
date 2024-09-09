@@ -1,6 +1,6 @@
 import pandas as pd
 import bleach
-from data.etl.feeder import Feeder
+from data.etl import Feeder
 
 
 class CommentFeeder(Feeder):
@@ -8,13 +8,15 @@ class CommentFeeder(Feeder):
         super().__init__(tables, id)
         self.user_id = user_id
         self.schema = 'param'
-        self._sanitize_comment()
 
+        print(self.process())
         if put:
-            df_comment = self.to_df()
+            df_comment = self.process()
+            print(df_comment)
             self.completion = self.put(df_comment, "comment")
 
-    def to_df(self):
+    def process(self):
+        self.tables["comment"] = self._sanitize_comment()
         return pd.DataFrame([self.tables])
 
     def _sanitize_comment(self):

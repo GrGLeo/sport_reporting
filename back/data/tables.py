@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
-from sqlalchemy import Column, Integer, Float, Time, DateTime, String
+from sqlalchemy import Column, Integer, Float, Time, DateTime, String, Date
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
@@ -36,6 +36,17 @@ class Comments(Base):
     activity_id = Column(Integer)
     user_id = Column(Integer)
     comment = Column(String)
+
+
+class Events(Base):
+    __tablename__ = "events"
+    __table_args__ = {'schema': 'param'}
+
+    user_id = Column(Integer, primary_key=True)
+    date = Column(Date, primary_key=True)
+    name = Column(String)
+    sport = Column(String)
+    priority = Column(String)
 
 
 class WorkoutRun(Base):
