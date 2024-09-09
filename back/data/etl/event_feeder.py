@@ -1,4 +1,5 @@
 from data.etl import Feeder
+import pandas as pd
 
 
 class EventFeeder(Feeder):
@@ -8,5 +9,5 @@ class EventFeeder(Feeder):
         self.schema = 'param'
 
     def process(self):
-        print(self.tables)
-        pass
+        df = pd.DataFrame([self.tables])
+        self.tables = {'event': df}

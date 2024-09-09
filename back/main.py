@@ -75,7 +75,9 @@ async def post_comment(comment: CommentModel):
 async def post_event(event: EventModel):
     print(event)
     user_id = event.user_id
-    EventFeeder(event, user_id=user_id).process()
+    event_feeder = EventFeeder(event.dict(), user_id=user_id)
+    event_feeder.process()
+    event_feeder.put(event_feeder.tables['event'], 'events', use_id=False)
 
 
 @app.post("/login")

@@ -43,8 +43,8 @@ class Events(Base):
     __table_args__ = {'schema': 'param'}
 
     user_id = Column(Integer, primary_key=True)
-    event_date = Column(Date, primary_key=True)
-    event_name = Column(String)
+    date = Column(Date, primary_key=True)
+    name = Column(String)
     sport = Column(String)
     priority = Column(String)
 
