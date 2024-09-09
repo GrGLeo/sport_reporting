@@ -19,7 +19,11 @@ def create_event(user_id):
             "sport": sport,
             "priority": priority
         }
-        requests.post(
+        response = requests.post(
             "http://127.0.0.1:8000/post_event",
             json=json
         )
+        if response.status_code == 200:
+            st.toast("Event added successfully", icon=":material/thumb_up:")
+        elif response.status_code == 422:
+            st.toast("Event can't be a past date")

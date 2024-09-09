@@ -1,5 +1,5 @@
 import streamlit as st
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -22,13 +22,25 @@ home_tab, zone_tab = st.tabs(["Home", "Zone"])
 with home_tab:
     with st.expander("Add Event"):
         create_event(st.session_state['user_token'])
-    today = datetime.now()
+    today = date.today()
 
-    # weeks = difference.days // 7
-    # days = difference.days % 7
-    #
-    # st.write(f"IRONMAN HAMBURG Date: {target_date.strftime('%Y-%m-%d')}")
-    # st.write(f"Weeks remaining: {weeks}")
+    # Event display
+    query = """
+    SELECT date, name, sport, priority
+    FROM param.events
+    WHERE user_id = :user_id
+    ORDER BY priority
+    """
+    params = {"user_id": st.session_state['user_token']}
+    df_events = conn.query(query, params=params)
+    cols = st.columns(len(df_events))
+    for i, row in df_events.iterrows():
+        cols[i].subheader(f"{row['name']} Priority: {row.priority}")
+        cols[i].write(f"{row.date.strftime('%Y-%m-%d')}")
+        cols[i].write(f"Sport: {row.sport}")
+        difference = row.date - today
+        weeks = difference.days // 7
+        cols[i].write(f"Weeks remaining: {weeks}")
 
 
     # TODO Refacto df with all day; join three sport then group by day and week
@@ -39,7 +51,6 @@ with home_tab:
         FROM running.syn
         WHERE user_id = :user_id
     """
-    params = {"user_id": st.session_state['user_token']}
     df_syn_run = conn.query(query, params=params)
     df_week = df_syn_run.copy()
     df_week['week'] = df_week['date'].dt.isocalendar().week
