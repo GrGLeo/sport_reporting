@@ -61,11 +61,8 @@ async def post_comment(comment: CommentModel):
         raise HTTPException(status_code=400, detail="Comment can not be empty")
 
     try:
-        print('glop')
         comment_feeder = CommentFeeder(comment)
-        print('glop1')
         comment_feeder.process()
-        print('glop2')
         comment_feeder.put()
     except Exception as e:
         print(e)
@@ -74,11 +71,9 @@ async def post_comment(comment: CommentModel):
 
 @app.post("/post_event")
 async def post_event(event: EventModel):
-    print(event)
-    user_id = event.user_id
-    event_feeder = EventFeeder(event.dict(), user_id=user_id)
+    event_feeder = EventFeeder(event)
     event_feeder.process()
-    event_feeder.put(event_feeder.tables['event'], 'events', use_id=False)
+    event_feeder.put()
 
 
 @app.post("/login")
