@@ -1,23 +1,24 @@
 import pandas as pd
 import bleach
 from data.etl import Feeder
+from api_model import CommentModel
 
 
 class CommentFeeder(Feeder):
-    def __init__(self, tables, id, user_id, put: bool = True):
-        super().__init__(tables, id)
-        self.user_id = user_id
+    def __init__(self, comment: CommentModel):
+        super().__init__({}, comment.activity_id)
+        self.comment = comment
         self.schema = 'param'
-
-        print(self.process())
-        if put:
-            df_comment = self.process()
-            print(df_comment)
-            self.completion = self.put(df_comment, "comment")
+        print(self.activity_id)
 
     def process(self):
-        self.tables["comment"] = self._sanitize_comment()
-        return pd.DataFrame([self.tables])
+        sanitized_comment = self._sanitize_comment(self.comment.comment_text)
+        data = {
+                'activity_id': self.activity_id,
+                'user_id': self.comment.user_id,
+                'comment': sanitized_comment
+        }
+        self.tables = {'comment': pd.DataFrame([data])}
 
-    def _sanitize_comment(self):
-        return bleach.clean(self.tables["comment"])
+    def _sanitize_comment(self, text):
+        return bleach.clean(text)

@@ -57,15 +57,16 @@ async def upload_file(
 
 @app.post("/post_comment")
 async def post_comment(comment: CommentModel):
-    print(comment)
     if len(comment.comment_text.strip()) == 0:
         raise HTTPException(status_code=400, detail="Comment can not be empty")
 
     try:
-        comment_table = {'comment': comment.comment_text}
-        user_id = comment.user_id
-        activity_id = comment.activity_id
-        CommentFeeder(comment_table, activity_id, user_id)
+        print('glop')
+        comment_feeder = CommentFeeder(comment)
+        print('glop1')
+        comment_feeder.process()
+        print('glop2')
+        comment_feeder.put()
     except Exception as e:
         print(e)
         pass
