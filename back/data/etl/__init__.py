@@ -1,4 +1,4 @@
-from data.connexion import DatabaseConnection
+from back.data.connexion import DatabaseConnection
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 
