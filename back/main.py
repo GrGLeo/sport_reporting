@@ -2,7 +2,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fitparse import FitFile
 import pandas as pd
 from sqlalchemy import create_engine
-from data.etl.running_feeder import Running_Feeder
+from data.etl.running_feeder import RunningFeeder
 from data.etl.comment_feeder import CommentFeeder
 from data.etl.event_feeder import EventFeeder
 from data.tables import Base
@@ -45,11 +45,10 @@ async def upload_file(
     }
 
     if activity == "running":
-        feeder = Running_Feeder(wkt, activity_id, int(user_id))
-        completion = feeder.process_laps()
-        feeder.process_records()
-        feeder.get_wkt_syn()
-        completion = "haha"
+        feeder = RunningFeeder(wkt, activity_id, int(user_id))
+        feeder.process()
+        completion = feeder.put()
+
     return {
         "data": completion,
             }
