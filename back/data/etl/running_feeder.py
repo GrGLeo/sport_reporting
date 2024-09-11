@@ -74,7 +74,8 @@ class RunningFeeder(Feeder):
         records = records[cols.values()]
         records['record_id'] = records.index
         records['pace'] = records['pace'].apply(speed_to_pace)
-        records['pace'] = records['pace'].rolling(window=5).mean()
+        # TODO: better outlier replacement
+        # records['pace'] = records['pace'].rolling(window=5).mean()
         records['pace'] = np.where(records['pace'] > 12, 10, records['pace'])
         records['pace'] = records['pace'].round(2)
         return records
@@ -89,7 +90,7 @@ class RunningFeeder(Feeder):
         duration = time(hour=hours, minute=minutes, second=seconds)
         syn['duration'] = duration
         syn['avg_hr'] = self.records['hr'].mean()
-        syn['avg_pace'] = self.records['pace'].mean().round(2)
+        syn['avg_pace'] = round(self.records['pace'].mean(), 2)
         syn['avg_cadence'] = self.records['cadence'].mean()
         distance = self.records['distance'].iloc[-1]
         syn['distance'] = distance
