@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from data.etl.running_feeder import RunningFeeder
 from data.etl.comment_feeder import CommentFeeder
 from data.etl.event_feeder import EventFeeder
+from data.etl.cycling_feeder import CyclingFeeder
 from data.tables import Base
 from data.utils import create_schema
 from api_model import LoginModel, UserModel, CommentModel, EventModel
@@ -31,12 +32,10 @@ async def upload_file(
     user_id: int = Form(...)
 ):
     contents = await file.read()
-
     fitfile = FitFile(contents)
-
     records = get_data(fitfile, 'record')
     laps = get_data(fitfile, 'lap')
-    activity = get_data(fitfile, 'sport')[0]['sport']
+    activity = get_data(fitfile, 'session')[0]['sport']
     activity_id = int(records[0]["timestamp"].timestamp())
 
     wkt = {
@@ -48,7 +47,10 @@ async def upload_file(
         feeder = RunningFeeder(wkt, activity_id, int(user_id))
         feeder.process()
         completion = feeder.put()
-
+    elif activity == "cycling":
+        feeder = CyclingFeeder(wkt, activity, int(user_id))
+        feeder.process
+        completion = feeder.put()
     return {
         "data": completion,
             }
