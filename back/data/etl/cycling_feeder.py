@@ -1,4 +1,6 @@
+from datetime import time
 from back.data.etl import Feeder
+import pandas as pd
 
 
 class CyclingFeeder(Feeder):
@@ -27,7 +29,7 @@ class CyclingFeeder(Feeder):
         return self._get_wkt_syn()
 
     def _process_records(self):
-        records = self.tables["record_running"]
+        records = self.tables["record_cycling"]
         records['enhanced_altitude'] = 0
 
         cols = {
@@ -45,6 +47,8 @@ class CyclingFeeder(Feeder):
                 axis=1,
                 inplace=True
         )
+        if 'heart_rate' not in records.columns:
+            records['hr'] = None
         records = records[cols.values()]
         records['speed'] = (records['speed'] * 3600) / 1000
         records['norm_power'] = records['power'].rolling(window=30).mean()
@@ -55,4 +59,40 @@ class CyclingFeeder(Feeder):
         return records
 
     def _process_laps(self):
-        pass
+        laps = self.tables['lap_cycling']
+        laps['lap_id'] = laps.index
+        cols = {
+            'total_timer_time': 'timer',
+            'total_distance': 'distance',
+            'avg_heart_rate': 'hr',
+            'avg_speed': 'speed',
+            'avg_cadence': 'cadence',
+            'avg_power': 'power',
+            'normalized_power': 'norm_power'
+        }
+
+        laps.rename(
+            cols,
+            axis=1,
+            inplace=True
+        )
+        if 'avg_heart_rate' not in laps.columns:
+            laps['hr'] = None
+
+        laps = laps[cols.values()]
+        laps['timer'] = laps['timer'].apply(lambda x: seconds_to_time(int(x)))
+        laps['speed'] = (laps['speed'] * 3600) / 1000
+
+        return laps
+
+    def _get_wkt_syn(self):
+        syn = pd.DataFrame(index=range(1))
+        syn['date'] = self.records['timestamp'].iloc[0]
+        return syn
+
+
+def seconds_to_time(seconds):
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = seconds % 60
+    return time(hour=hours, minute=minutes, second=seconds)

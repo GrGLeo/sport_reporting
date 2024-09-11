@@ -23,6 +23,7 @@ class Feeder:
                         if_exists='append',
                         index=False
                     )
+                    print(self.schema)
                     print(f'Inserted {len(table)} rows')
                     return "Upload completed"
                 except IntegrityError:
