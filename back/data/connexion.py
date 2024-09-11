@@ -1,39 +1,21 @@
-import psycopg2
-from psycopg2 import OperationalError
 from sqlalchemy import create_engine
 
 
-def create_connection():
-    # TODO: don't hardcode that!
-    db_name = "sporting"
-    db_user = "leo"
-    db_password = "postgres"
-    db_host = "127.0.0.1"
-    db_port = "5432"
+class DatabaseConnection:
+    def __init__(self):
+        self.connection = None
+        self.engine = None
 
-    try:
-        connection = psycopg2.connect(
-            database=db_name,
-            user=db_user,
-            password=db_password,
-            host=db_host,
-            port=db_port
+    def __enter__(self):
+        self.engine = create_engine(
+            'postgresql+psycopg2://leo:postgres@localhost:5432/sporting',
         )
-        print("Connection to PostgreSQL DB successful")
-        return connection
+        return self.engine
 
-    except OperationalError as e:
-        print(f"The error '{e}' occurred")
-        return None
-
-
-def create_session():
-    pg_connection = create_connection()
-
-    if pg_connection:
-        engine = create_engine(
-            'postgresql+psycopg2://',
-            creator=lambda: pg_connection
-        )
-
-        return engine
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.connection:
+            self.connection.close()
+        if exc_type:
+            print(f"Exception occurred: {exc_val}")  # You could also log this.
+        # Return False to propagate the exception, True to suppress it
+        return False

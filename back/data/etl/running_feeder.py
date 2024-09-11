@@ -1,17 +1,36 @@
 import pandas as pd
 import numpy as np
 from datetime import time
-from data.etl import Feeder
+from back.data.etl import Feeder
 pd.options.mode.copy_on_write = True
 
 
-class Running_Feeder(Feeder):
+class RunningFeeder(Feeder):
     def __init__(self, tables, id, user_id):
         super().__init__(tables, id)
         self.user_id = user_id
         self.schema = 'running'
 
-    def process_laps(self) -> str:
+    def process(self):
+        self.tables = {
+                'workout': self.records,
+                'lap': self.laps,
+                'syn': self.syn
+        }
+
+    @property
+    def records(self):
+        return self._process_records()
+
+    @property
+    def laps(self):
+        return self._process_laps()
+
+    @property
+    def syn(self):
+        return self._get_wkt_syn()
+
+    def _process_laps(self) -> str:
         laps = self.tables["lap_running"]
         cols = {
             'message_index': 'lap_id',
@@ -31,12 +50,10 @@ class Running_Feeder(Feeder):
         laps['pace'] = laps['distance'] / laps['timer']
         laps['pace'] = laps['pace'].apply(speed_to_pace)
         laps['timer'] = laps['timer'].apply(lambda x: seconds_to_time(int(x)))
-        print(laps.head())
 
-        completion = self.put(laps, 'lap')
-        return completion
+        return laps
 
-    def process_records(self):
+    def _process_records(self):
         records = self.tables["record_running"]
         cols = {
             'timestamp': 'timestamp',
@@ -57,13 +74,13 @@ class Running_Feeder(Feeder):
         records = records[cols.values()]
         records['record_id'] = records.index
         records['pace'] = records['pace'].apply(speed_to_pace)
-        records['pace'] = records['pace'].rolling(window=5).mean()
+        # TODO: better outlier replacement
+        # records['pace'] = records['pace'].rolling(window=5).mean()
         records['pace'] = np.where(records['pace'] > 12, 10, records['pace'])
         records['pace'] = records['pace'].round(2)
-        self.records = records
-        self.put(records, 'workout')
+        return records
 
-    def get_wkt_syn(self):
+    def _get_wkt_syn(self):
         syn = pd.DataFrame(index=range(1))
         syn['date'] = self.records['timestamp'].iloc[0]
         duration = len(self.records)
@@ -73,12 +90,12 @@ class Running_Feeder(Feeder):
         duration = time(hour=hours, minute=minutes, second=seconds)
         syn['duration'] = duration
         syn['avg_hr'] = self.records['hr'].mean()
-        syn['avg_pace'] = self.records['pace'].mean().round(2)
+        syn['avg_pace'] = round(self.records['pace'].mean(), 2)
         syn['avg_cadence'] = self.records['cadence'].mean()
         distance = self.records['distance'].iloc[-1]
         syn['distance'] = distance
         syn['tss'] = int((distance / 1609) * 10)
-        self.put(syn, 'syn')
+        return syn
 
 
 def speed_to_pace(speed):

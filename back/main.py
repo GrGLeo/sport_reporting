@@ -2,7 +2,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fitparse import FitFile
 import pandas as pd
 from sqlalchemy import create_engine
-from data.etl.running_feeder import Running_Feeder
+from data.etl.running_feeder import RunningFeeder
 from data.etl.comment_feeder import CommentFeeder
 from data.etl.event_feeder import EventFeeder
 from data.tables import Base
@@ -45,11 +45,10 @@ async def upload_file(
     }
 
     if activity == "running":
-        feeder = Running_Feeder(wkt, activity_id, int(user_id))
-        completion = feeder.process_laps()
-        feeder.process_records()
-        feeder.get_wkt_syn()
-        completion = "haha"
+        feeder = RunningFeeder(wkt, activity_id, int(user_id))
+        feeder.process()
+        completion = feeder.put()
+
     return {
         "data": completion,
             }
@@ -57,15 +56,13 @@ async def upload_file(
 
 @app.post("/post_comment")
 async def post_comment(comment: CommentModel):
-    print(comment)
     if len(comment.comment_text.strip()) == 0:
         raise HTTPException(status_code=400, detail="Comment can not be empty")
 
     try:
-        comment_table = {'comment': comment.comment_text}
-        user_id = comment.user_id
-        activity_id = comment.activity_id
-        CommentFeeder(comment_table, activity_id, user_id)
+        comment_feeder = CommentFeeder(comment)
+        comment_feeder.process()
+        comment_feeder.put()
     except Exception as e:
         print(e)
         pass
@@ -73,11 +70,9 @@ async def post_comment(comment: CommentModel):
 
 @app.post("/post_event")
 async def post_event(event: EventModel):
-    print(event)
-    user_id = event.user_id
-    event_feeder = EventFeeder(event.dict(), user_id=user_id)
+    event_feeder = EventFeeder(event)
     event_feeder.process()
-    event_feeder.put(event_feeder.tables['event'], 'events', use_id=False)
+    event_feeder.put()
 
 
 @app.post("/login")
