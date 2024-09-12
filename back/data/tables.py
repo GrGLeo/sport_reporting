@@ -66,6 +66,23 @@ class WorkoutRun(Base):
     altitude = Column(Integer)
 
 
+class WorkoutCycling(Base):
+    __tablename__ = "workout"
+    __table_args__ = {'schema': 'cycling'}
+
+    user_id = Column(Integer, primary_key=True)
+    activity_id = Column(Integer, primary_key=True)
+    record_id = Column(Integer, primary_key=True)
+    timestamp = Column(DateTime)
+    distance = Column(Float)
+    hr = Column(Integer)
+    cadence = Column(Integer)
+    speed = Column(Float)
+    power = Column(Integer)
+    norm_power = Column(Integer)
+    altitude = Column(Integer)
+
+
 class LapRun(Base):
     __tablename__ = "lap"
     __table_args__ = {'schema': 'running'}
@@ -78,6 +95,22 @@ class LapRun(Base):
     hr = Column(Integer)
     cadence = Column(Integer)
     pace = Column(Float)
+
+
+class LapCycling(Base):
+    __tablename__ = "lap"
+    __table_args__ = {'schema': 'cycling'}
+
+    user_id = Column(Integer, primary_key=True)
+    activity_id = Column(Integer, primary_key=True)
+    lap_id = Column(Integer, primary_key=True)
+    timer = Column(Time)
+    distance = Column(Float)
+    hr = Column(Integer)
+    speed = Column(Float)
+    cadence = Column(Integer)
+    power = Column(Integer)
+    norm_power = Column(Integer)
 
 
 class SynRun(Base):

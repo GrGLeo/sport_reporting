@@ -8,11 +8,22 @@ class Feeder:
         self.user_id = None
         self.activity_id = activity_id
 
+    def compute(self):
+        self._step(self.process, 'Processing')
+        self._step(self.put, 'Writting')
+
+    def _step(self, func: callable, message: str):
+        print(message)
+        func()
+
+    def process(self):
+        pass
+
     def put(self):
         with DatabaseConnection() as engine:
-            for table_name, table in self.tables.items():
+            for table_name, table in self.tables_processed.items():
                 if self.user_id:
-                    table['activity_id'] = self.user_id
+                    table['user_id'] = self.user_id
                 if self.activity_id:
                     table['activity_id'] = self.activity_id
                 try:
@@ -24,10 +35,11 @@ class Feeder:
                         index=False
                     )
                     print(f'Inserted {len(table)} rows')
-                    return "Upload completed"
-                except IntegrityError:
-                    return "Activity already uploaded"
+                except IntegrityError as e:
+                    print(f"An error occurred: {e}")
+                    return None
                 except SQLAlchemyError as e:
                     # Generic SQL error handling
                     print(f"An error occurred: {e}")
-                    return "An error occurred during the upload"
+                    return None
+        return "Upload competed"
