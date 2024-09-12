@@ -10,7 +10,7 @@ class CyclingFeeder(Feeder):
         self.schema = 'cycling'
 
     def process(self):
-        self.tables = {
+        self.tables_processed = {
                 'workout': self.records,
                 'lap': self.laps,
                 'syn': self.syn
@@ -82,12 +82,12 @@ class CyclingFeeder(Feeder):
         laps = laps[cols.values()]
         laps['timer'] = laps['timer'].apply(lambda x: seconds_to_time(int(x)))
         laps['speed'] = (laps['speed'] * 3600) / 1000
-
         return laps
 
     def _get_wkt_syn(self):
         syn = pd.DataFrame(index=range(1))
-        syn['date'] = self.records['timestamp'].iloc[0]
+        records = self._process_records()
+        syn['date'] = records['timestamp'].iloc[0]
         return syn
 
 

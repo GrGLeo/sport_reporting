@@ -45,12 +45,11 @@ async def upload_file(
 
     if activity == "running":
         feeder = RunningFeeder(wkt, activity_id, int(user_id))
-        feeder.process()
-        completion = feeder.put()
+        completion = feeder.compute()
     elif activity == "cycling":
-        feeder = CyclingFeeder(wkt, activity, int(user_id))
-        feeder.process()
-        completion = feeder.put()
+        print(int(user_id))
+        feeder = CyclingFeeder(wkt, activity_id, int(user_id))
+        completion = feeder.compute()
     return {
         "data": completion,
             }
