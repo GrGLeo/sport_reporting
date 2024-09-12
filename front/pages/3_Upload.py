@@ -1,4 +1,5 @@
 import requests
+import time
 import streamlit as st
 
 
@@ -21,6 +22,6 @@ if uploaded_file is not None:
             if response.status_code == 200:
                 st.switch_page('pages/1_Calendar.py')
             else:
-                st.write('Upload failed, try again later')
+                st.toast('Upload failed, try again later')
     else:
-        st.write("Uploaded file is not a fit file")
+        st.toast("Uploaded file is not a fit file")

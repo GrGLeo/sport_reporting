@@ -7,8 +7,8 @@ pd.options.mode.copy_on_write = True
 
 class RunningFeeder(Feeder):
     def __init__(self, tables, id, user_id):
-        super().__init__(tables, id)
         self.user_id = user_id
+        super().__init__(tables, id)
         self.schema = 'running'
 
     def process(self):
