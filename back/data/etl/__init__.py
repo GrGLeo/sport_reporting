@@ -23,10 +23,12 @@ class Feeder:
         with DatabaseConnection() as engine:
             for table_name, table in self.tables_processed.items():
                 if self.user_id:
-                    table['activity_id'] = self.user_id
+                    table['user_id'] = self.user_id
                 if self.activity_id:
                     table['activity_id'] = self.activity_id
                 try:
+                    print(self.user_id)
+                    print(table.columns)
                     table.to_sql(
                         table_name,
                         schema=self.schema,
@@ -35,8 +37,9 @@ class Feeder:
                         index=False
                     )
                     print(f'Inserted {len(table)} rows')
-                except IntegrityError:
-                    print(self.schema, table_name)
+                except IntegrityError as e:
+                    print(table.head())
+                    print(e)
                     print("Activity already uploaded")
                     return "Upload already completed"
                 except SQLAlchemyError as e:

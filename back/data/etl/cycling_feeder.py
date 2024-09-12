@@ -50,6 +50,7 @@ class CyclingFeeder(Feeder):
         if 'heart_rate' not in records.columns:
             records['hr'] = None
         records = records[cols.values()]
+        records['record_id'] = records.index
         records['speed'] = (records['speed'] * 3600) / 1000
         records['norm_power'] = records['power'].rolling(window=30).mean()
         records['norm_power'] = records['norm_power'] ** 4
@@ -62,6 +63,7 @@ class CyclingFeeder(Feeder):
         laps = self.tables['lap_cycling']
         laps['lap_id'] = laps.index
         cols = {
+            'lap_id': 'lap_id',
             'total_timer_time': 'timer',
             'total_distance': 'distance',
             'avg_heart_rate': 'hr',
