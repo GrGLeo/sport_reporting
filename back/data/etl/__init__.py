@@ -27,8 +27,6 @@ class Feeder:
                 if self.activity_id:
                     table['activity_id'] = self.activity_id
                 try:
-                    print(self.user_id)
-                    print(table.columns)
                     table.to_sql(
                         table_name,
                         schema=self.schema,
@@ -38,11 +36,10 @@ class Feeder:
                     )
                     print(f'Inserted {len(table)} rows')
                 except IntegrityError as e:
-                    print(table.head())
-                    print(e)
-                    print("Activity already uploaded")
-                    return "Upload already completed"
+                    print(f"An error occurred: {e}")
+                    return None
                 except SQLAlchemyError as e:
                     # Generic SQL error handling
                     print(f"An error occurred: {e}")
-                    return "An error occurred during the upload"
+                    return None
+        return "Upload competed"
