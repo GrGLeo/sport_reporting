@@ -63,8 +63,7 @@ async def post_comment(comment: CommentModel):
 
     try:
         comment_feeder = CommentFeeder(comment)
-        comment_feeder.process()
-        comment_feeder.put()
+        comment_feeder.compute()
     except Exception as e:
         logger.error(e)
         pass
@@ -73,19 +72,21 @@ async def post_comment(comment: CommentModel):
 @app.post("/post_event")
 async def post_event(event: EventModel):
     event_feeder = EventFeeder(event)
-    event_feeder.process()
-    event_feeder.put()
+    event_feeder.compute()
 
 
 @app.post("/login")
 async def login(login_data: LoginModel):
     try:
+        logger.info(f'User: {login_data.username} login attempt')
         token = auth_user(login_data.username, login_data.password)
     except (UnknownUser, UserLocked, FailedAttempt) as e:
+        logger.info(f'User: {login_data.username} login failed')
         raise HTTPException(status_code=401, detail=f'{e}')
 
     if not token:
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    logger.info(f'User: {login_data.username} login successfull')
     return {"token": token}
 
 
