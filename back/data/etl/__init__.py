@@ -1,20 +1,22 @@
 from back.data.connexion import DatabaseConnection
+from back.utils.logger import ConsoleLogger
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 
 class Feeder:
     def __init__(self, tables: dict, activity_id: int = None):
         self.tables = tables
-        self.user_id = None
         self.activity_id = activity_id
+        self.logger = ConsoleLogger(f'{self.__class__.__name__} User: {self.user_id}')
 
     def compute(self):
         self._step(self.process, 'Processing')
         self._step(self.put, 'Writting')
 
     def _step(self, func: callable, message: str):
-        print(message)
+        self.logger.info(f'{message.upper()}...')
         func()
+        self.logger.info(f'{message.upper()} done')
 
     def process(self):
         pass
@@ -34,12 +36,11 @@ class Feeder:
                         if_exists='append',
                         index=False
                     )
-                    print(f'Inserted {len(table)} rows')
+                    self.logger.info(f'INSERTING IN {self.schema}.{table_name}: {len(table)} rows')
                 except IntegrityError as e:
-                    print(f"An error occurred: {e}")
+                    self.logger.error(f"An error occurred: {e}")
                     return None
                 except SQLAlchemyError as e:
-                    # Generic SQL error handling
-                    print(f"An error occurred: {e}")
+                    self.logger.error(f"An error occurred: {e}")
                     return None
         return "Upload competed"

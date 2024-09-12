@@ -2,20 +2,21 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fitparse import FitFile
 import pandas as pd
 from sqlalchemy import create_engine
-from data.etl.running_feeder import RunningFeeder
-from data.etl.comment_feeder import CommentFeeder
-from data.etl.event_feeder import EventFeeder
-from data.etl.cycling_feeder import CyclingFeeder
-from data.tables import Base
-from data.utils import create_schema
-from api_model import LoginModel, UserModel, CommentModel, EventModel
-from utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttempt, UserLocked
-from utils.data_handler import get_data
-from auth import auth_user, create_user
+from back.data.etl.running_feeder import RunningFeeder
+from back.data.etl.comment_feeder import CommentFeeder
+from back.data.etl.event_feeder import EventFeeder
+from back.data.etl.cycling_feeder import CyclingFeeder
+from back.data.tables import Base
+from back.data.utils import create_schema
+from back.api_model import LoginModel, UserModel, CommentModel, EventModel
+from back.utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttempt, UserLocked
+from back.utils.data_handler import get_data
+from back.utils.logger import ConsoleLogger
+from back.auth import auth_user, create_user
 
 
 app = FastAPI()
-
+logger = ConsoleLogger(__name__)
 
 @app.on_event("startup")
 async def startup_event():
@@ -47,7 +48,6 @@ async def upload_file(
         feeder = RunningFeeder(wkt, activity_id, int(user_id))
         completion = feeder.compute()
     elif activity == "cycling":
-        print(int(user_id))
         feeder = CyclingFeeder(wkt, activity_id, int(user_id))
         completion = feeder.compute()
     return {
@@ -58,33 +58,35 @@ async def upload_file(
 @app.post("/post_comment")
 async def post_comment(comment: CommentModel):
     if len(comment.comment_text.strip()) == 0:
+        logger.warning("Empty comment")
         raise HTTPException(status_code=400, detail="Comment can not be empty")
 
     try:
         comment_feeder = CommentFeeder(comment)
-        comment_feeder.process()
-        comment_feeder.put()
+        comment_feeder.compute()
     except Exception as e:
-        print(e)
+        logger.error(e)
         pass
 
 
 @app.post("/post_event")
 async def post_event(event: EventModel):
     event_feeder = EventFeeder(event)
-    event_feeder.process()
-    event_feeder.put()
+    event_feeder.compute()
 
 
 @app.post("/login")
 async def login(login_data: LoginModel):
     try:
+        logger.info(f'User: {login_data.username} login attempt')
         token = auth_user(login_data.username, login_data.password)
     except (UnknownUser, UserLocked, FailedAttempt) as e:
+        logger.info(f'User: {login_data.username} login failed')
         raise HTTPException(status_code=401, detail=f'{e}')
 
     if not token:
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    logger.info(f'User: {login_data.username} login successfull')
     return {"token": token}
 
 
