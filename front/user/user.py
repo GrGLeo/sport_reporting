@@ -31,6 +31,16 @@ class User:
         total = pd.concat([syn_run, syn_cycling], axis=0)
         return total
 
+    def get_events(self):
+        query = """
+        SELECT date, name, sport, priority
+        FROM param.events
+        WHERE user_id = :user_id
+        ORDER BY priority
+        """
+        params = {"user_id": self.user_id}
+        return self.conn.query(query, params=params)
+
     def get_threshold(self):
         pass
 

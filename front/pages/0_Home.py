@@ -10,7 +10,7 @@ from metrics import calculate_all
 from front.user.user import User
 
 
-st.title("Welcome your dashboard!")
+st.title("Welcome to your dashboard!")
 
 conn = st.connection('postgresql', type='sql')
 user = User(st.session_state['user_token'], conn)
@@ -29,14 +29,7 @@ with home_tab:
     today = date.today()
 
     # Event display
-    query = """
-    SELECT date, name, sport, priority
-    FROM param.events
-    WHERE user_id = :user_id
-    ORDER BY priority
-    """
-    params = {"user_id": st.session_state['user_token']}
-    df_events = conn.query(query, params=params)
+    df_events = user.get_events()
     cols = st.columns(len(df_events))
     for i, row in df_events.iterrows():
         cols[i].subheader(f"{row['name']} Priority: {row.priority}")
