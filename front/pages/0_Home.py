@@ -7,16 +7,20 @@ import plotly.graph_objects as go
 from utilities.event import create_event
 from db_setup import Base, engine, session, Threshold
 from metrics import calculate_all
+from front.user.user import User
 
 
 st.title("Welcome your dashboard!")
 
 conn = st.connection('postgresql', type='sql')
+user = User(st.session_state['user_token'], conn)
+
 if 'db_session' not in st.session_state:
     st.session_state.db_engine = engine
     st.session_state.db_session = session
     st.session_state.db_base = Base
     st.session_state.db_threshold = Threshold
+    st.session_state.user = user
 
 home_tab, zone_tab = st.tabs(["Home", "Zone"])
 with home_tab:
@@ -148,3 +152,5 @@ with zone_tab:
                 st.metric(label="bike ftp", value=threshold.ftp)
             with col3:
                 st.metric(label="run threshold", value=threshold.run_pace)
+
+    st.write(user.get_calendar())

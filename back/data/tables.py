@@ -129,9 +129,10 @@ class SynRun(Base):
 
 
 class User(Base):
-    __tablename__ = "user"
+    __tablename__ = "user_threshold"
+    __table_args__ = {'schema': 'param'}
 
-    user_id = Column("Integer", primary_key=True)
+    user_id = Column(Integer, primary_key=True)
     swim = Column(Float)
     run_pace = Column(Float)
     ftp = Column(Integer)

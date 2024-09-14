@@ -25,7 +25,7 @@ with st.form(key='threshold_form'):
 
 if submit_button:
     query = """
-        INSERT INTO threshold (swim, ftp, run_pace, date)
+        INSERT INTO param.user_threshold (swim, ftp, run_pace, date)
         VALUES (:swim, :ftp, :run_pace, :current_date);
         """
     params = {
@@ -37,4 +37,4 @@ if submit_button:
     with conn.session as session:
         session.execute(text(query), params=params)
         session.commit()
-    st.success('Threshold updated', icon="✅")
+    st.toast('Threshold updated', icon="✅")
