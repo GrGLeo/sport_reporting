@@ -1,6 +1,5 @@
 import streamlit as st
 from streamlit_calendar import calendar
-import pandas as pd
 from datetime import timedelta
 
 
@@ -45,16 +44,9 @@ custom_css = """
         font-size: 2rem;
     }
 """
-cols = ['activity_id', 'date', 'duration']
 
-
-query = "SELECT * FROM running.syn WHERE user_id = :user_id"
-df_run = conn.query(query, params={'user_id': st.session_state['user_token']})
-df_run = df_run[cols]
-df_run['title'] = 'run'
-df_run['end'] = df_run.apply(lambda row: row['date'] + time_to_timedelta(row['duration']), axis=1)
-
-test = df_run.to_dict(orient='records')
+events = st.session_state['user'].get_calendar()
+events = events.to_dict(orient='records')
 
 calendar_event = [
     {
@@ -65,7 +57,7 @@ calendar_event = [
         'id': d['activity_id'],
         'backgroundColor': 'red'
     }
-    for d in test]
+    for d in events]
 
 calendar = calendar(events=calendar_event, options=calendar_options, custom_css=custom_css)
 

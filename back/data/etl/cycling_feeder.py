@@ -90,6 +90,12 @@ class CyclingFeeder(Feeder):
         syn = pd.DataFrame(index=range(1))
         records = self._process_records()
         syn['date'] = records['timestamp'].iloc[0]
+        duration = len(self.records)
+        hours = duration//3600
+        minutes = (duration % 3600)//60
+        seconds = duration % 60
+        duration = time(hour=hours, minute=minutes, second=seconds)
+        syn['duration'] = duration
         return syn
 
 

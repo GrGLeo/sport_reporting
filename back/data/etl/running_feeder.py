@@ -12,7 +12,7 @@ class RunningFeeder(Feeder):
         self.schema = 'running'
 
     def process(self):
-        self.tables = {
+        self.tables_processed = {
                 'workout': self.records,
                 'lap': self.laps,
                 'syn': self.syn
@@ -73,6 +73,9 @@ class RunningFeeder(Feeder):
         )
         records = records[cols.values()]
         records['record_id'] = records.index
+        self.logger.info(records[records['pace'].isna()]['pace'])
+        records.fillna(method='ffill', inplace=True)
+        self.logger.info(records[records['pace'].isna()]['pace'])
         records['pace'] = records['pace'].apply(speed_to_pace)
         # TODO: better outlier replacement
         # records['pace'] = records['pace'].rolling(window=5).mean()
@@ -82,7 +85,8 @@ class RunningFeeder(Feeder):
 
     def _get_wkt_syn(self):
         syn = pd.DataFrame(index=range(1))
-        syn['date'] = self.records['timestamp'].iloc[0]
+        records = self._process_records()
+        syn['date'] = records['timestamp'].iloc[0]
         duration = len(self.records)
         hours = duration//3600
         minutes = (duration % 3600)//60
