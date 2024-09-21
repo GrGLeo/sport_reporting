@@ -139,8 +139,8 @@ class SynCycling(Base):
     distance = Column(Float)
     avg_hr = Column(Integer)
     avg_cadence = Column(Integer)
-    # avg_speed = Column(Float)
-    # tss = Column(Integer)
+    avg_speed = Column(Float)
+    tss = Column(Integer)
 
 
 class User(Base):

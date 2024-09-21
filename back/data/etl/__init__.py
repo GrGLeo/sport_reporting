@@ -1,3 +1,4 @@
+import pandas as pd
 from back.data.connexion import DatabaseConnection
 from back.utils.logger import ConsoleLogger
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -20,6 +21,17 @@ class Feeder:
 
     def process(self):
         pass
+
+    def get(self, table, **kwargs):
+        with DatabaseConnection() as engine:
+            query = f"select * from {table}"
+
+            if kwargs:
+                conditions = " AND ".join([f"{k} = %s" for k in kwargs])
+                query += f" WHERE {conditions}"
+            params = tuple(kwargs.values())
+
+            return pd.read_sql(query, engine, params=params)
 
     def put(self):
         with DatabaseConnection() as engine:
