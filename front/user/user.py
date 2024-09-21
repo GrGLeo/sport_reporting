@@ -25,11 +25,18 @@ class User:
 
     def get_calendar(self):
         syn_run = self._get_activity('running.syn')
-        syn_run = self._prep_calendar(syn_run, 'run')
+        syn_run = self._prep_calendar(syn_run, 'running')
         syn_cycling = self._get_activity('cycling.syn')
-        syn_cycling = self._prep_calendar(syn_cycling, 'cyling')
+        syn_cycling = self._prep_calendar(syn_cycling, 'cycling')
         total = pd.concat([syn_run, syn_cycling], axis=0)
         return total
+
+    def get_analysis(self, schema, wkt_id):
+        table = f'{schema}.lap'
+        df_laps = self._get_activity(table, wkt_id)
+        df_laps = df_laps.drop(['activity_id', 'user_id', 'lap_id'], axis=1)
+        df_laps['distance'] = df_laps['distance'] / 1000
+        df_laps['distance'] = df_laps['distance'].round(2)
 
     def get_events(self):
         query = """

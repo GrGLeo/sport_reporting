@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from utilities.comment import add_comment, write_comment
+from front.user.user import User
 
 conn = st.connection('postgresql', type='sql')
 
@@ -22,18 +23,14 @@ if 'activity_id' not in st.session_state:
     st.error('Please select an activity in the calendar')
     st.stop()
 
-activity_id = st.session_state.activity_id
+activity_id, sport = st.session_state.activity_id
+user: User = st.session_state.user
 
 # Activity specific
 col1, col2, col3 = st.columns([0.25, 0.45, 0.3])
 if activity_id:
-    params = {'activity_id': activity_id, 'user_id': st.session_state['user_token']}
-    query = "SELECT * FROM running.lap where activity_id = :activity_id and user_id = :user_id"
-    df = conn.query(query, params=params)
-
-    df = df.drop(['activity_id', 'user_id', 'lap_id'], axis=1)
-    df['distance'] = df['distance'] / 1000
-    df['distance'] = df['distance'].round(2)
+    st.write(activity_id, sport)
+    df = user.get_analysis(sport, activity_id)
 
     with col1:
         st.dataframe(df, hide_index=True)
