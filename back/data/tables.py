@@ -128,6 +128,21 @@ class SynRun(Base):
     tss = Column(Integer)
 
 
+class SynCycling(Base):
+    __tablename__ = "syn"
+    __table_args__ = {'schema': 'cycling'}
+
+    user_id = Column(Integer, primary_key=True)
+    activity_id = Column(Integer, primary_key=True)
+    date = Column(DateTime)
+    duration = Column(Time)
+    distance = Column(Float)
+    avg_hr = Column(Integer)
+    avg_cadence = Column(Integer)
+    avg_speed = Column(Float)
+    tss = Column(Integer)
+
+
 class User(Base):
     __tablename__ = "user_threshold"
     __table_args__ = {'schema': 'param'}

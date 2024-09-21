@@ -54,7 +54,7 @@ class CyclingFeeder(Feeder):
         records['speed'] = (records['speed'] * 3600) / 1000
         records['norm_power'] = records['power'].rolling(window=30).mean()
         records['norm_power'] = records['norm_power'] ** 4
-        records['norm_power'] = records['norm_power'].rolling(window=30, min_periods=1).mean()
+        records['norm_power'] = records['norm_power'].expanding(min_periods=1).mean()
         records['norm_power'] = records['norm_power'] ** 0.25
         records['norm_power'] = records['norm_power'].round()
         return records
@@ -90,12 +90,26 @@ class CyclingFeeder(Feeder):
         syn = pd.DataFrame(index=range(1))
         records = self._process_records()
         syn['date'] = records['timestamp'].iloc[0]
-        duration = len(self.records)
+        duration = len(records)
         hours = duration//3600
         minutes = (duration % 3600)//60
         seconds = duration % 60
-        duration = time(hour=hours, minute=minutes, second=seconds)
-        syn['duration'] = duration
+        time_duration = time(hour=hours, minute=minutes, second=seconds)
+        syn['duration'] = time_duration
+        syn['avg_cadence'] = records['cadence'].mean()
+        if 'hr' in records.columns:
+            syn['avg_hr'] = records['hr'].mean()
+        else:
+            syn['avg_hr'] = None
+        syn['avg_speed'] = records['speed'].mean()
+        threshold = self.get('param.user_threshold', user_id=self.user_id)
+        threshold.sort_values('date', ascending=False)
+        ftp = threshold['ftp'].iloc[0]
+        np = records['norm_power'].iloc[-1]
+        tss = (duration * np * (np/ftp)) / (ftp * 3600) * 100
+        syn['tss'] = tss
+        distance = records['distance'].iloc[-1]
+        syn['distance'] = distance
         return syn
 
 
