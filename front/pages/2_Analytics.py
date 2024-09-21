@@ -43,15 +43,15 @@ if activity_id:
     df_laps['start_time'] = pd.to_datetime(df_laps['start_seconds'], unit='s')
     df_laps['end_time'] = pd.to_datetime(df_laps['end_seconds'], unit='s')
 
-    fig = px.timeline(df_laps, x_start='start_time', x_end='end_time', y='pace',
+    fig = px.timeline(df_laps, x_start='start_time', x_end='end_time', y=y,
                       labels={'start_time': 'Start Time', 'end_time': 'End Time'})
 
     fig.update_layout(
         xaxis_title='Activity Duration',
         yaxis_title='Pace',
         yaxis=dict(
-            tickvals=df_laps['pace'],
-            ticktext=df_laps['pace']
+            tickvals=df_laps[y],
+            ticktext=df_laps[y]
         ),
         xaxis=dict(
             tickformat='%H:%M:%S',
@@ -60,7 +60,7 @@ if activity_id:
             zeroline=True
         )
     )
-    fig.update_yaxes(range=[2, df_laps['pace'].max() + 1])
+    fig.update_yaxes(range=[2, df_laps[y].max() + 1])
 
     with col2:
         st.plotly_chart(fig)
@@ -93,7 +93,7 @@ if activity_id:
 
     fig.add_trace(go.Scatter(
         x=df_records['distance'],
-        y=df_records['pace'],
+        y=df_records[y],
         yaxis='y2',
         name='Pace',
         mode='lines',
