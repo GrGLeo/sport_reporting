@@ -90,12 +90,18 @@ class CyclingFeeder(Feeder):
         syn = pd.DataFrame(index=range(1))
         records = self._process_records()
         syn['date'] = records['timestamp'].iloc[0]
-        duration = len(self.records)
+        duration = len(records)
         hours = duration//3600
         minutes = (duration % 3600)//60
         seconds = duration % 60
         duration = time(hour=hours, minute=minutes, second=seconds)
         syn['duration'] = duration
+        syn['avg_cadence'] = records['cadence'].mean()
+        syn['avg_hr'] = 0
+        syn['avg_speed'] = 0
+        syn['tss'] = 0
+        distance = records['distance'].iloc[-1]
+        syn['distance'] = distance
         return syn
 
 
