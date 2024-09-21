@@ -19,8 +19,8 @@ class User:
             """
         params = {'table': table, 'user_id': self.user_id}
         if wkt_id:
-            query += 'activity_id = :wkt_id'
-            params['activity_id'] = wkt_id
+            query += 'AND activity_id = :wkt_id'
+            params['wkt_id'] = int(wkt_id)
         return self.conn.query(query, params=params)
 
     def get_calendar(self):
@@ -37,6 +37,10 @@ class User:
         df_laps = df_laps.drop(['activity_id', 'user_id', 'lap_id'], axis=1)
         df_laps['distance'] = df_laps['distance'] / 1000
         df_laps['distance'] = df_laps['distance'].round(2)
+
+        table = f'{schema}.workout'
+        df_records = self._get_activity(table, wkt_id)
+        return df_laps, df_records
 
     def get_events(self):
         query = """
