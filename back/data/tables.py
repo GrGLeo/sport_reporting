@@ -148,10 +148,10 @@ class User(Base):
     __table_args__ = {'schema': 'param'}
 
     user_id = Column(Integer, primary_key=True)
-    swim = Column(Integer)
-    run_pace = Column(Float)
-    ftp = Column(Integer)
     date = Column(DateTime, primary_key=True)
+    swim = Column(Integer)
+    vma = Column(Float)
+    ftp = Column(Integer)
 
 
 class DataBase:

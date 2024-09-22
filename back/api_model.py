@@ -1,5 +1,5 @@
 from pydantic import BaseModel, FutureDate
-
+from datetime import date
 
 class LoginModel(BaseModel):
     username: str
@@ -24,3 +24,11 @@ class EventModel(BaseModel):
     name: str
     sport: str
     priority: str
+
+
+class ThresholdModel(BaseModel):
+    user_id: int
+    date: date
+    swim: int
+    ftp: int
+    vma: float

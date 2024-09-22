@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime
+import requests
 import pandas as pd
 
 
@@ -85,6 +86,13 @@ class User:
             query += ' LIMIT 1;'
         params = {'user_id': self.user_id}
         return self.conn.query(query, params=params)
+
+    def update_threshold(self, threshold: dict):
+        threshold['user_id'] = self.user_id
+        requests.post(
+            "http://127.0.0.1:8000/threshold/",
+            json=threshold
+        )
 
     def __prep_calendar(self, data, sport):
         cols = ['activity_id', 'date', 'duration']
