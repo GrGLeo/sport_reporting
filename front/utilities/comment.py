@@ -2,20 +2,22 @@ import streamlit as st
 import requests
 
 
+@st.dialog('Add a comment')
 def add_comment(activity_id):
-    with st.expander("Add a Comment"):
-        comment = st.text_area("Write your comment here")
+    comment = st.text_area("Write your comment here")
 
-        if st.button("Submit"):
-            json = {
-                        "activity_id": activity_id,
-                        "comment_text": comment,
-                        "user_id": st.session_state['user_token']
-                    }
-            response = requests.post(
-                    "http://127.0.0.1:8000/post_comment",
-                    json=json
-            )
+    if st.button("Submit"):
+        json = {
+                    "activity_id": activity_id,
+                    "comment_text": comment,
+                    "user_id": st.session_state['user_token']
+                }
+        response = requests.post(
+                "http://127.0.0.1:8000/post_comment",
+                json=json
+        )
+        if response.status_code != 200:
+            raise Exception(f'Error {response.status_code}')
 
 
 def write_comment(conn, activity_id):
