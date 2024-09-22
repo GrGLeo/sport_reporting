@@ -72,18 +72,21 @@ class User:
 
         return df.merge(total, on='date', how='left')
 
-    def get_threshold(self):
+    def get_threshold(self, past: bool = False):
         query = """
             SELECT *
             FROM param.user_threshold
             WHERE user_id = :user_id
             ORDER BY date desc
-            LIMIT 1
             """
+        if past:
+            query += ' LIMIT 2;'
+        else:
+            query += ' LIMIT 1;'
         params = {'user_id': self.user_id}
         return self.conn.query(query, params=params)
 
-    def _prep_calendar(self, data, sport):
+    def __prep_calendar(self, data, sport):
         cols = ['activity_id', 'date', 'duration']
         data = data[cols]
         data['title'] = sport

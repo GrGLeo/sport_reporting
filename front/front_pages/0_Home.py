@@ -109,8 +109,8 @@ with zone_tab:
         if not threshold.empty:
             col1, col2, col3 = st.columns(3)
             with col1:
-                st.metric(label="swim css", value=threshold.swim)
+                st.metric(label="Swim", value=threshold.swim)
             with col2:
-                st.metric(label="bike ftp", value=threshold.ftp)
+                st.metric(label="Bike", value=threshold.ftp)
             with col3:
-                st.metric(label="run threshold", value=threshold.run_pace)
+                st.metric(label="Run", value=threshold.run_pace)
