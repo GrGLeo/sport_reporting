@@ -66,8 +66,11 @@ if activity_id:
         st.plotly_chart(fig)
 
     with col3:
-        add_comment(activity_id)
+        st.subheader('Comments')
         write_comment(conn, activity_id)
+        add_com = st.button('Comments')
+        if add_com:
+            add_comment(activity_id)
 
 # Record specific
     altitude_min = df_records['altitude'].min()
