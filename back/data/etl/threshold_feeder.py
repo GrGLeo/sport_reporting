@@ -1,6 +1,7 @@
 import pandas as pd
 from back.data.etl import Feeder
 from back.api_model import ThresholdModel
+from back.utils.utilities import speed_to_pace, seconds_to_time
 
 
 class ThresholdFeeder(Feeder):
@@ -11,16 +12,28 @@ class ThresholdFeeder(Feeder):
         super().__init__({})
 
     def process(self):
-        print(self.process_threshold())
-        print(self.process_bike_zone())
-        pass
+        self.tables_processed = {
+                'user_threshold': self.process_threshold(),
+                'cycling_zone': self.process_bike_zone(),
+                'run_zone': self.process_run_zone()
+        }
 
     def process_threshold(self):
         threshold = self.threshold.dict()
         return pd.DataFrame([threshold])
 
     def process_run_zone(self):
-        pass
+        vma = self.threshold.vma
+        threshold_pace = speed_to_pace(vma, ms=False) / 0.85
+        print(threshold_pace)
+        zone = {
+            'recovery': threshold_pace / 0.85,
+            'endurance': threshold_pace / 0.89,
+            'tempo': threshold_pace / 0.95,
+            'threshold': threshold_pace / 1.,
+            'vo2max': threshold_pace / 1.1,
+        }
+        return pd.DataFrame([zone])
 
     def process_bike_zone(self):
         ftp = self.threshold.ftp
