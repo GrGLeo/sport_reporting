@@ -114,3 +114,16 @@ with zone_tab:
                 st.metric(label="Bike", value=threshold.ftp)
             with col3:
                 st.metric(label="Run", value=threshold.vma)
+    cycling_zone, run_zone = user.get_zones()
+    cycling_zone.drop('user_id', axis=1, inplace=True)
+    run_zone.drop('user_id', axis=1, inplace=True)
+    swim_col, bike_col, run_col = st.columns(3)
+    with bike_col:
+        for columns in cycling_zone.columns:
+            st.metric(label=columns.capitalize(), value=f'{cycling_zone[columns].iloc[0]}W')
+    with run_col:
+        for columns in run_zone.columns:
+            st.metric(label=columns.capitalize(), value=f'{round(run_zone[columns].iloc[0], 2)}min/k')
+
+    st.write(run_zone)
+    st.write(cycling_zone)

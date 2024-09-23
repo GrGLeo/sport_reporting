@@ -66,7 +66,7 @@ class User:
     def get_zones(self) -> tuple[pd.DataFrame]:
         run_zone = self._get_zone('run_zone')
         cycling_zone = self._get_zone('cycling_zone')
-        return (run_zone, cycling_zone)
+        return (cycling_zone, run_zone)
 
     def _get_zone(self, sport: str) -> pd.DataFrame:
         return self.__get_query(f'param.{sport}')
