@@ -1,4 +1,4 @@
-from datetime import time
+from datetime import time, timedelta
 
 
 def speed_to_pace(speed, ms=True):
@@ -18,3 +18,7 @@ def seconds_to_time(seconds):
     minutes = (seconds % 3600) // 60
     seconds = seconds % 60
     return time(hour=hours, minute=minutes, second=seconds)
+
+
+def time_to_timedelta(t):
+    return timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)

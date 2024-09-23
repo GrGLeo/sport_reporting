@@ -1,7 +1,7 @@
 import pandas as pd
 from back.data.etl import Feeder
 from back.api_model import ThresholdModel
-from back.utils.utilities import speed_to_pace, seconds_to_time
+from back.utils.utilities import speed_to_pace
 
 
 class ThresholdFeeder(Feeder):
@@ -20,6 +20,7 @@ class ThresholdFeeder(Feeder):
 
     def process_threshold(self):
         threshold = self.threshold.dict()
+        threshold['vma'] *= 0.90
         return pd.DataFrame([threshold])
 
     def process_run_zone(self):

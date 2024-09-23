@@ -113,4 +113,4 @@ with zone_tab:
             with col2:
                 st.metric(label="Bike", value=threshold.ftp)
             with col3:
-                st.metric(label="Run", value=threshold.run_pace)
+                st.metric(label="Run", value=threshold.vma)
