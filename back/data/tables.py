@@ -148,10 +148,36 @@ class User(Base):
     __table_args__ = {'schema': 'param'}
 
     user_id = Column(Integer, primary_key=True)
-    swim = Column(Float)
-    run_pace = Column(Float)
+    date = Column(DateTime, primary_key=True)
+    swim = Column(Integer)
+    vma = Column(Float)
     ftp = Column(Integer)
-    date = Column(DateTime)
+
+
+class Zone(Base):
+    __abstract__ = True
+    __table_args__ = {'schema': 'param'}
+
+    user_id = Column(Integer, primary_key=True)
+    recovery = Column(Integer)
+    endurance = Column(Integer)
+    tempo = Column(Integer)
+    threshold = Column(Integer)
+    vo2max = Column(Integer)
+
+
+class CyclingZone(Zone):
+    __tablename__ = 'cycling_zone'
+
+
+class RunZone(Zone):
+    __tablename__ = 'run_zone'
+
+    recovery = Column(Float)
+    endurance = Column(Float)
+    tempo = Column(Float)
+    threshold = Column(Float)
+    vo2max = Column(Float)
 
 
 class DataBase:

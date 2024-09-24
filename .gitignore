@@ -4,3 +4,4 @@ sub9/
 __pycache__/
 setup.py
 *.egg-info
+start_.sh

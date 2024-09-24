@@ -6,9 +6,10 @@ from back.data.etl.running_feeder import RunningFeeder
 from back.data.etl.comment_feeder import CommentFeeder
 from back.data.etl.event_feeder import EventFeeder
 from back.data.etl.cycling_feeder import CyclingFeeder
+from back.data.etl.threshold_feeder import ThresholdFeeder
 from back.data.tables import Base
 from back.data.utils import create_schema
-from back.api_model import LoginModel, UserModel, CommentModel, EventModel
+from back.api_model import *
 from back.utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttempt, UserLocked
 from back.utils.data_handler import get_data
 from back.utils.logger import ConsoleLogger
@@ -17,6 +18,7 @@ from back.auth import auth_user, create_user
 
 app = FastAPI()
 logger = ConsoleLogger(__name__)
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -73,6 +75,12 @@ async def post_comment(comment: CommentModel):
 async def post_event(event: EventModel):
     event_feeder = EventFeeder(event)
     event_feeder.compute()
+
+
+@app.post("/threshold")
+async def update_threshold(threshold: ThresholdModel):
+    threshold_feeder = ThresholdFeeder(threshold)
+    threshold_feeder.compute()
 
 
 @app.post("/login")

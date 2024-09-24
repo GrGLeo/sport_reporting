@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from datetime import time
 from back.data.etl import Feeder
+from back.utils.utilities import speed_to_pace, seconds_to_time
 pd.options.mode.copy_on_write = True
 
 
@@ -100,19 +101,3 @@ class RunningFeeder(Feeder):
         syn['distance'] = distance
         syn['tss'] = int((distance / 1609) * 10)
         return syn
-
-
-def speed_to_pace(speed):
-    if speed == 0:
-        return float("inf")
-    pace = (1000 / (speed * 60))
-    minutes = int(pace)
-    seconds = int(round((pace - minutes) * 60))
-    return round(minutes + (seconds / 100), 2)
-
-
-def seconds_to_time(seconds):
-    hours = seconds // 3600
-    minutes = (seconds % 3600) // 60
-    seconds = seconds % 60
-    return time(hour=hours, minute=minutes, second=seconds)

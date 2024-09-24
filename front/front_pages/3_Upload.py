@@ -1,5 +1,4 @@
 import requests
-import time
 import streamlit as st
 
 
@@ -20,7 +19,7 @@ if uploaded_file is not None:
                 data={'user_id': user_id}
             )
             if response.status_code == 200:
-                st.switch_page('pages/1_Calendar.py')
+                st.switch_page('front_pages/1_Calendar.py')
             else:
                 st.toast('Upload failed, try again later')
     else:

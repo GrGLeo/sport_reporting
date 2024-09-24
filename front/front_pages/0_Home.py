@@ -101,16 +101,63 @@ with home_tab:
     st.plotly_chart(fig)
 
 with zone_tab:
-    threshold_col, _ = st.columns([0.2, 0.8])
+    st.header("Threshold")
+    threshold = user.get_threshold()
+    if not threshold.empty:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric(label="Swim", value=threshold.swim)
+        with col2:
+            st.metric(label="Bike", value=threshold.ftp)
+        with col3:
+            st.metric(label="Run", value=threshold.vma)
+    cycling_zone, run_zone = user.get_zones()
+    cycling_zone.drop('user_id', axis=1, inplace=True)
+    run_zone.drop('user_id', axis=1, inplace=True)
+    st.header("Zone")
+    swim_col, bike_col, run_col = st.columns(3)
+    with swim_col:
+        for columns in cycling_zone.columns:
+            st.markdown(f'''
+                <div class="zone-container swim">{columns}<br><b>{cycling_zone[columns].iloc[0]} W</b></div>
+            ''', unsafe_allow_html=True)
 
-    with threshold_col:
-        st.header("Threshold")
-        threshold = user.get_threshold()
-        if not threshold.empty:
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric(label="swim css", value=threshold.swim)
-            with col2:
-                st.metric(label="bike ftp", value=threshold.ftp)
-            with col3:
-                st.metric(label="run threshold", value=threshold.run_pace)
+    with bike_col:
+        for columns in cycling_zone.columns:
+            st.markdown(f'''
+                <div class="zone-container bike">{columns}<br><b>{cycling_zone[columns].iloc[0]} W</b></div>
+            ''', unsafe_allow_html=True)
+
+    with run_col:
+        for columns in run_zone.columns:
+            st.markdown(f'''
+                <div class="zone-container run">{columns.capitalize()}<br><b>{round(run_zone[columns].iloc[0], 2)} min/k</b></div>
+            ''', unsafe_allow_html=True)
+
+    st.markdown("""
+        <style>
+        .zone-container {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        /* Blue gradient for swim */
+        .swim {
+            background: linear-gradient(90deg, #4DD0E1, #26C6DA);  /* Blue */
+        }
+
+        /* Orange gradient for bike */
+        .bike {
+            background: linear-gradient(90deg, #FFECB3, #FF9800);  /* Orange */
+        }
+
+        /* Green gradient for run */
+        .run {
+            background: linear-gradient(90deg, #C8E6C9, #4CAF50);  /* Green */
+        }
+        </style>
+    """, unsafe_allow_html=True)
