@@ -86,7 +86,6 @@ class User:
             query += f' LIMIT {limit}'
 
         query += ';'
-        print(query)
         return self.conn.query(query, params=params)
 
     def __prep_calendar(self, data: pd.DataFrame, sport: str) -> pd.DataFrame:
