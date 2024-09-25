@@ -1,11 +1,12 @@
+from abc import ABC, abstractmethod
 import pandas as pd
 from back.data.connexion import DatabaseConnection
 from back.utils.logger import ConsoleLogger
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 
-class Feeder:
-    def __init__(self, tables: dict, activity_id: int = None):
+class Feeder(ABC):
+    def __init__(self, tables: dict[pd.DataFrame], activity_id: int = None):
         self.tables = tables
         self.activity_id = activity_id
         self.logger = ConsoleLogger(f'{self.__class__.__name__} User: {self.user_id}')
@@ -19,6 +20,7 @@ class Feeder:
         func()
         self.logger.info(f'{message.upper()} done')
 
+    @abstractmethod
     def process(self):
         pass
 
