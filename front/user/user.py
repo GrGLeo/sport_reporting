@@ -44,7 +44,9 @@ class User:
 
     def get_full_workouts(self) -> pd.DataFrame:
         syn_run = self.__get_query('running.syn')
+        syn_run['sport'] = 'running'
         syn_cycling = self.__get_query('cycling.syn')
+        syn_cycling['sport'] = 'cycling'
         total = pd.concat([syn_run, syn_cycling], axis=0)
 
         total = self._process_duration(total)
@@ -99,7 +101,6 @@ class User:
         total['week'] = total['date'].dt.isocalendar().week
         total['hour'] = total['duration'].apply(lambda x: x.hour)
         total['minute'] = total['duration'].apply(lambda x: x.minute)
-        total['second'] = total['duration'].apply(lambda x: x.second)
-        total['duration'] = total['hour'] * 3600 + total['minute'] * 60 + total['second']
+        total['duration'] = total['hour'] * 60 + total['minute']
         total['date'] = total['date'].dt.strftime('%Y-%m-%d')
         return total
