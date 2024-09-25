@@ -9,11 +9,17 @@ from back.data.etl.cycling_feeder import CyclingFeeder
 from back.data.etl.threshold_feeder import ThresholdFeeder
 from back.data.tables import Base
 from back.data.utils import create_schema
-from back.api_model import *
 from back.utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttempt, UserLocked
 from back.utils.data_handler import get_data
 from back.utils.logger import ConsoleLogger
 from back.auth import auth_user, create_user
+from back.api_model import (
+    UserModel,
+    EventModel,
+    LoginModel,
+    CommentModel,
+    ThresholdModel
+)
 
 
 app = FastAPI()

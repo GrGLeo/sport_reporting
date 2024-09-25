@@ -1,35 +1,15 @@
 import pandas as pd
 import numpy as np
 from datetime import time
-from back.data.etl import Feeder
+from back.data.etl.activity_feeder import ActivityFeeder
 from back.utils.utilities import speed_to_pace, seconds_to_time
 pd.options.mode.copy_on_write = True
 
 
-class RunningFeeder(Feeder):
-    def __init__(self, tables, id, user_id):
-        self.user_id = user_id
-        super().__init__(tables, id)
+class RunningFeeder(ActivityFeeder):
+    def __init__(self, tables, activity_id, user_id):
+        super().__init__(tables, activity_id, user_id)
         self.schema = 'running'
-
-    def process(self):
-        self.tables_processed = {
-                'workout': self.records,
-                'lap': self.laps,
-                'syn': self.syn
-        }
-
-    @property
-    def records(self):
-        return self._process_records()
-
-    @property
-    def laps(self):
-        return self._process_laps()
-
-    @property
-    def syn(self):
-        return self._get_wkt_syn()
 
     def _process_laps(self) -> str:
         laps = self.tables["lap_running"]
@@ -75,7 +55,7 @@ class RunningFeeder(Feeder):
         records = records[cols.values()]
         records['record_id'] = records.index
         self.logger.info(records[records['pace'].isna()]['pace'])
-        records.fillna(method='ffill', inplace=True)
+        records.ffill(inplace=True)
         self.logger.info(records[records['pace'].isna()]['pace'])
         records['pace'] = records['pace'].apply(speed_to_pace)
         # TODO: better outlier replacement

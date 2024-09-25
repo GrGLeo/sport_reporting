@@ -1,32 +1,14 @@
 from datetime import time
-from back.data.etl import Feeder
+from back.utils.utilities import seconds_to_time
+from back.data.etl.activity_feeder import ActivityFeeder
 import pandas as pd
+pd.options.mode.copy_on_write = True
 
 
-class CyclingFeeder(Feeder):
-    def __init__(self, tables, id, user_id):
-        self.user_id = user_id
-        super().__init__(tables, id)
+class CyclingFeeder(ActivityFeeder):
+    def __init__(self, tables, activity_id, user_id):
+        super().__init__(tables, activity_id, user_id)
         self.schema = 'cycling'
-
-    def process(self):
-        self.tables_processed = {
-                'workout': self.records,
-                'lap': self.laps,
-                'syn': self.syn
-        }
-
-    @property
-    def records(self):
-        return self._process_records()
-
-    @property
-    def laps(self):
-        return self._process_laps()
-
-    @property
-    def syn(self):
-        return self._get_wkt_syn()
 
     def _process_records(self):
         records = self.tables["record_cycling"]
@@ -111,10 +93,3 @@ class CyclingFeeder(Feeder):
         distance = records['distance'].iloc[-1]
         syn['distance'] = distance
         return syn
-
-
-def seconds_to_time(seconds):
-    hours = seconds // 3600
-    minutes = (seconds % 3600) // 60
-    seconds = seconds % 60
-    return time(hour=hours, minute=minutes, second=seconds)
