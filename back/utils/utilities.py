@@ -22,3 +22,18 @@ def seconds_to_time(seconds):
 
 def time_to_timedelta(t):
     return timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
+
+
+def assign_zone(power, zones):
+    if power <= zones['recovery']:
+        return 'recovery'
+    elif power <= zones['endurance']:
+        return 'endurance'
+    elif power <= zones['tempo']:
+        return 'tempo'
+    elif power <= zones['threshold']:
+        return 'threshold'
+    elif power <= zones['vo2max']:
+        return 'vo2max'
+    else:
+        return 'vo2max'

@@ -81,6 +81,7 @@ class WorkoutCycling(Base):
     power = Column(Integer)
     norm_power = Column(Integer)
     altitude = Column(Integer)
+    zone = Column(String)
 
 
 class LapRun(Base):
@@ -141,6 +142,11 @@ class SynCycling(Base):
     avg_cadence = Column(Integer)
     avg_speed = Column(Float)
     tss = Column(Integer)
+    recovery = Column(Integer)
+    endurance = Column(Integer)
+    tempo = Column(Integer)
+    threshold = Column(Integer)
+    vo2max = Column(Integer)
 
 
 class User(Base):
