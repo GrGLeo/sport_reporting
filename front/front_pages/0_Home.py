@@ -44,10 +44,45 @@ with home_tab:
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        fig = px.bar(df_week, x='week', y='tss')
-        st.plotly_chart(fig)
+        fig = px.bar(df_week, x='week', y='tss', text='tss', title='TSS/Week')
+
+        # Customize the layout and style
+        fig.update_traces(
+            texttemplate='%{text:.0f}',  # Display TSS values with 2 decimal points
+            textposition='outside',  # Position the text outside the bar
+        )
+        # Add custom layout styling
+        fig.update_layout(
+            title_font_size=18,  # Title font size
+            xaxis_title='Week Number',  # X-axis label
+            yaxis_title='TSS (Training Stress Score)',  # Y-axis label
+            hovermode='x',  # Show hover info on x-axis
+        )
+        tss_plot = st.plotly_chart(fig, on_select='rerun')
+        week_selected = None
+        if len(tss_plot['selection']['points']) > 0:
+            week_selected = tss_plot['selection']['points'][0]['x']
     with col2:
-        fig = px.bar(df_week, x='week', y='duration', orientation='v')
+        fig = px.bar(df_week, x='week', y='duration', text='duration', title='Duration/Week',  orientation='v')
+        fig.update_traces(
+            textposition='outside',  # Position the text outside the bar
+        )
+        # Add custom layout styling
+        fig.update_layout(
+            title_font_size=18,  # Title font size
+            xaxis_title='Week Number',  # X-axis label
+            yaxis_title='Duration (Minutes)',  # Y-axis label
+            hovermode='x',  # Show hover info on x-axis
+        )
+        duration_plot = st.plotly_chart(fig, on_select='rerun')
+        if len(duration_plot['selection']['points']) > 0:
+            week_selected = duration_plot['selection']['points'][0]['x']
+    with col3:
+        if week_selected:
+            df_sport = total_wkt[total_wkt['week'] == week_selected].groupby('sport', as_index=False).agg({'duration': 'sum'})
+        else:
+            df_sport = total_wkt[total_wkt['week'] == total_wkt['week'].max()].groupby('sport', as_index=False).agg({'duration': 'sum'})
+        fig = px.pie(df_sport, names='sport', values='duration')
         st.plotly_chart(fig)
 
     # CTL, FORM, FITNESS
@@ -91,14 +126,10 @@ with home_tab:
         xaxis_title='Date',
         yaxis_title='Values',
         barmode='overlay',
-        xaxis=dict(
-            type='category',
-            rangeslider=dict(visible=False),
-            fixedrange=False
-        )
+        xaxis={}
     )
 
-    st.plotly_chart(fig)
+    fitness_trend = st.plotly_chart(fig)
 
 with zone_tab:
     st.header("Threshold")
