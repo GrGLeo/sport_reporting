@@ -1,18 +1,11 @@
-import datetime
 import streamlit as st
-import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from utilities.comment import add_comment, write_comment
 from front.user.user import User
 
+
 conn = st.connection('postgresql', type='sql')
-
-
-def time_to_seconds(t):
-    h, m, s = t.hour, t.minute, t.second
-    time = datetime.timedelta(hours=h, minutes=m, seconds=s).total_seconds()
-    return int(time)
 
 
 st.title("Workout analystics")
@@ -27,43 +20,84 @@ activity_id, sport = st.session_state.activity_id
 user: User = st.session_state.user
 
 # Activity specific
-col1, col2, col3 = st.columns([0.25, 0.45, 0.3])
+col1, col2, col3 = st.columns([0.30, 0.40, 0.3])
 if activity_id:
-    df_laps, df_records = user.get_analysis(sport, activity_id)
+    df_laps, df_zones, df_records = user.get_analysis(sport, activity_id)
     y = 'pace' if sport == 'running' else 'power'
 
     with col1:
         st.dataframe(df_laps, hide_index=True)
 
-    df_laps['time_seconds'] = df_laps['timer'].apply(time_to_seconds)
-
-    df_laps['start_seconds'] = df_laps['time_seconds'].cumsum() - df_laps['time_seconds']
-    df_laps['end_seconds'] = df_laps['start_seconds'] + df_laps['time_seconds']
-
-    df_laps['start_time'] = pd.to_datetime(df_laps['start_seconds'], unit='s')
-    df_laps['end_time'] = pd.to_datetime(df_laps['end_seconds'], unit='s')
-
-    fig = px.timeline(df_laps, x_start='start_time', x_end='end_time', y=y,
-                      labels={'start_time': 'Start Time', 'end_time': 'End Time'})
-
-    fig.update_layout(
-        xaxis_title='Activity Duration',
-        yaxis_title='Pace',
-        yaxis=dict(
-            tickvals=df_laps[y],
-            ticktext=df_laps[y]
-        ),
-        xaxis=dict(
-            tickformat='%H:%M:%S',
-            dtick='360000',
-            showgrid=True,
-            zeroline=True
-        )
-    )
-    fig.update_yaxes(range=[2, df_laps[y].max() + 1])
+#    df_laps['time_seconds'] = df_laps['timer'].apply(time_to_seconds)
+#
+#    df_laps['start_seconds'] = df_laps['time_seconds'].cumsum() - df_laps['time_seconds']
+#    df_laps['end_seconds'] = df_laps['start_seconds'] + df_laps['time_seconds']
+#
+#    df_laps['start_time'] = pd.to_datetime(df_laps['start_seconds'], unit='s')
+#    df_laps['end_time'] = pd.to_datetime(df_laps['end_seconds'], unit='s')
+#
+#    fig = px.timeline(df_laps, x_start='start_time', x_end='end_time', y=y,
+#                      labels={'start_time': 'Start Time', 'end_time': 'End Time'})
+#
+#    fig.update_layout(
+#        xaxis_title='Activity Duration',
+#        yaxis_title='Pace',
+#        yaxis=dict(
+#            tickvals=df_laps[y],
+#            ticktext=df_laps[y]
+#        ),
+#        xaxis=dict(
+#            tickformat='%H:%M:%S',
+#            dtick='360000',
+#            showgrid=True,
+#            zeroline=True
+#        )
+#    )
+#    fig.update_yaxes(range=[2, df_laps[y].max() + 1])
 
     with col2:
-        st.plotly_chart(fig)
+        st.markdown("""
+            <style>
+            .bar-container {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            .bar-label {
+                font-size: 12px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            .bar {
+                height: 30px;
+                width: 100%;
+                background-color: lightgrey;
+                border-radius: 5px;
+                overflow: hidden;
+                position: relative;
+            }
+            .bar-filled {
+                height: 100%;
+                background-color: skyblue;
+                text-align: center;
+                color: white;
+                font-size: 14px;
+                line-height: 30px;
+                border-radius: 5px;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+        for col in df_zones.columns:
+            st.markdown(f"""
+            <div class="bar-container">
+                <div class="bar-label">{col}</div>
+                <div class="bar">
+                    <div class="bar-filled" style="width: {df_zones.iloc[0][col]}%;">
+                        {df_zones.iloc[0][col]}%
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
     with col3:
         st.subheader('Comments')
