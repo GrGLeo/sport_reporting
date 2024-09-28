@@ -62,7 +62,7 @@ class RunningFeeder(ActivityFeeder):
         records['pace'] = records['pace'].round(2)
 
         # get the associated zone
-        zones = self.get('param.cycling_zone', user_id=self.user_id)
+        zones = self.get('param.run_zone', user_id=self.user_id)
         zones = zones.drop(columns='user_id')
         zones = zones.iloc[0].to_dict()
         records['zone'] = records['pace'].apply(lambda x: assign_zone(x, zones))
