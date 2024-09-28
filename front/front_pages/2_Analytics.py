@@ -1,4 +1,5 @@
 import streamlit as st
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from utilities.comment import add_comment, write_comment
@@ -87,13 +88,15 @@ if activity_id:
             </style>
         """, unsafe_allow_html=True)
 
+        df_zones.fillna(0, inplace=True)
         for col in df_zones.columns:
+            value = df_zones.iloc[0][col]
             st.markdown(f"""
             <div class="bar-container">
                 <div class="bar-label">{col}</div>
                 <div class="bar">
-                    <div class="bar-filled" style="width: {df_zones.iloc[0][col]}%;">
-                        {df_zones.iloc[0][col]}%
+                    <div class="bar-filled" style="width: {value}%;">
+                        {value}%
                     </div>
                 </div>
             </div>
