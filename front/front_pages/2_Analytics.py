@@ -60,7 +60,7 @@ if activity_id:
             <style>
             .bar-container {
                 width: 100%;
-                margin-bottom: 20px;
+                margin-bottom: 8px;
             }
             .bar-label {
                 font-size: 12px;
@@ -68,7 +68,7 @@ if activity_id:
                 margin-bottom: 5px;
             }
             .bar {
-                height: 30px;
+                height: 25px;
                 width: 100%;
                 background-color: lightgrey;
                 border-radius: 5px;
