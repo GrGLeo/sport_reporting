@@ -1,7 +1,6 @@
 import pandas as pd
 from back.data.etl import Feeder
 from back.api_model import ThresholdModel
-from back.utils.utilities import speed_to_pace
 
 
 class ThresholdFeeder(Feeder):
@@ -25,14 +24,12 @@ class ThresholdFeeder(Feeder):
 
     def process_run_zone(self):
         vma = self.threshold.vma
-        threshold_pace = speed_to_pace(vma, ms=False) / 0.85
-        print(threshold_pace)
         zone = {
-            'recovery': threshold_pace / 0.85,
-            'endurance': threshold_pace / 0.89,
-            'tempo': threshold_pace / 0.95,
-            'threshold': threshold_pace / 1.,
-            'vo2max': threshold_pace / 1.1,
+            'recovery': round(vma * 0.55, 2),
+            'endurance': round(vma * 0.65, 2),
+            'tempo': round(vma * 0.80, 2),
+            'threshold': round(vma * 0.90, 2),
+            'vo2max': round(vma * 1.2, 2),
         }
         return pd.DataFrame([zone])
 

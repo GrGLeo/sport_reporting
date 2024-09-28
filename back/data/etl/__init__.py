@@ -11,11 +11,11 @@ class Feeder(ABC):
         self.activity_id = activity_id
         self.logger = ConsoleLogger(f'{self.__class__.__name__} User: {self.user_id}')
 
-    def compute(self):
+    def compute(self) -> None:
         self._step(self.process, 'Processing')
         self._step(self.put, 'Writting')
 
-    def _step(self, func: callable, message: str):
+    def _step(self, func: callable, message: str) -> None:
         self.logger.info(f'{message.upper()}...')
         func()
         self.logger.info(f'{message.upper()} done')
@@ -24,7 +24,7 @@ class Feeder(ABC):
     def process(self):
         pass
 
-    def get(self, table, **kwargs):
+    def get(self, table: str, **kwargs) -> pd.DataFrame:
         with DatabaseConnection() as engine:
             query = f"select * from {table}"
 
@@ -35,7 +35,7 @@ class Feeder(ABC):
 
             return pd.read_sql(query, engine, params=params)
 
-    def put(self):
+    def put(self) -> str:
         with DatabaseConnection() as engine:
             for table_name, table in self.tables_processed.items():
                 if self.user_id:
@@ -58,3 +58,15 @@ class Feeder(ABC):
                     self.logger.error(f"An error occurred: {e}")
                     return None
         return "Upload competed"
+
+    def drop(self, tables: list[str]) -> None:
+        with DatabaseConnection() as engine:
+            for table in tables:
+                drop_query = f"""
+                DELETE {self.schema}.{table}
+                """
+                if self.user_id:
+                    drop_query += f" WHERE user_id = {self.user_id}"
+                if self.activity_id:
+                    drop_query += f" AND activity_id = {self.activity_id}"
+                engine.execute(drop_query)

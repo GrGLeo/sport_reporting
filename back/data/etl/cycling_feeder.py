@@ -1,5 +1,5 @@
 from datetime import time
-from back.utils.utilities import seconds_to_time
+from back.utils.utilities import seconds_to_time, assign_zone
 from back.data.etl.activity_feeder import ActivityFeeder
 import pandas as pd
 pd.options.mode.copy_on_write = True
@@ -31,9 +31,18 @@ class CyclingFeeder(ActivityFeeder):
         )
         if 'heart_rate' not in records.columns:
             records['hr'] = None
+
         records = records[cols.values()]
+
+        # get the associated zone
+        zones = self.get('param.cycling_zone', user_id=self.user_id)
+        zones = zones.drop(columns='user_id')
+        zones = zones.iloc[0].to_dict()
+        records['zone'] = records['power'].apply(lambda x: assign_zone(x, zones))
         records['record_id'] = records.index
         records['speed'] = (records['speed'] * 3600) / 1000
+
+        # calculate the Normalized Power
         records['norm_power'] = records['power'].rolling(window=30).mean()
         records['norm_power'] = records['norm_power'] ** 4
         records['norm_power'] = records['norm_power'].expanding(min_periods=1).mean()
@@ -70,7 +79,7 @@ class CyclingFeeder(ActivityFeeder):
 
     def _get_wkt_syn(self):
         syn = pd.DataFrame(index=range(1))
-        records = self._process_records()
+        records = self.records
         syn['date'] = records['timestamp'].iloc[0]
         duration = len(records)
         hours = duration//3600
@@ -84,12 +93,23 @@ class CyclingFeeder(ActivityFeeder):
         else:
             syn['avg_hr'] = None
         syn['avg_speed'] = records['speed'].mean()
+
+        # Calculate workout TSS
         threshold = self.get('param.user_threshold', user_id=self.user_id)
         threshold.sort_values('date', ascending=False)
         ftp = threshold['ftp'].iloc[0]
         np = records['norm_power'].iloc[-1]
         tss = (duration * np * (np/ftp)) / (ftp * 3600) * 100
         syn['tss'] = tss
+
+        # Calculate the time spent in zone
+        zones = records.groupby('zone').size().reset_index(name='count')
+        zones['count'] = zones['count'].astype(int)
+        zones = zones.pivot_table(index=None, columns='zone', values='count', fill_value=0)
+        zones = zones.reset_index(drop=True)
+        syn = pd.concat([syn, zones], axis=1)
+        syn.to_csv('~/Code/test.csv', index=False)
+        #
         distance = records['distance'].iloc[-1]
         syn['distance'] = distance
         return syn

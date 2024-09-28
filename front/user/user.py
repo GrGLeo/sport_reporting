@@ -1,10 +1,7 @@
 from datetime import timedelta, datetime
 import requests
 import pandas as pd
-
-
-def time_to_timedelta(t):
-    return timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
+from front.utils import time_to_timedelta, time_to_seconds
 
 
 class User:
@@ -35,8 +32,15 @@ class User:
         df_laps = self.__get_query(f'{schema}.lap', wkt_id).drop(['activity_id', 'user_id', 'lap_id'], axis=1)
         df_laps['distance'] = (df_laps['distance'] / 1000).round(2)
 
+        df_zones = self.__get_query(f'{schema}.syn', wkt_id)
+        duration = time_to_seconds(df_zones.iloc[0]['duration'])
+        df_zones = df_zones[['recovery', 'endurance', 'tempo', 'threshold', 'vo2max']]
+        for col in df_zones.columns:
+            df_zones[col] = round(df_zones[col] / duration * 100, 2)
+
         df_records = self.__get_query(f'{schema}.workout', wkt_id)
-        return df_laps, df_records
+
+        return df_laps, df_zones, df_records
 
     def get_events(self) -> pd.DataFrame:
         params = {"user_id": self.user_id}
