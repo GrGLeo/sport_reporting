@@ -58,3 +58,15 @@ class Feeder(ABC):
                     self.logger.error(f"An error occurred: {e}")
                     return None
         return "Upload competed"
+
+    def drop(self, tables: list[str]) -> None:
+        with DatabaseConnection() as engine:
+            for table in tables:
+                drop_query = f"""
+                DELETE {self.schema}.{table}
+                """
+                if self.user_id:
+                    drop_query += f" WHERE user_id = {self.user_id}"
+                if self.activity_id:
+                    drop_query += f" AND activity_id = {self.activity_id}"
+                engine.execute(drop_query)

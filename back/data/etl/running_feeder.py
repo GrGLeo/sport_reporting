@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from datetime import time
 from back.data.etl.activity_feeder import ActivityFeeder
-from back.utils.utilities import speed_to_pace, seconds_to_time
+from back.utils.utilities import seconds_to_time, assign_zone
 pd.options.mode.copy_on_write = True
 
 
@@ -29,7 +29,7 @@ class RunningFeeder(ActivityFeeder):
 
         laps = laps[cols.values()]
         laps['pace'] = laps['distance'] / laps['timer']
-        laps['pace'] = laps['pace'].apply(speed_to_pace)
+        laps['pace'] = round((laps['pace'] * 3600) / 1000, 2)
         laps['timer'] = laps['timer'].apply(lambda x: seconds_to_time(int(x)))
 
         return laps
@@ -54,20 +54,27 @@ class RunningFeeder(ActivityFeeder):
         )
         records = records[cols.values()]
         records['record_id'] = records.index
-        self.logger.info(records[records['pace'].isna()]['pace'])
         records.ffill(inplace=True)
-        self.logger.info(records[records['pace'].isna()]['pace'])
-        records['pace'] = records['pace'].apply(speed_to_pace)
         # TODO: better outlier replacement
         # records['pace'] = records['pace'].rolling(window=5).mean()
-        records['pace'] = np.where(records['pace'] > 12, 10, records['pace'])
+        records['pace'] = (records['pace'] * 3600) / 1000
+        records['pace'] = np.where(records['pace'] < 3, 3, records['pace'])
         records['pace'] = records['pace'].round(2)
+
+        # get the associated zone
+        zones = self.get('param.cycling_zone', user_id=self.user_id)
+        zones = zones.drop(columns='user_id')
+        zones = zones.iloc[0].to_dict()
+        records['zone'] = records['pace'].apply(lambda x: assign_zone(x, zones))
+
         return records
 
     def _get_wkt_syn(self):
         syn = pd.DataFrame(index=range(1))
         records = self._process_records()
         syn['date'] = records['timestamp'].iloc[0]
+
+        # Calculate the duration of the workout
         duration = len(self.records)
         hours = duration//3600
         minutes = (duration % 3600)//60
@@ -75,9 +82,18 @@ class RunningFeeder(ActivityFeeder):
         duration = time(hour=hours, minute=minutes, second=seconds)
         syn['duration'] = duration
         syn['avg_hr'] = self.records['hr'].mean()
+
+        # Get the average for the metrics
         syn['avg_pace'] = round(self.records['pace'].mean(), 2)
         syn['avg_cadence'] = self.records['cadence'].mean()
         distance = self.records['distance'].iloc[-1]
         syn['distance'] = distance
         syn['tss'] = int((distance / 1609) * 10)
+
+        # Calculate the time spent in zone
+        zones = records.groupby('zone').size().reset_index(name='count')
+        zones['count'] = zones['count'].astype(int)
+        zones = zones.pivot_table(index=None, columns='zone', values='count', fill_value=0)
+        zones = zones.reset_index(drop=True)
+        syn = pd.concat([syn, zones], axis=1)
         return syn

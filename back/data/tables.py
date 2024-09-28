@@ -49,90 +49,69 @@ class Events(Base):
     priority = Column(String)
 
 
-class WorkoutRun(Base):
+class Workout(Base):
+    __abstract__ = True
     __tablename__ = "workout"
-    __table_args__ = {'schema': 'running'}
 
     user_id = Column(Integer, primary_key=True)
-    activity_id = Column(Integer, primary_key=True)
     record_id = Column(Integer, primary_key=True)
+    activity_id = Column(Integer, primary_key=True)
     timestamp = Column(DateTime)
     distance = Column(Float)
-    lat = Column(Float)
-    lon = Column(Float)
     hr = Column(Integer)
     cadence = Column(Integer)
     pace = Column(Float)
-    altitude = Column(Integer)
-
-
-class WorkoutCycling(Base):
-    __tablename__ = "workout"
-    __table_args__ = {'schema': 'cycling'}
-
-    user_id = Column(Integer, primary_key=True)
-    activity_id = Column(Integer, primary_key=True)
-    record_id = Column(Integer, primary_key=True)
-    timestamp = Column(DateTime)
-    distance = Column(Float)
-    hr = Column(Integer)
-    cadence = Column(Integer)
-    speed = Column(Float)
-    power = Column(Integer)
-    norm_power = Column(Integer)
     altitude = Column(Integer)
     zone = Column(String)
 
 
-class LapRun(Base):
-    __tablename__ = "lap"
+class WorkoutRun(Workout):
     __table_args__ = {'schema': 'running'}
 
-    user_id = Column(Integer, primary_key=True)
-    activity_id = Column(Integer, primary_key=True)
-    lap_id = Column(Integer, primary_key=True)
-    timer = Column(Time)
-    distance = Column(Float)
-    hr = Column(Integer)
-    cadence = Column(Integer)
+    lat = Column(Float)
+    lon = Column(Float)
     pace = Column(Float)
 
 
-class LapCycling(Base):
-    __tablename__ = "lap"
+class WorkoutCycling(Workout):
     __table_args__ = {'schema': 'cycling'}
 
-    user_id = Column(Integer, primary_key=True)
-    activity_id = Column(Integer, primary_key=True)
-    lap_id = Column(Integer, primary_key=True)
-    timer = Column(Time)
-    distance = Column(Float)
-    hr = Column(Integer)
     speed = Column(Float)
-    cadence = Column(Integer)
     power = Column(Integer)
     norm_power = Column(Integer)
 
 
-class SynRun(Base):
-    __tablename__ = "syn"
+class Lap(Base):
+    __abstract__ = True
+    __tablename__ = "lap"
+
+    user_id = Column(Integer, primary_key=True)
+    activity_id = Column(Integer, primary_key=True)
+    lap_id = Column(Integer, primary_key=True)
+    timer = Column(Time)
+    distance = Column(Float)
+    hr = Column(Integer)
+    cadence = Column(Integer)
+
+
+class LapRun(Lap):
     __table_args__ = {'schema': 'running'}
 
-    user_id = Column(Integer, primary_key=True)
-    activity_id = Column(Integer, primary_key=True)
-    date = Column(DateTime)
-    duration = Column(Time)
-    distance = Column(Float)
-    avg_hr = Column(Integer)
-    avg_cadence = Column(Integer)
-    avg_pace = Column(Float)
-    tss = Column(Integer)
+    pace = Column(Float)
 
 
-class SynCycling(Base):
-    __tablename__ = "syn"
+class LapCycling(Lap):
     __table_args__ = {'schema': 'cycling'}
 
+    speed = Column(Float)
+    power = Column(Integer)
+    norm_power = Column(Integer)
+
+
+class Syn(Base):
+    __abstract__ = True
+    __tablename__ = "syn"
+
     user_id = Column(Integer, primary_key=True)
     activity_id = Column(Integer, primary_key=True)
     date = Column(DateTime)
@@ -140,13 +119,24 @@ class SynCycling(Base):
     distance = Column(Float)
     avg_hr = Column(Integer)
     avg_cadence = Column(Integer)
-    avg_speed = Column(Float)
     tss = Column(Integer)
     recovery = Column(Integer)
     endurance = Column(Integer)
     tempo = Column(Integer)
     threshold = Column(Integer)
     vo2max = Column(Integer)
+
+
+class SynRun(Syn):
+    __table_args__ = {'schema': 'running'}
+
+    avg_pace = Column(Float)
+
+
+class SynCycling(Syn):
+    __table_args__ = {'schema': 'cycling'}
+
+    avg_speed = Column(Float)
 
 
 class User(Base):
