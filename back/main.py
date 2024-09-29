@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, Form
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form, status
 from fitparse import FitFile
 import pandas as pd
 from sqlalchemy import create_engine
@@ -94,12 +94,18 @@ async def login(login_data: LoginModel):
     try:
         logger.info(f'User: {login_data.username} login attempt')
         token = auth_user(login_data.username, login_data.password)
-    except (UnknownUser, UserLocked, FailedAttempt) as e:
-        logger.info(f'User: {login_data.username} login failed')
-        raise HTTPException(status_code=401, detail=f'{e}')
+    except UnknownUser as e:
+        logger.warning(f'User: {login_data.username} {e}')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except UserLocked as e:
+        logger.warning(f'User: {login_data.username} {e}')
+        raise HTTPException(status_code=status.HTTP_423_LOCKED, detail=str(e))
+    except FailedAttempt as e:
+        logger.warning(f'User: {login_data.username} {e}')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
 
     if not token:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     logger.info(f'User: {login_data.username} login successfull')
     return {"token": token}
 

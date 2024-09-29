@@ -1,13 +1,13 @@
 import bcrypt
-from utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttempt, UserLocked
-from data.tables import UserCRUD
+from back.utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttempt, UserLocked
+from back.data.tables import UserCRUD
 
 
 def auth_user(username, password):
     db_user = UserCRUD('postgresql://leo:postgres@localhost:5432/sporting')
     user = db_user.get_user(username)
     if not user:
-        raise UnknownUser
+        raise UnknownUser()
     # check if user locked out
     if not db_user.verify_locked(username):
         hashed = user.password
@@ -20,7 +20,7 @@ def auth_user(username, password):
             remaining = 6 - attempts
             raise FailedAttempt(f"Invalid password, {remaining} attempts")
     else:
-        raise UserLocked
+        raise UserLocked()
 
 
 def create_user(username, password, email):
