@@ -58,7 +58,7 @@ def auth_user(username, password):
     if response.status_code == 200:
         token = response.json()["token"]
         return True, token
-    elif response.status_code == 401:
+    elif response.status_code != 200:
         return False, response.json()
 
 
