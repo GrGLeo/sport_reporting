@@ -35,7 +35,7 @@ class Feeder(ABC):
 
             return pd.read_sql(query, engine, params=params)
 
-    def put(self) -> str:
+    def put(self) -> None:
         with DatabaseConnection() as engine:
             for table_name, table in self.tables_processed.items():
                 if self.user_id:
@@ -57,7 +57,6 @@ class Feeder(ABC):
                 except SQLAlchemyError as e:
                     self.logger.error(f"An error occurred: {e}")
                     return None
-        return "Upload competed"
 
     def drop(self, tables: list[str]) -> None:
         with DatabaseConnection() as engine:

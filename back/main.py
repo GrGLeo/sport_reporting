@@ -58,9 +58,13 @@ async def upload_file(
     elif activity == "cycling":
         feeder = CyclingFeeder(wkt, activity_id, int(user_id))
         completion = feeder.compute()
-    return {
-        "data": completion,
-            }
+        print(completion)
+    if completion:
+        return {
+            "data": completion,
+        }
+    else:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='An error occured while uploading activity')
 
 
 @app.post("/post_comment")

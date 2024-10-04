@@ -2,6 +2,14 @@ import logging
 
 
 class ConsoleLogger:
+    __instances = None
+
+    def __new__(cls, class_name):
+        if cls.__instances is None:
+            cls.__instances = super(ConsoleLogger, cls).__new__(cls)
+            cls.__instances.__init__(class_name)
+        return cls.__instances
+
     def __init__(self, class_name):
         self.logger = logging.getLogger(class_name)
         self.logger.setLevel(logging.INFO)  # Set default log level to INFO

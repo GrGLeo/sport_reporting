@@ -24,6 +24,8 @@ class CyclingFeeder(ActivityFeeder):
             'enhanced_altitude': 'altitude'
         }
 
+        records.drop('altitude', axis=1, inplace=True)
+
         records.rename(
                 cols,
                 axis=1,
