@@ -27,7 +27,11 @@ class CyclingFeeder(ActivityFeeder):
             "enhanced_altitude": "altitude",
         }
 
-        records.drop("altitude", axis=1, inplace=True)
+        # Handling missing altitude on indoor wkt
+        try:
+            records.drop("altitude", axis=1, inplace=True)
+        except KeyError:
+            pass
 
         records.rename(cols, axis=1, inplace=True)
         if "heart_rate" not in records.columns:
