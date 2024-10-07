@@ -234,28 +234,33 @@ with zone_tab:
 
     # Get total time spent in zone
     # TODO don't compute it each time.
-    view_time = st.slider(
-        "Distribution over weeks", min_value=1, max_value=12, value=12
-    )
-    date_window = date.today() - timedelta(weeks=view_time)
-    total_wkt["date"] = pd.to_datetime(total_wkt["date"]).dt.date
-    st.write(date_window)
-    total_zone = total_wkt[total_wkt["date"] >= date_window]
-    zone = ["recovery", "endurance", "tempo", "threshold", "vo2max"]
-    total_zone = total_zone[zone]
-    total_zone["g"] = 1
-    total_zone = total_zone.groupby("g", as_index=False).agg(
-        {col: "sum" for col in zone}
-    )
-    st.write(total_zone)
-    fig = px.pie(total_zone)
-    long_zone = total_zone.melt(
-        id_vars=["g"],
-        value_vars=["recovery", "endurance", "tempo", "threshold", "vo2max"],
-        var_name="zone",
-        value_name="value",
-    )
+    col1, col2, col3 = st.columns(3)
 
-    fig = px.pie(long_zone, names="zone", values="value", title="Zones Distribution")
+    with col1:
+        view_time = st.slider(
+            "Distribution over weeks", min_value=1, max_value=12, value=12
+        )
+        date_window = date.today() - timedelta(weeks=view_time)
+        total_wkt["date"] = pd.to_datetime(total_wkt["date"]).dt.date
+        total_zone = total_wkt[total_wkt["date"] >= date_window]
+        zone = ["recovery", "endurance", "tempo", "threshold", "vo2max"]
+        total_zone = total_zone[zone]
+        total_zone["g"] = 1
 
-    st.plotly_chart(fig)
+        total_zone = total_zone.groupby("g", as_index=False).agg(
+            {col: "sum" for col in zone}
+        )
+
+        long_zone = total_zone.melt(
+            id_vars=["g"],
+            value_vars=["recovery", "endurance",
+                        "tempo", "threshold", "vo2max"],
+            var_name="zone",
+            value_name="value",
+        )
+
+        fig = px.pie(
+            long_zone, names="zone", values="value", title="Zones Distribution"
+        )
+
+        st.plotly_chart(fig)
