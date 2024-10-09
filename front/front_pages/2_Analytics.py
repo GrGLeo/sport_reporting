@@ -149,8 +149,8 @@ if activity_id:
                 side='left',
             ),
             yaxis3=dict(
-                title='Heart Rate (bpm)',
                 titlefont=dict(color='red'),
+                title='Heart Rate (bpm)',
                 tickfont=dict(color='red'),
                 showgrid=False,
                 anchor='free',
@@ -167,13 +167,60 @@ if activity_id:
         df_laps['timer_seconds'] = df_laps['timer'].apply(time_to_seconds)
         df_laps['cumulative_time'] = df_laps['timer_seconds'].cumsum()
 
-        st.write(df_laps)
-        fig = px.line(df_laps, x='cumulative_time', y='pace', labels={
-            'cumulative_time': 'Total Duration (seconds)',
-            'pace': 'Pace'
-        }, title='Pace vs Cumulative Duration per Lap',
-                      line_shape='hv')
+        total_duration = int(df_laps['cumulative_time'].max())
+        time_seconds = pd.DataFrame({'second': range(total_duration + 1)})
+        time_seconds['pace'] = None
+        time_seconds['hr'] = None
 
-        # Display the plot in Streamlit
+        for i, lap in df_laps.iterrows():
+            start_time = 0 if i == 0 else df_laps.loc[i - 1, 'cumulative_time']
+            end_time = lap['cumulative_time']
+            time_seconds.loc[(time_seconds['second'] >= start_time) & (time_seconds['second'] <= end_time), 'pace'] = lap['pace']
+            time_seconds.loc[(time_seconds['second'] >= start_time) & (time_seconds['second'] <= end_time), 'hr'] = lap['hr']
+
+        st.write(time_seconds)
+        # fig = px.line(time_seconds, x='second', y='pace', labels={
+        #     'cumulative_time': 'Total Duration (seconds)',
+        #     'pace': 'Pace'
+        # }, title='Pace vs Cumulative Duration per Lap')
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=time_seconds['second'],
+            y=time_seconds['pace'],
+            name='Pace',
+            mode='lines',
+            line=dict(color='blue'),
+            hovertemplate='%{y}<extra></extra>'
+        )
+                      )
+
+        fig.add_trace(go.Scatter(
+            x=time_seconds['second'],
+            y=time_seconds['hr'],
+            yaxis='y2',
+            name='Heart rate',
+            mode='lines',
+            line=dict(color='red'),
+            hovertemplate='%{y}<extra></extra>'
+        )
+                      )
+
+        fig.update_layout(
+            title='Altitude, Pace, and Heart Rate Over Time',
+            xaxis=dict(title='Distance (km)'),
+            yaxis=dict(
+                range=[0, 22],
+            ),
+            yaxis2=dict(
+                titlefont=dict(color='red'),
+                title='Heart Rate (bpm)',
+                tickfont=dict(color='red'),
+                showgrid=False,
+                anchor='free',
+                overlaying='y',
+                side='right',
+                position=1
+            ),
+        )
+
         st.plotly_chart(fig)
-
