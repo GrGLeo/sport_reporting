@@ -1,8 +1,9 @@
 import streamlit as st
-import numpy as np
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from utilities.comment import add_comment, write_comment
+from utils import time_to_seconds
 from front.user.user import User
 
 
@@ -28,33 +29,6 @@ if activity_id:
 
     with col1:
         st.dataframe(df_laps, hide_index=True)
-
-#    df_laps['time_seconds'] = df_laps['timer'].apply(time_to_seconds)
-#
-#    df_laps['start_seconds'] = df_laps['time_seconds'].cumsum() - df_laps['time_seconds']
-#    df_laps['end_seconds'] = df_laps['start_seconds'] + df_laps['time_seconds']
-#
-#    df_laps['start_time'] = pd.to_datetime(df_laps['start_seconds'], unit='s')
-#    df_laps['end_time'] = pd.to_datetime(df_laps['end_seconds'], unit='s')
-#
-#    fig = px.timeline(df_laps, x_start='start_time', x_end='end_time', y=y,
-#                      labels={'start_time': 'Start Time', 'end_time': 'End Time'})
-#
-#    fig.update_layout(
-#        xaxis_title='Activity Duration',
-#        yaxis_title='Pace',
-#        yaxis=dict(
-#            tickvals=df_laps[y],
-#            ticktext=df_laps[y]
-#        ),
-#        xaxis=dict(
-#            tickformat='%H:%M:%S',
-#            dtick='360000',
-#            showgrid=True,
-#            zeroline=True
-#        )
-#    )
-#    fig.update_yaxes(range=[2, df_laps[y].max() + 1])
 
     with col2:
         st.markdown("""
@@ -109,78 +83,119 @@ if activity_id:
         if add_com:
             add_comment(activity_id)
 
-# Record specific
-    altitude_min = df_records['altitude'].min()
-    altitude_max = df_records['altitude'].max()
+    record_tab, lap_tab = st.tabs(["Workout", "Laps"])
 
-    margin = 0.1 * (altitude_max - altitude_min)
+    # Record specific
+    with record_tab:
+        altitude_min = df_records['altitude'].min()
+        altitude_max = df_records['altitude'].max()
 
-    altitude_range_min = altitude_min - margin
-    altitude_range_max = altitude_max + margin
+        margin = 0.1 * (altitude_max - altitude_min)
 
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=df_records['distance'],
-        y=df_records['altitude'],
-        yaxis='y',
-        fill='tozeroy',
-        name='Altitude',
-        mode='none',
-        fillcolor='rgba(125, 125, 125, 0.5)',
-        hovertemplate='%{y}<extra></extra>'
-    )
-                  )
+        altitude_range_min = altitude_min - margin
+        altitude_range_max = altitude_max + margin
 
-    fig.add_trace(go.Scatter(
-        x=df_records['distance'],
-        y=df_records[y],
-        yaxis='y2',
-        name='Pace',
-        mode='lines',
-        fillcolor='rgba(0, 0, 255, 1)',
-        hovertemplate='%{y}<extra></extra>'
-    )
-                  )
-
-    fig.add_trace(go.Scatter(
-        x=df_records['distance'],
-        y=df_records['hr'],
-        yaxis='y3',
-        name='Heart rate',
-        mode='lines',
-        fillcolor='rgba(255, 0, 0, 1)',
-        hovertemplate='%{y}<extra></extra>'
-    )
-                  )
-
-    fig.update_layout(
-        title='Altitude, Pace, and Heart Rate Over Time',
-        xaxis=dict(title='Distance (km)'),
-        yaxis=dict(
-            range=[altitude_range_min, altitude_range_max],
-            showticklabels=False,
-            showgrid=False,
-            zeroline=False,
-            showline=False
-        ),
-        yaxis2=dict(
-            title='Pace (min/km)',
-            titlefont=dict(color='blue'),
-            tickfont=dict(color='blue'),
-            anchor='free',
-            overlaying='y',
-            side='left',
-        ),
-        yaxis3=dict(
-            title='Heart Rate (bpm)',
-            titlefont=dict(color='red'),
-            tickfont=dict(color='red'),
-            showgrid=False,
-            anchor='free',
-            overlaying='y',
-            side='right',
-            position=1
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=df_records['distance'],
+            y=df_records['altitude'],
+            yaxis='y',
+            fill='tozeroy',
+            name='Altitude',
+            mode='none',
+            fillcolor='rgba(125, 125, 125, 0.5)',
+            hovertemplate='%{y}<extra></extra>'
         )
-    )
+                      )
 
-    st.plotly_chart(fig)
+        fig.add_trace(go.Scatter(
+            x=df_records['distance'],
+            y=df_records[y],
+            yaxis='y2',
+            name='Pace',
+            mode='lines',
+            fillcolor='rgba(0, 0, 255, 1)',
+            hovertemplate='%{y}<extra></extra>'
+        )
+                      )
+
+        fig.add_trace(go.Scatter(
+            x=df_records['distance'],
+            y=df_records['hr'],
+            yaxis='y3',
+            name='Heart rate',
+            mode='lines',
+            fillcolor='rgba(255, 0, 0, 1)',
+            hovertemplate='%{y}<extra></extra>'
+        )
+                      )
+
+        fig.update_layout(
+            title='Altitude, Pace, and Heart Rate Over Time',
+            xaxis=dict(title='Distance (km)'),
+            yaxis=dict(
+                range=[altitude_range_min, altitude_range_max],
+                showticklabels=False,
+                showgrid=False,
+                zeroline=False,
+                showline=False
+            ),
+            yaxis2=dict(
+                title='Pace (min/km)',
+                titlefont=dict(color='blue'),
+                tickfont=dict(color='blue'),
+                anchor='free',
+                overlaying='y',
+                side='left',
+            ),
+            yaxis3=dict(
+                titlefont=dict(color='red'),
+                title='Heart Rate (bpm)',
+                tickfont=dict(color='red'),
+                showgrid=False,
+                anchor='free',
+                overlaying='y',
+                side='right',
+                position=1
+            )
+        )
+
+        st.plotly_chart(fig)
+
+    # Laps tab
+    with lap_tab:
+        df_laps['timer_seconds'] = df_laps['timer'].apply(time_to_seconds)
+        df_laps['cumulative_time'] = df_laps['timer_seconds'].cumsum()
+
+        total_duration = int(df_laps['cumulative_time'].max())
+        time_seconds = pd.DataFrame({'second': range(total_duration + 1)})
+        time_seconds['pace'] = None
+        time_seconds['hr'] = None
+
+        for i, lap in df_laps.iterrows():
+            start_time = 0 if i == 0 else df_laps.loc[i - 1, 'cumulative_time']
+            end_time = lap['cumulative_time']
+            time_seconds.loc[(time_seconds['second'] >= start_time) & (time_seconds['second'] <= end_time), 'pace'] = lap['pace']
+            time_seconds.loc[(time_seconds['second'] >= start_time) & (time_seconds['second'] <= end_time), 'hr'] = lap['hr']
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Scatter(
+            x=time_seconds['second'],
+            y=time_seconds['pace'],
+            name='Pace',
+            mode='lines',
+            line=dict(color='blue'),
+            hovertemplate='%{y}<extra></extra>'
+        )
+                      )
+        fig.update_layout(
+            title='Pace per lap over time',
+            xaxis=dict(title='Time (sec)'),
+            yaxis=dict(
+                title='Speed km/h',
+                range=[0, 22],
+            )
+        )
+
+        st.plotly_chart(fig)
