@@ -178,12 +178,8 @@ if activity_id:
             time_seconds.loc[(time_seconds['second'] >= start_time) & (time_seconds['second'] <= end_time), 'pace'] = lap['pace']
             time_seconds.loc[(time_seconds['second'] >= start_time) & (time_seconds['second'] <= end_time), 'hr'] = lap['hr']
 
-        st.write(time_seconds)
-        # fig = px.line(time_seconds, x='second', y='pace', labels={
-        #     'cumulative_time': 'Total Duration (seconds)',
-        #     'pace': 'Pace'
-        # }, title='Pace vs Cumulative Duration per Lap')
         fig = go.Figure()
+
         fig.add_trace(go.Scatter(
             x=time_seconds['second'],
             y=time_seconds['pace'],
@@ -193,34 +189,13 @@ if activity_id:
             hovertemplate='%{y}<extra></extra>'
         )
                       )
-
-        fig.add_trace(go.Scatter(
-            x=time_seconds['second'],
-            y=time_seconds['hr'],
-            yaxis='y2',
-            name='Heart rate',
-            mode='lines',
-            line=dict(color='red'),
-            hovertemplate='%{y}<extra></extra>'
-        )
-                      )
-
         fig.update_layout(
-            title='Altitude, Pace, and Heart Rate Over Time',
-            xaxis=dict(title='Distance (km)'),
+            title='Pace per lap over time',
+            xaxis=dict(title='Time (sec)'),
             yaxis=dict(
+                title='Speed km/h',
                 range=[0, 22],
-            ),
-            yaxis2=dict(
-                titlefont=dict(color='red'),
-                title='Heart Rate (bpm)',
-                tickfont=dict(color='red'),
-                showgrid=False,
-                anchor='free',
-                overlaying='y',
-                side='right',
-                position=1
-            ),
+            )
         )
 
         st.plotly_chart(fig)
