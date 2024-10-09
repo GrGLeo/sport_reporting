@@ -18,6 +18,7 @@ def increase_rows():
 st.button('Add line', on_click=increase_rows)
 
 with st.form("my_form"):
+    st.date_input(label="wkt_date")
     for i in range(st.session_state['rows']):
         display_input_row(i)
     submitted = st.form_submit_button("Submit")
