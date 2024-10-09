@@ -54,14 +54,13 @@ async def upload_file(
 
     if activity == "running":
         feeder = RunningFeeder(wkt, activity_id, int(user_id))
-        completion = feeder.compute()
+        feeder.compute()
     elif activity == "cycling":
         feeder = CyclingFeeder(wkt, activity_id, int(user_id))
-        completion = feeder.compute()
-        print(completion)
-    if completion:
+        feeder.compute()
+    if feeder.complete:
         return {
-            "data": completion,
+            "data": "Uploading successfull",
         }
     else:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='An error occured while uploading activity')

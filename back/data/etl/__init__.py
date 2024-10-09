@@ -10,8 +10,9 @@ class Feeder(ABC):
         self.tables = tables
         self.activity_id = activity_id
         self.logger = ConsoleLogger(f'{self.__class__.__name__} User: {self.user_id}')
+        self.complete = False
 
-    def compute(self) -> None:
+    def compute(self) -> bool:
         self._step(self.process, 'Processing')
         self._step(self.put, 'Writting')
 
@@ -51,6 +52,7 @@ class Feeder(ABC):
                         index=False
                     )
                     self.logger.info(f'INSERTING IN {self.schema}.{table_name}: {len(table)} rows')
+                    self.complete = True
                 except IntegrityError as e:
                     self.logger.error(f"An error occurred: {e}")
                     return None
