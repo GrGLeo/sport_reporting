@@ -7,8 +7,7 @@ def time_to_timedelta(t):
     return timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
 
 
-engine = st.session_state.db_engine
-conn = st.connection('postgresql', type='sql')
+user = st.session_state['user']
 
 calendar_options = {
     "editable": "true",
@@ -45,7 +44,8 @@ custom_css = """
     }
 """
 
-events = st.session_state['user'].get_calendar()
+events = user.get_calendar()
+st.write(user.get_futur_wkt())
 events = events.to_dict(orient='records')
 
 calendar_event = [

@@ -28,6 +28,10 @@ class User:
         syn_cycling = self.__prep_calendar(syn_cycling, 'cycling')
         return pd.concat([syn_run, syn_cycling], axis=0)
 
+    def get_futur_wkt(self) -> pd.DataFrame:
+        ftr_wkt = self.__get_query('planning.workout')
+        return ftr_wkt
+
     def get_analysis(self, schema: str, wkt_id: int) -> tuple[pd.DataFrame, pd.DataFrame]:
         df_laps = self.__get_query(f'{schema}.lap', wkt_id).drop(['activity_id', 'user_id', 'lap_id'], axis=1)
         df_laps['distance'] = (df_laps['distance'] / 1000).round(2)
@@ -77,6 +81,7 @@ class User:
         full_data['data'] = wkt
         response = requests.post("http://127.0.0.1:8000/push_program_wkt/", json=full_data)
         response.raise_for_status()
+        return True
 
     def get_zones(self) -> tuple[pd.DataFrame]:
         run_zone = self._get_zone('run_zone')

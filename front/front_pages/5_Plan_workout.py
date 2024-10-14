@@ -70,4 +70,6 @@ with st.form("my_form"):
                 'work': st.session_state[f'work_cooldown_{i+1}']
         }
         date = st.session_state['wkt_date']
-        user.push_programmed_wkt(date, sport, result)
+        pushed = user.push_programmed_wkt(date, sport, result)
+        if pushed:
+            st.toast('Threshold updated', icon="✅")
