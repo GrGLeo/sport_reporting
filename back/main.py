@@ -7,6 +7,7 @@ from back.data.etl.comment_feeder import CommentFeeder
 from back.data.etl.event_feeder import EventFeeder
 from back.data.etl.cycling_feeder import CyclingFeeder
 from back.data.etl.threshold_feeder import ThresholdFeeder
+from back.data.etl.futur_wkt_feeder import FuturWorkoutFeeder
 from back.data.tables import Base
 from back.data.utils import create_schema
 from back.utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttempt, UserLocked
@@ -95,7 +96,8 @@ async def update_threshold(threshold: ThresholdModel):
 
 @app.post("/push_program_wkt")
 async def save_program_wkt(futur_wkt: FuturWktModel):
-    print(futur_wkt)
+    ftr_wkt_feeder = FuturWorkoutFeeder(futur_wkt)
+    ftr_wkt_feeder.compute()
 
 
 @app.post("/login")
