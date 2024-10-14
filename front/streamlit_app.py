@@ -34,12 +34,18 @@ threshold = st.Page(
         icon="⚙"
 )
 
+planner = st.Page(
+        "front_pages/5_Plan_workout.py",
+        title="Workout planner",
+        icon="📋"
+)
+
 logged_page = [home, calendar, analytics]
 
 
 if "user_token" not in st.session_state:
     pg = st.navigation([st.Page(login_page, default=True), st.Page(create_user_page)])
 else:
-    pg = st.navigation({"Analyze": logged_page} | {"Account": [upload, threshold]})
+    pg = st.navigation({"Analyze": logged_page} | {"Planning": [planner]} | {"Account": [upload, threshold]})
 
 pg.run()

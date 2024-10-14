@@ -7,8 +7,7 @@ def time_to_timedelta(t):
     return timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
 
 
-engine = st.session_state.db_engine
-conn = st.connection('postgresql', type='sql')
+user = st.session_state['user']
 
 calendar_options = {
     "editable": "true",
@@ -45,7 +44,9 @@ custom_css = """
     }
 """
 
-events = st.session_state['user'].get_calendar()
+events = user.get_calendar()
+planned_wkt = user.get_planned_wkt()
+planned_wkt = planned_wkt.to_dict(orient='records')
 events = events.to_dict(orient='records')
 
 calendar_event = [
@@ -55,9 +56,22 @@ calendar_event = [
         'end': d['end'].strftime('%Y-%m-%dT%H:%M:%S'),
         'resourceId': d['title'],
         'id': d['activity_id'],
-        'backgroundColor': 'red'
+        'backgroundColor': 'red',
+        'planned': False
     }
     for d in events]
+
+calendar_planned = [
+    {
+        'title': 'Planned: ' + d['sport'],
+        'start': d['date'].strftime('%Y-%m-%dT%H:%M:%S'),
+        'id': d['id'],
+        'backgroundColor': 'grey',
+        'planned': True
+    }
+    for d in planned_wkt]
+
+full_calendar = calendar_event.extend(calendar_planned)
 
 calendar = calendar(events=calendar_event, options=calendar_options, custom_css=custom_css)
 
@@ -67,6 +81,6 @@ if upload:
 
 if 'callback' in calendar:
     if calendar['callback'] == "eventClick":
-        st.write(calendar['eventClick']['event']['id'])
-        st.session_state.activity_id = (calendar['eventClick']['event']['id'], calendar['eventClick']['event']['title'])
-        st.switch_page('front_pages/2_Analytics.py')
+        if not calendar['eventClick']['event']['extendedProps']['planned']:
+            st.session_state.activity_id = (calendar['eventClick']['event']['id'], calendar['eventClick']['event']['title'])
+            st.switch_page('front_pages/2_Analytics.py')

@@ -32,3 +32,10 @@ class ThresholdModel(BaseModel):
     swim: int
     ftp: int
     vma: float
+
+
+class FuturWktModel(BaseModel):
+    user_id: int
+    date: date
+    sport: str
+    data: dict
