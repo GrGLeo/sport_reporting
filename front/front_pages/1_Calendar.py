@@ -45,8 +45,13 @@ custom_css = """
 """
 
 events = user.get_calendar()
-st.write(user.get_futur_wkt())
+st.write(events)
+st.write(user.get_planned_wkt())
+planned_wkt = user.get_planned_wkt()
+planned_wkt = planned_wkt.to_dict(orient='records')
 events = events.to_dict(orient='records')
+st.write(events)
+st.write(planned_wkt)
 
 calendar_event = [
     {
@@ -58,6 +63,16 @@ calendar_event = [
         'backgroundColor': 'red'
     }
     for d in events]
+
+calendar_planned = [
+    {
+        'title': d['sport'],
+        'start': d['date'].strftime('%Y-%m-%dT%H:%M:%S'),
+        'backgroundColor': 'grey'
+    }
+    for d in planned_wkt]
+
+full_calendar = calendar_event.extend(calendar_planned)
 
 calendar = calendar(events=calendar_event, options=calendar_options, custom_css=custom_css)
 

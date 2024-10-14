@@ -28,7 +28,7 @@ class User:
         syn_cycling = self.__prep_calendar(syn_cycling, 'cycling')
         return pd.concat([syn_run, syn_cycling], axis=0)
 
-    def get_futur_wkt(self) -> pd.DataFrame:
+    def get_planned_wkt(self) -> pd.DataFrame:
         ftr_wkt = self.__get_query('planning.workout')
         return ftr_wkt
 
