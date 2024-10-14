@@ -45,13 +45,9 @@ custom_css = """
 """
 
 events = user.get_calendar()
-st.write(events)
-st.write(user.get_planned_wkt())
 planned_wkt = user.get_planned_wkt()
 planned_wkt = planned_wkt.to_dict(orient='records')
 events = events.to_dict(orient='records')
-st.write(events)
-st.write(planned_wkt)
 
 calendar_event = [
     {
@@ -60,15 +56,18 @@ calendar_event = [
         'end': d['end'].strftime('%Y-%m-%dT%H:%M:%S'),
         'resourceId': d['title'],
         'id': d['activity_id'],
-        'backgroundColor': 'red'
+        'backgroundColor': 'red',
+        'planned': False
     }
     for d in events]
 
 calendar_planned = [
     {
-        'title': d['sport'],
+        'title': 'Planned: ' + d['sport'],
         'start': d['date'].strftime('%Y-%m-%dT%H:%M:%S'),
-        'backgroundColor': 'grey'
+        'id': d['id'],
+        'backgroundColor': 'grey',
+        'planned': True
     }
     for d in planned_wkt]
 
@@ -82,6 +81,6 @@ if upload:
 
 if 'callback' in calendar:
     if calendar['callback'] == "eventClick":
-        st.write(calendar['eventClick']['event']['id'])
-        st.session_state.activity_id = (calendar['eventClick']['event']['id'], calendar['eventClick']['event']['title'])
-        st.switch_page('front_pages/2_Analytics.py')
+        if not calendar['eventClick']['event']['extendedProps']['planned']:
+            st.session_state.activity_id = (calendar['eventClick']['event']['id'], calendar['eventClick']['event']['title'])
+            st.switch_page('front_pages/2_Analytics.py')

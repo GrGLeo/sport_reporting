@@ -73,9 +73,10 @@ class User:
         response = requests.post("http://127.0.0.1:8000/threshold/", json=threshold)
         response.raise_for_status()
 
-    def push_programmed_wkt(self, wkt_date, sport, wkt):
+    def push_programmed_wkt(self, wkt_date, sport, wkt, name):
         full_data = {}
         full_data['user_id'] = self.user_id
+        full_data['name'] = name
         full_data['date'] = wkt_date.strftime('%Y-%m-%d')
         full_data['sport'] = sport
         full_data['data'] = wkt

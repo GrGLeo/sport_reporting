@@ -36,7 +36,7 @@ sport = st.selectbox('Sport', ['Cycling', 'Running'])
 with st.form("my_form"):
     st.date_input(label="Workout date", key='wkt_date')
     st.divider()
-    st.text_input(label="Workout name")
+    wkt_name = st.text_input(label="Workout name")
     st.divider()
     display_step(0, sport, 'warmup')
     st.divider()
@@ -70,6 +70,6 @@ with st.form("my_form"):
                 'work': st.session_state[f'work_cooldown_{i+1}']
         }
         date = st.session_state['wkt_date']
-        pushed = user.push_programmed_wkt(date, sport, result)
+        pushed = user.push_programmed_wkt(date, sport, result, wkt_name)
         if pushed:
             st.toast('Threshold updated', icon="✅")

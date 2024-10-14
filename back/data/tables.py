@@ -53,8 +53,10 @@ class FuturWorkout(Base):
     __tablename__ = "workout"
     __table_args__ = {"schema": "planning"}
 
-    user_id = Column(Integer, primary_key=True)
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    user_id = Column(Integer)
     date = Column(Date)
+    name = Column(String)
     sport = Column(String)
     data = Column(JSON)
 
