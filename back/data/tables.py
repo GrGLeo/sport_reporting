@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
-from sqlalchemy import Column, Integer, Float, Time, DateTime, String, Date
+from sqlalchemy import Column, Integer, Float, Time, DateTime, String, Date, JSON
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
@@ -47,6 +47,16 @@ class Events(Base):
     name = Column(String)
     sport = Column(String)
     priority = Column(String)
+
+
+class FuturWorkout(Base):
+    __tablename__ = "workout"
+    __table_args__ = {"schema": "planning"}
+
+    user_id = Column(Integer, primary_key=True)
+    date = Column(Date)
+    sport = Column(String)
+    data = Column(JSON)
 
 
 class Workout(Base):

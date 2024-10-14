@@ -18,7 +18,8 @@ from back.api_model import (
     EventModel,
     LoginModel,
     CommentModel,
-    ThresholdModel
+    ThresholdModel,
+    FuturWktModel
 )
 
 
@@ -90,6 +91,11 @@ async def post_event(event: EventModel):
 async def update_threshold(threshold: ThresholdModel):
     threshold_feeder = ThresholdFeeder(threshold)
     threshold_feeder.compute()
+
+
+@app.post("/push_program_wkt")
+async def save_program_wkt(futur_wkt: FuturWktModel):
+    print(futur_wkt)
 
 
 @app.post("/login")

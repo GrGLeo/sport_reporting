@@ -69,6 +69,15 @@ class User:
         response = requests.post("http://127.0.0.1:8000/threshold/", json=threshold)
         response.raise_for_status()
 
+    def push_programmed_wkt(self, wkt_date, sport, wkt):
+        full_data = {}
+        full_data['user_id'] = self.user_id
+        full_data['date'] = wkt_date.strftime('%Y-%m-%d')
+        full_data['sport'] = sport
+        full_data['data'] = wkt
+        response = requests.post("http://127.0.0.1:8000/push_program_wkt/", json=full_data)
+        response.raise_for_status()
+
     def get_zones(self) -> tuple[pd.DataFrame]:
         run_zone = self._get_zone('run_zone')
         cycling_zone = self._get_zone('cycling_zone')

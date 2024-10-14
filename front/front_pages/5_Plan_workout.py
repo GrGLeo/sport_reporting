@@ -1,6 +1,8 @@
 import streamlit as st
+from front.user.user import User
 
 st.header('Workout Planner')
+user: User = st.session_state['user']
 
 
 def display_step(index, sport, type):
@@ -38,6 +40,7 @@ with st.form("my_form"):
     st.divider()
     display_step(0, sport, 'warmup')
     st.divider()
+    i = 1
     for i in range(1, st.session_state['rows']):
         display_set(i, sport)
         st.divider()
@@ -66,3 +69,5 @@ with st.form("my_form"):
                 'timer': st.session_state[f'timer_cooldown_{i+1}'],
                 'work': st.session_state[f'work_cooldown_{i+1}']
         }
+        date = st.session_state['wkt_date']
+        user.push_programmed_wkt(date, sport, result)
