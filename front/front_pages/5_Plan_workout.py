@@ -72,4 +72,4 @@ with st.form("my_form"):
         date = st.session_state['wkt_date']
         pushed = user.push_programmed_wkt(date, sport, result, wkt_name)
         if pushed:
-            st.toast('Threshold updated', icon="✅")
+            st.toast('Workout planned', icon="✅")
