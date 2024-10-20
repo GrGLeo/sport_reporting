@@ -6,7 +6,7 @@ from fit_tool.profile.messages.workout_message import WorkoutMessage
 from fit_tool.profile.messages.workout_step_message import WorkoutStepMessage
 from fit_tool.profile.profile_type import (FileType, Intensity, Manufacturer,
                                            Sport, WorkoutStepDuration,
-                                           WorkoutStepTarget)
+                                           WorkoutStepTarget, Intensity)
 
 
 # SPEED mm/s EX: 4'16/k = 3'91m/s = 3_910mm/s
@@ -42,7 +42,7 @@ class WorkoutWriter:
 
     def _write_wkt_message(self, name, workout_steps):
         workout_message = WorkoutMessage()
-        workout_message.workoutName = name
+        workout_message.workout_name = name
         if self.sport == 'running':
             workout_message.sport = Sport.RUNNING
         elif self.sport == 'cycling':
@@ -58,13 +58,20 @@ class WorkoutWriter:
         if self.sport == 'running':
             step.target_type = WorkoutStepTarget.SPEED
             # Convert km/h to mm/s
-            step.target_value = round((target_value * 1000) / 3600, 4) * 1000
+            target_value = round((target_value * 1000) / 3600, 4) * 1000
+            low_target_value = target_value - (target_value*0.01)
+            high_target_value = target_value + (target_value*0.01)
+            step.target_value = 0
+            step.custom_target_speed_low = low_target_value
+            step.custom_target_speed_high = high_target_value
+
         elif self.sport == 'cycling':
             step.target_type = WorkoutStepTarget.POWER
             step.target_value = target_value
         else:
             pass
-        step.custom_name = name
+        step.workout_step_name = name
+        step.intensity = get_intensity(name.lower())
         return step
 
     def write_workout(self):
@@ -77,8 +84,8 @@ class WorkoutWriter:
 
         # for now just write one step and will break if not step_
         for set_key, set_steps in self.workout["set_1"].items():
-            steps.append(self._write_step(f"{set_key}_active", set_steps["active"]["timer"], set_steps["active"]["work"]))
-            steps.append(self._write_step(f"{set_key}_rest", set_steps["rest"]["timer"], set_steps["rest"]["work"]))
+            steps.append(self._write_step("active", set_steps["active"]["timer"], set_steps["active"]["work"]))
+            steps.append(self._write_step("rest", set_steps["rest"]["timer"], set_steps["rest"]["work"]))
 
         # write cooldown step
         steps.append(self._write_step("Cooldown", self.workout["cooldown"]["timer"], self.workout["cooldown"]["timer"]))
@@ -89,6 +96,18 @@ class WorkoutWriter:
 
         fit_file = self.builder.build()
         fit_file.to_file(self.path)
+
+
+def get_intensity(name):
+    match name:
+        case "active":
+            return Intensity.ACTIVE
+        case "rest":
+            return Intensity.REST
+        case "warmup":
+            return Intensity.WARMUP
+        case "cooldown":
+            return Intensity.COOLDOWN
 
 
 if __name__ == "__main__":
