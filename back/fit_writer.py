@@ -1,5 +1,4 @@
 import datetime
-from enum import Enum
 
 from fit_tool.fit_file_builder import FitFileBuilder
 from fit_tool.profile.messages.file_id_message import FileIdMessage
@@ -10,17 +9,8 @@ from fit_tool.profile.profile_type import (FileType, Intensity, Manufacturer,
                                            WorkoutStepTarget)
 
 
-workout_dict = {
-    "warmup": {"timer": 10, "work": 10.5},
-    "set_1": {
-        "step_0": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}},
-        "step_1": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}},
-        "step_2": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}},
-        "step_3": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}},
-        "step_4": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}}
-    },
-    "cooldown": {"timer": 10, "work": 10.5}
-}
+# SPEED mm/s EX: 4'16/k = 3'91m/s = 3_910mm/s
+# TIME ms EX: 20min = 1_200_000
 
 
 class WorkoutWriter:
@@ -50,22 +40,25 @@ class WorkoutWriter:
         file_id_message.serial_number = 0x12345678
         return file_id_message
 
-    def _write_wkt_message(self, name):
+    def _write_wkt_message(self, name, workout_steps):
         workout_message = WorkoutMessage()
         workout_message.workoutName = name
         if self.sport == 'running':
             workout_message.sport = Sport.RUNNING
         elif self.sport == 'cycling':
             workout_message.sport = Sport.CYCLING
+        workout_message.num_valid_steps = workout_steps
         return workout_message
 
     def _write_step(self, name, duration, target_value):
         step = WorkoutStepMessage()
         step.duration_type = WorkoutStepDuration.TIME
-        step.duration_value = duration
+        # Convert minute to ms
+        step.duration_value = duration * 60 * 1000
         if self.sport == 'running':
             step.target_type = WorkoutStepTarget.SPEED
-            step.target_value = round((target_value * 1000) / 3600, 2)
+            # Convert km/h to mm/s
+            step.target_value = round((target_value * 1000) / 3600, 4) * 1000
         elif self.sport == 'cycling':
             step.target_type = WorkoutStepTarget.POWER
             step.target_value = target_value
@@ -77,19 +70,22 @@ class WorkoutWriter:
     def write_workout(self):
         workout = WorkoutMessage()
         workout.sport = Sport.RUNNING
-        self.builder.add(self._write_id_message())
-        self.builder.add(self._write_wkt_message("5*4min"))
 
+        steps = []
         # write warmup step
-        self.builder.add(self._write_step("Warmup", self.workout["warmup"]["timer"], self.workout["warmup"]["work"]))
+        steps.append(self._write_step("Warmup", self.workout["warmup"]["timer"], self.workout["warmup"]["work"]))
 
         # for now just write one step and will break if not step_
         for set_key, set_steps in self.workout["set_1"].items():
-            self.builder.add(self._write_step(f"{set_key}_active", set_steps["active"]["timer"], set_steps["active"]["timer"]))
-            self.builder.add(self._write_step(f"{set_key}_rest", set_steps["rest"]["timer"], set_steps["rest"]["timer"]))
+            steps.append(self._write_step(f"{set_key}_active", set_steps["active"]["timer"], set_steps["active"]["work"]))
+            steps.append(self._write_step(f"{set_key}_rest", set_steps["rest"]["timer"], set_steps["rest"]["work"]))
 
-        # write cooldon step
-        self.builder.add(self._write_step("Cooldown", self.workout["cooldown"]["timer"], self.workout["cooldown"]["timer"]))
+        # write cooldown step
+        steps.append(self._write_step("Cooldown", self.workout["cooldown"]["timer"], self.workout["cooldown"]["timer"]))
+
+        self.builder.add(self._write_id_message())
+        self.builder.add(self._write_wkt_message("5*4min", len(steps)))
+        self.builder.add_all(steps)
 
         fit_file = self.builder.build()
         fit_file.to_file(self.path)
