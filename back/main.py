@@ -14,6 +14,7 @@ from back.utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttem
 from back.utils.data_handler import get_data
 from back.utils.logger import ConsoleLogger
 from back.auth import auth_user, create_user
+from back.fit.fit_writer import WorkoutWriter
 from back.api_model import (
     UserModel,
     EventModel,
@@ -98,6 +99,9 @@ async def update_threshold(threshold: ThresholdModel):
 async def save_program_wkt(futur_wkt: FuturWktModel):
     ftr_wkt_feeder = FuturWorkoutFeeder(futur_wkt)
     ftr_wkt_feeder.compute()
+    wkt_writer = WorkoutWriter(futur_wkt)
+    wkt_writer.write_workout()
+
 
 
 @app.post("/login")
