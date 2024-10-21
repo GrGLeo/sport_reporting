@@ -40,12 +40,18 @@ planner = st.Page(
         icon="📋"
 )
 
+view_plan = st.Page(
+        "front_pages/6_View_plan.py",
+        title="View plan",
+        icon="⏱"
+)
+
 logged_page = [home, calendar, analytics]
 
 
 if "user_token" not in st.session_state:
     pg = st.navigation([st.Page(login_page, default=True), st.Page(create_user_page)])
 else:
-    pg = st.navigation({"Analyze": logged_page} | {"Planning": [planner]} | {"Account": [upload, threshold]})
+    pg = st.navigation({"Analyze": logged_page} | {"Planning": [planner, view_plan]} | {"Account": [upload, threshold]})
 
 pg.run()
