@@ -1,5 +1,6 @@
 import datetime
 from back.fit.utils import get_intensity, get_path
+from back.api_model import FuturWktModel
 
 from fit_tool.fit_file_builder import FitFileBuilder
 from fit_tool.profile.messages.file_id_message import FileIdMessage
@@ -15,19 +16,19 @@ from fit_tool.profile.profile_type import (FileType, Intensity, Manufacturer,
 
 
 class WorkoutWriter:
-    def __init__(self, sport: str, workout: dict, id: str, user: int):
-        self.sport = sport
-        self.workout = workout
+    def __init__(self, wkt: FuturWktModel):
+        self.sport = wkt.sport
+        self.workout = wkt.data
         self.builder = FitFileBuilder(auto_define=True, min_string_size=50)
-        self.id = id
-        self.user = user
+        self.name = wkt.name
+        self.user = wkt.user_id
         self._path = None
 
     @property
     def path(self):
         if self._path is None:
             path = get_path(self.user)
-            self._path = path + f'/{self.id}.fit'
+            self._path = path + f'/{self.name}.fit'
             return self._path
         return self._path
 
@@ -92,7 +93,7 @@ class WorkoutWriter:
         steps.append(self._write_step("Cooldown", self.workout["cooldown"]["timer"], self.workout["cooldown"]["timer"]))
 
         self.builder.add(self._write_id_message())
-        self.builder.add(self._write_wkt_message("5*4min", len(steps)))
+        self.builder.add(self._write_wkt_message(self.name, len(steps)))
         self.builder.add_all(steps)
 
         fit_file = self.builder.build()
