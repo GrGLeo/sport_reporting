@@ -65,7 +65,7 @@ calendar_planned = [
     {
         'title': 'Planned: ' + d['sport'],
         'start': d['date'].strftime('%Y-%m-%dT%H:%M:%S'),
-        'id': d['id'],
+        'id': d['activity_id'],
         'backgroundColor': 'grey',
         'planned': True
     }
@@ -81,6 +81,12 @@ if upload:
 
 if 'callback' in calendar:
     if calendar['callback'] == "eventClick":
+        st.session_state.activity_id = (
+            calendar['eventClick']['event']['id'],
+            calendar['eventClick']['event']['title'],
+            calendar['eventClick']['event']['extendedProps']['planned']
+        )
         if not calendar['eventClick']['event']['extendedProps']['planned']:
-            st.session_state.activity_id = (calendar['eventClick']['event']['id'], calendar['eventClick']['event']['title'])
             st.switch_page('front_pages/2_Analytics.py')
+        elif calendar['eventClick']['event']['extendedProps']['planned']:
+            st.switch_page('front_pages/6_View_plan.py')

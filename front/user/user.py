@@ -22,27 +22,27 @@ class User:
         self.conn = conn
 
     def get_calendar(self) -> pd.DataFrame:
-        syn_run = self.__get_query('running.syn')
-        syn_run = self.__prep_calendar(syn_run, 'running')
-        syn_cycling = self.__get_query('cycling.syn')
-        syn_cycling = self.__prep_calendar(syn_cycling, 'cycling')
+        syn_run = self._get_query('running.syn')
+        syn_run = self._prep_calendar(syn_run, 'running')
+        syn_cycling = self._get_query('cycling.syn')
+        syn_cycling = self._prep_calendar(syn_cycling, 'cycling')
         return pd.concat([syn_run, syn_cycling], axis=0)
 
     def get_planned_wkt(self) -> pd.DataFrame:
-        ftr_wkt = self.__get_query('planning.workout')
+        ftr_wkt = self._get_query('planning.workout')
         return ftr_wkt
 
     def get_analysis(self, schema: str, wkt_id: int) -> tuple[pd.DataFrame, pd.DataFrame]:
-        df_laps = self.__get_query(f'{schema}.lap', wkt_id).drop(['activity_id', 'user_id', 'lap_id'], axis=1)
+        df_laps = self._get_query(f'{schema}.lap', wkt_id).drop(['activity_id', 'user_id', 'lap_id'], axis=1)
         df_laps['distance'] = (df_laps['distance'] / 1000).round(2)
 
-        df_zones = self.__get_query(f'{schema}.syn', wkt_id)
+        df_zones = self._get_query(f'{schema}.syn', wkt_id)
         duration = time_to_seconds(df_zones.iloc[0]['duration'])
         df_zones = df_zones[['recovery', 'endurance', 'tempo', 'threshold', 'vo2max']]
         for col in df_zones.columns:
             df_zones[col] = round(df_zones[col] / duration * 100, 2)
 
-        df_records = self.__get_query(f'{schema}.workout', wkt_id)
+        df_records = self._get_query(f'{schema}.workout', wkt_id)
 
         return df_laps, df_zones, df_records
 
@@ -51,9 +51,9 @@ class User:
         return self.conn.query(self.GET_EVENTS_QUERY, params=params)
 
     def get_full_workouts(self) -> pd.DataFrame:
-        syn_run = self.__get_query('running.syn')
+        syn_run = self._get_query('running.syn')
         syn_run['sport'] = 'running'
-        syn_cycling = self.__get_query('cycling.syn')
+        syn_cycling = self._get_query('cycling.syn')
         syn_cycling['sport'] = 'cycling'
         total = pd.concat([syn_run, syn_cycling], axis=0)
 
@@ -66,7 +66,7 @@ class User:
 
     def get_threshold(self, past: bool = False) -> pd.DataFrame:
         limit = 2 if past else 1
-        return self.__get_query('param.user_threshold', order_by='date DESC', limit=limit)
+        return self._get_query('param.user_threshold', order_by='date DESC', limit=limit)
 
     def update_threshold(self, threshold: dict) -> None:
         threshold['user_id'] = self.user_id
@@ -84,15 +84,20 @@ class User:
         response.raise_for_status()
         return True
 
+    def get_programmed_wkt(self, activity_id):
+        res = self._get_query('planning.workout', wkt_id=activity_id)
+        return res
+        print(res)
+
     def get_zones(self) -> tuple[pd.DataFrame]:
         run_zone = self._get_zone('run_zone')
         cycling_zone = self._get_zone('cycling_zone')
         return (cycling_zone, run_zone)
 
     def _get_zone(self, sport: str) -> pd.DataFrame:
-        return self.__get_query(f'param.{sport}')
+        return self._get_query(f'param.{sport}')
 
-    def __get_query(self, table: str, wkt_id: int = None, order_by: str = None, limit: int = None) -> pd.DataFrame:
+    def _get_query(self, table: str, wkt_id: int = None, order_by: str = None, limit: int = None) -> pd.DataFrame:
         query = self.GET_TABLE_QUERY.format(table=table)
         params = {'user_id': self.user_id}
 
@@ -109,7 +114,7 @@ class User:
         query += ';'
         return self.conn.query(query, params=params)
 
-    def __prep_calendar(self, data: pd.DataFrame, sport: str) -> pd.DataFrame:
+    def _prep_calendar(self, data: pd.DataFrame, sport: str) -> pd.DataFrame:
         cols = ['activity_id', 'date', 'duration']
         data = data[cols]
         data['title'] = sport

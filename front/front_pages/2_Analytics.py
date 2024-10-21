@@ -18,8 +18,12 @@ if 'activity_id' not in st.session_state:
     st.error('Please select an activity in the calendar')
     st.stop()
 
-activity_id, sport = st.session_state.activity_id
+activity_id, sport, planned = st.session_state.activity_id
 user: User = st.session_state.user
+
+if planned:
+    st.error('Please select an activity in the calendar')
+    st.stop()
 
 # Activity specific
 col1, col2, col3 = st.columns([0.30, 0.40, 0.3])
