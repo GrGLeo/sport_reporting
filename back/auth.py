@@ -4,7 +4,7 @@ from back.utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttem
 from back.data.tables import UserCRUD
 
 
-DB_URL = os.getenv("DATABASE_URL")
+DB_URL = os.getenv("DATABASE_URL", "leo:postgres@localhost:5432/sporting")
 
 
 def auth_user(username, password):
@@ -30,6 +30,7 @@ def auth_user(username, password):
 def create_user(username, password, email):
     db_user = UserCRUD(f'postgresql://{DB_URL}')
     u_exist, e_exist = db_user.check_user_exist(username, email)
+    print(u_exist, e_exist)
     if u_exist:
         raise UserTaken('Username already taken')
     elif e_exist:

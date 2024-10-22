@@ -6,7 +6,7 @@ from front.utils import time_to_timedelta, time_to_seconds
 
 
 class User:
-    API = os.getenv("API_ENDPOINT")
+    API = os.getenv("API_ENDPOINT", "http://127.0.0.1:8000")
 
     GET_TABLE_QUERY = """
         SELECT *

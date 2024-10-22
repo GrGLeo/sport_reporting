@@ -3,7 +3,7 @@ import requests
 import streamlit as st
 
 
-API = os.getenv("API_ENDPOINT")
+API = os.getenv("API_ENDPOINT", "http://127.0.0.1:8000")
 
 
 st.title("Fit File Upload")

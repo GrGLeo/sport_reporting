@@ -28,7 +28,7 @@ from back.api_model import (
 )
 
 
-DB_URL = os.getenv("DATABASE_URL")
+DB_URL = os.getenv("DATABASE_URL", "leo:postgres@localhost:5432/sporting")
 app = FastAPI()
 logger = ConsoleLogger(__name__)
 

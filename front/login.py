@@ -3,7 +3,9 @@ import streamlit as st
 import re
 import requests
 
-API = os.getenv("API_ENDPOINT")
+
+API = os.getenv("API_ENDPOINT", "http://127.0.0.1:8000")
+
 
 def login_page():
     st.title("Login")

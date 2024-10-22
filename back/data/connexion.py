@@ -2,7 +2,7 @@ import os
 from sqlalchemy import create_engine
 
 
-DB_URL = os.getenv("DATABASE_URL")
+DB_URL = os.getenv("DATABASE_URL", "leo:postgres@localhost:5432/sporting")
 
 
 class DatabaseConnection:

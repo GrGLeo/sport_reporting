@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, Float, Time, DateTime, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
 
-DB_URL = os.getenv("DATABASE_URL")
+DB_URL = os.getenv("DATABASE_URL", "leo:postgres@localhost:5432/sporting")
 engine = create_engine(f'postgresql://{DB_URL}')
 Session = sessionmaker(bind=engine)
 session = Session()
