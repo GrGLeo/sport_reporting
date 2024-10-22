@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form, status
 from fitparse import FitFile
 import pandas as pd
@@ -25,13 +26,14 @@ from back.api_model import (
 )
 
 
+DB_URL = os.getenv("DATABASE_URL")
 app = FastAPI()
 logger = ConsoleLogger(__name__)
 
 
 @app.on_event("startup")
 async def startup_event():
-    DATABASE_URL = "postgresql://leo:postgres@localhost:5432/sporting"
+    DATABASE_URL = f"postgresql://{DB_URL}"
     engine = create_engine(DATABASE_URL)
     create_schema(engine, ['settings'])
     Base.metadata.create_all(bind=engine)

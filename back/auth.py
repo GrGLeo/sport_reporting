@@ -1,10 +1,14 @@
+import os
 import bcrypt
 from back.utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttempt, UserLocked
 from back.data.tables import UserCRUD
 
 
+DB_URL = os.getenv("DATABASE_URL")
+
+
 def auth_user(username, password):
-    db_user = UserCRUD('postgresql://leo:postgres@localhost:5432/sporting')
+    db_user = UserCRUD(f'postgresql://{DB_URL}')
     user = db_user.get_user(username)
     if not user:
         raise UnknownUser()
@@ -24,7 +28,7 @@ def auth_user(username, password):
 
 
 def create_user(username, password, email):
-    db_user = UserCRUD('postgresql://leo:postgres@localhost:5432/sporting')
+    db_user = UserCRUD(f'postgresql://{DB_URL}')
     u_exist, e_exist = db_user.check_user_exist(username, email)
     if u_exist:
         raise UserTaken('Username already taken')
