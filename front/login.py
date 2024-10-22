@@ -1,7 +1,9 @@
+import os
 import streamlit as st
 import re
 import requests
 
+API = os.gentenv("API_ENDPOINT")
 
 def login_page():
     st.title("Login")
@@ -52,7 +54,7 @@ def create_user_page():
 
 def auth_user(username, password):
     response = requests.post(
-            "http://127.0.0.1:8000/login",
+            f"{API}/login",
             json={"username": username, "password": password}
     )
     if response.status_code == 200:
@@ -64,7 +66,7 @@ def auth_user(username, password):
 
 def create_user(username, password, email):
     response = requests.post(
-            "http://127.0.0.1:8000/create_user",
+            f"{API}/create_user",
             json={"username": username, "password": password, "email": email}
     )
     if response.status_code == 200:

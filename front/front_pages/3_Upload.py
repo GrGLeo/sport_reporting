@@ -1,5 +1,9 @@
+import os
 import requests
 import streamlit as st
+
+
+API = os.getenv("API_ENDPOINT")
 
 
 st.title("Fit File Upload")
@@ -14,7 +18,7 @@ if uploaded_file is not None:
         with st.spinner("Uploading file..."):
             file = {"file": uploaded_file.getvalue()}
             response = requests.post(
-                "http://127.0.0.1:8000/uploadfile/",
+                f"{API}/uploadfile/",
                 files=file,
                 data={'user_id': user_id}
             )

@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta, datetime
 import requests
 import pandas as pd
@@ -5,6 +6,8 @@ from front.utils import time_to_timedelta, time_to_seconds
 
 
 class User:
+    API = os.getenv("API_ENDPOINT")
+
     GET_TABLE_QUERY = """
         SELECT *
         FROM {table}
@@ -70,7 +73,7 @@ class User:
 
     def update_threshold(self, threshold: dict) -> None:
         threshold['user_id'] = self.user_id
-        response = requests.post("http://127.0.0.1:8000/threshold/", json=threshold)
+        response = requests.post(f"{API}/threshold/", json=threshold)
         response.raise_for_status()
 
     def push_programmed_wkt(self, wkt_date, sport, wkt, name):
@@ -80,7 +83,7 @@ class User:
         full_data['date'] = wkt_date.strftime('%Y-%m-%d')
         full_data['sport'] = sport
         full_data['data'] = wkt
-        response = requests.post("http://127.0.0.1:8000/push_program_wkt/", json=full_data)
+        response = requests.post(f"{API}/push_program_wkt/", json=full_data)
         response.raise_for_status()
         return True
 
