@@ -9,6 +9,7 @@ if 'activity_id' not in st.session_state:
 
 
 user = st.session_state.user
+user_id = st.session_state.user_token
 activity_id, sport, planned = st.session_state.activity_id
 
 if not planned:
@@ -63,4 +64,8 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig)
-st.download_button('Download workout', '')
+path = f'/home/leo/Code/personnal/python/project_sub/back/workout/{user_id}/{name}.fit'
+with open(path, "rb") as file:
+    file_data = file.read()
+
+st.download_button('Download workout', file_data, file_name=f'{name}.fit')

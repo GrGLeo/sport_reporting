@@ -36,6 +36,7 @@ class ThresholdModel(BaseModel):
 
 class FuturWktModel(BaseModel):
     user_id: int
+    name: str
     date: date
     sport: str
     data: dict

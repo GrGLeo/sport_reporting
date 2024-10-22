@@ -37,6 +37,7 @@ with st.form("my_form"):
     st.date_input(label="Workout date", key='wkt_date')
     st.divider()
     wkt_name = st.text_input(label="Workout name")
+    wkt_name = wkt_name.lower().replace(' ', '_')
     st.divider()
     display_step(0, sport, 'warmup')
     st.divider()
