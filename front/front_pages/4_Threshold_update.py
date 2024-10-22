@@ -1,5 +1,4 @@
 import streamlit as st
-from sqlalchemy import text
 import datetime
 
 conn = st.connection('postgresql', type='sql')
