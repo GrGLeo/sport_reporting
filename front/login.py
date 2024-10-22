@@ -3,7 +3,7 @@ import streamlit as st
 import re
 import requests
 
-API = os.gentenv("API_ENDPOINT")
+API = os.getenv("API_ENDPOINT")
 
 def login_page():
     st.title("Login")
