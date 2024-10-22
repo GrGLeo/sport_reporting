@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY ./back /app/back
+COPY . /app/back
 
 RUN pip install /app/back
 

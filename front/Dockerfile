@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY ./front /app/front
+COPY . /app/front
 
 RUN pip install /app/front
 
