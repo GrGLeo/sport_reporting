@@ -1,4 +1,8 @@
+import os
 from sqlalchemy import create_engine
+
+
+DB_URL = os.getenv("DATABASE_URL")
 
 
 class DatabaseConnection:
@@ -8,7 +12,7 @@ class DatabaseConnection:
 
     def __enter__(self):
         self.engine = create_engine(
-            'postgresql+psycopg2://leo:postgres@localhost:5432/sporting',
+            f'postgresql+psycopg2://{DB_URL}',
         )
         return self.engine
 

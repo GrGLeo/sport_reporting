@@ -1,5 +1,9 @@
+import os
 import streamlit as st
 import requests
+
+
+API = os.getenv("API_ENDPOINT")
 
 
 def create_event(user_id):
@@ -20,7 +24,7 @@ def create_event(user_id):
             "priority": priority
         }
         response = requests.post(
-            "http://127.0.0.1:8000/post_event",
+            f"{API}/post_event",
             json=json
         )
         if response.status_code == 200:

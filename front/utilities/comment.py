@@ -1,5 +1,9 @@
+import os
 import streamlit as st
 import requests
+
+
+API = os.getenv("API_ENDPOINT")
 
 
 @st.dialog('Add a comment')
@@ -13,7 +17,7 @@ def add_comment(activity_id):
                     "user_id": st.session_state['user_token']
                 }
         response = requests.post(
-                "http://127.0.0.1:8000/post_comment",
+                f"{API}/post_comment",
                 json=json
         )
         if response.status_code != 200:

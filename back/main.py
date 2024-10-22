@@ -1,3 +1,6 @@
+import os
+import time
+from sqlalchemy.exc import OperationalError
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form, status
 from fitparse import FitFile
 import pandas as pd
@@ -25,17 +28,28 @@ from back.api_model import (
 )
 
 
+DB_URL = os.getenv("DATABASE_URL")
 app = FastAPI()
 logger = ConsoleLogger(__name__)
 
 
 @app.on_event("startup")
 async def startup_event():
-    DATABASE_URL = "postgresql://leo:postgres@localhost:5432/sporting"
+    MAX_RETRIES = 10
+    WAIT_TIME = 2
+    DATABASE_URL = f"postgresql://{DB_URL}"
     engine = create_engine(DATABASE_URL)
-    create_schema(engine, ['settings'])
-    Base.metadata.create_all(bind=engine)
-    print("All tables are created or verified!")
+
+    for attempt in range(MAX_RETRIES):
+        try:
+            time.sleep(10)
+            Base.metadata.create_all(bind=engine)
+            print("All tables are created or verified!")
+        except OperationalError:
+            print(f"Database connection failed, retrying in {WAIT_TIME} seconds...")
+            time.sleep(WAIT_TIME)
+    else:
+        print(f"Failed to connect to Database after {MAX_RETRIES} attemps.")
 
 
 @app.post("/uploadfile/")

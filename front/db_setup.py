@@ -1,9 +1,11 @@
+import os
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, Float, Time, DateTime, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
 
-engine = create_engine('postgresql://leo:postgres@localhost:5432/sporting')
+DB_URL = os.getenv("DATABASE_URL")
+engine = create_engine(f'postgresql://{DB_URL}')
 Session = sessionmaker(bind=engine)
 session = Session()
 

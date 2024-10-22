@@ -1,0 +1,10 @@
+bcrypt==4.2.0
+bleach==6.1.0
+fastapi==0.112.2
+fit-tool==0.9.13
+fitparse==1.2.0
+pandas==2.2.2
+psycopg2-binary==2.9.9
+python-multipart==0.0.9
+SQLAlchemy==2.0.32
+uvicorn==0.30.6
