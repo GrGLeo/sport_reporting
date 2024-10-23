@@ -42,9 +42,9 @@ async def startup_event():
 
     for attempt in range(MAX_RETRIES):
         try:
-            time.sleep(10)
             Base.metadata.create_all(bind=engine)
             print("All tables are created or verified!")
+            break
         except OperationalError:
             print(f"Database connection failed, retrying in {WAIT_TIME} seconds...")
             time.sleep(WAIT_TIME)
