@@ -1,6 +1,5 @@
 import streamlit as st
-from login import login_page, create_user_page
-
+from login import login_page
 
 st.set_page_config(layout="wide")
 
@@ -50,7 +49,7 @@ logged_page = [home, calendar, analytics]
 
 
 if "user_token" not in st.session_state:
-    pg = st.navigation([st.Page(login_page, default=True), st.Page(create_user_page)])
+    pg = st.navigation([st.Page(login_page, default=True)])
 else:
     pg = st.navigation({"Analyze": logged_page} | {"Planning": [planner, view_plan]} | {"Account": [upload, threshold]})
 
