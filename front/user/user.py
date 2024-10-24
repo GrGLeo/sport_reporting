@@ -73,7 +73,7 @@ class User:
 
     def update_threshold(self, threshold: dict) -> None:
         threshold['user_id'] = self.user_id
-        response = requests.post(f"{API}/threshold/", json=threshold)
+        response = requests.post(f"{self.API}/threshold/", json=threshold)
         response.raise_for_status()
 
     def push_programmed_wkt(self, wkt_date, sport, wkt, name):
