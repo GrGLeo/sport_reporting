@@ -1,8 +1,8 @@
 import streamlit as st
 import datetime
 
-conn = st.connection('postgresql', type='sql')
-user = st.session_state['user']
+conn = st.session_state.conn
+user = st.session_state.user
 
 st.title("Update Threshold")
 df_threshold = user.get_threshold()

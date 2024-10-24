@@ -1,14 +1,12 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 from utilities.comment import add_comment, write_comment
 from utils import time_to_seconds
 from user.user import User
 
 
-conn = st.connection('postgresql', type='sql')
-
+conn = st.session_state.conn
 
 st.title("Workout analystics")
 

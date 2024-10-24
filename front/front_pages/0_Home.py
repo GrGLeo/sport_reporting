@@ -30,9 +30,12 @@ conn = st.connection(
     dialect="postgresql"
 )
 
+
 user = User(st.session_state["user_token"], conn)
 
-if "db_session" not in st.session_state:
+if "conn" not in st.session_state:
+    st.session_state.conn = conn
+if "user" not in st.session_state:
     st.session_state.user = user
 
 home_tab, zone_tab = st.tabs(["Home", "Zone"])
