@@ -2,7 +2,7 @@ import os
 from datetime import timedelta, datetime
 import requests
 import pandas as pd
-from front.utils import time_to_timedelta, time_to_seconds
+from utils import time_to_timedelta, time_to_seconds
 
 
 class User:

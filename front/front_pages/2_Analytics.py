@@ -4,7 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from utilities.comment import add_comment, write_comment
 from utils import time_to_seconds
-from front.user.user import User
+from user.user import User
 
 
 conn = st.connection('postgresql', type='sql')

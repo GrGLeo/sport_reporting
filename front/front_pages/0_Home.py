@@ -1,25 +1,38 @@
+import os
 from datetime import date, timedelta
 
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-from db_setup import Base, Threshold, engine, session
 from metrics import calculate_all
 from utilities.event import create_event
 
-from front.user.user import User
+from user.user import User
 
 st.title("Welcome to your dashboard!")
 
-conn = st.connection("postgresql", type="sql")
+db_host = os.getenv("DB_HOST", "localhost")
+db_port = os.getenv("DB_PORT", "5432")
+db_name = os.getenv("DB_NAME", "sporting")
+db_user = os.getenv("DB_USER", "leo")
+db_password = os.getenv("DB_PASSWORD", "postgres")
+
+
+conn = st.connection(
+    "postgresql",
+    type="sql",
+    host=db_host,
+    port=db_port,
+    database=db_name,
+    username=db_user,
+    password=db_password,
+    dialect="postgresql"
+)
+
 user = User(st.session_state["user_token"], conn)
 
 if "db_session" not in st.session_state:
-    st.session_state.db_engine = engine
-    st.session_state.db_session = session
-    st.session_state.db_base = Base
-    st.session_state.db_threshold = Threshold
     st.session_state.user = user
 
 home_tab, zone_tab = st.tabs(["Home", "Zone"])
