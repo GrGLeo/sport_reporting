@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:latest
@@ -12,6 +10,8 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
       -  ./init_schemas.sql:/docker-entrypoint-initdb.d/init_schemas.sql
+    networks:
+      - app-network
 
   back:
     build:
@@ -22,17 +22,30 @@ services:
       - db
     ports:
       - "8000:8000"
+    networks:
+      - app-network
 
   front:
     build:
       context: ./front
+    depends_on:
+      - db
+      - back
     environment:
       API_ENDPOINT: ${API_ENDPOINT}
+      DB_HOST: db
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      DB_PORT: "5432"
     ports:
       - "8501:8501"
-    depends_on:
-      - back
+    networks:
+      - app-network
 
 volumes:
   pg_data:
 
+networks:
+  app-network:
+    driver: bridge
