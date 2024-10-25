@@ -38,6 +38,13 @@ if "conn" not in st.session_state:
 if "user" not in st.session_state:
     st.session_state.user = user
 
+# Force to upload threshold zone
+threshold = user.get_threshold()
+if threshold.empty:
+    st.switch_page("front_pages/4_Threshold_update.py")
+
+
+
 home_tab, zone_tab = st.tabs(["Home", "Zone"])
 with home_tab:
     with st.expander("Add Event"):
@@ -177,7 +184,6 @@ with home_tab:
 
 with zone_tab:
     st.header("Threshold")
-    threshold = user.get_threshold()
     if not threshold.empty:
         col1, col2, col3 = st.columns(3)
         with col1:
