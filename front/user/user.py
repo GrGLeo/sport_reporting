@@ -26,9 +26,12 @@ class User:
 
     def get_calendar(self) -> pd.DataFrame:
         syn_run = self._get_query('running.syn')
-        syn_run = self._prep_calendar(syn_run, 'running')
+        if not syn_run.empty:
+            print(syn_run.head())
+            syn_run = self._prep_calendar(syn_run, 'running')
         syn_cycling = self._get_query('cycling.syn')
-        syn_cycling = self._prep_calendar(syn_cycling, 'cycling')
+        if not syn_cycling.empty:
+            syn_cycling = self._prep_calendar(syn_cycling, 'cycling')
         return pd.concat([syn_run, syn_cycling], axis=0)
 
     def get_planned_wkt(self) -> pd.DataFrame:
