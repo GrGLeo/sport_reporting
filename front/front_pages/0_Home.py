@@ -1,25 +1,41 @@
+import os
 from datetime import date, timedelta
 
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-from db_setup import Base, Threshold, engine, session
 from metrics import calculate_all
 from utilities.event import create_event
 
-from front.user.user import User
+from user.user import User
 
 st.title("Welcome to your dashboard!")
 
-conn = st.connection("postgresql", type="sql")
+db_host = os.getenv("DB_HOST", "localhost")
+db_port = os.getenv("DB_PORT", "5432")
+db_name = os.getenv("DB_NAME", "sporting")
+db_user = os.getenv("DB_USER", "leo")
+db_password = os.getenv("DB_PASSWORD", "postgres")
+
+
+conn = st.connection(
+    "postgresql",
+    type="sql",
+    host=db_host,
+    port=db_port,
+    database=db_name,
+    username=db_user,
+    password=db_password,
+    dialect="postgresql"
+)
+
+
 user = User(st.session_state["user_token"], conn)
 
-if "db_session" not in st.session_state:
-    st.session_state.db_engine = engine
-    st.session_state.db_session = session
-    st.session_state.db_base = Base
-    st.session_state.db_threshold = Threshold
+if "conn" not in st.session_state:
+    st.session_state.conn = conn
+if "user" not in st.session_state:
     st.session_state.user = user
 
 home_tab, zone_tab = st.tabs(["Home", "Zone"])
@@ -30,14 +46,15 @@ with home_tab:
 
     # Event display
     df_events = user.get_events()
-    cols = st.columns(len(df_events))
-    for i, row in df_events.iterrows():
-        cols[i].subheader(f"{row['name']} Priority: {row.priority}")
-        cols[i].write(f"{row.date.strftime('%Y-%m-%d')}")
-        cols[i].write(f"Sport: {row.sport}")
-        difference = row.date - today
-        weeks = difference.days // 7
-        cols[i].write(f"Weeks remaining: {weeks}")
+    if len(df_events) > 0:
+        cols = st.columns(len(df_events))
+        for i, row in df_events.iterrows():
+            cols[i].subheader(f"{row['name']} Priority: {row.priority}")
+            cols[i].write(f"{row.date.strftime('%Y-%m-%d')}")
+            cols[i].write(f"Sport: {row.sport}")
+            difference = row.date - today
+            weeks = difference.days // 7
+            cols[i].write(f"Weeks remaining: {weeks}")
 
     st.header("Weekly Stats")
     total_wkt = user.get_full_workouts()

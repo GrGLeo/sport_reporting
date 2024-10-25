@@ -1,5 +1,5 @@
 import streamlit as st
-from front.user.user import User
+from user.user import User
 
 st.header('Workout Planner')
 user: User = st.session_state['user']

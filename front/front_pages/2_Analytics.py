@@ -1,18 +1,14 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 from utilities.comment import add_comment, write_comment
 from utils import time_to_seconds
-from front.user.user import User
+from user.user import User
 
 
-conn = st.connection('postgresql', type='sql')
-
+conn = st.session_state.conn
 
 st.title("Workout analystics")
-
-db_engine = st.session_state.db_engine
 
 if 'activity_id' not in st.session_state:
     st.error('Please select an activity in the calendar')

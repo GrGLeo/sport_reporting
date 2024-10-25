@@ -51,8 +51,8 @@ def create_user_page():
                 success, token = create_user(new_username, new_password, new_email)
                 if success:
                     st.success("User created successfully!")
-                    st.session_state["user_token"] = token
-                    st.rerun()
+                    st.success("You can now login")
+                    # st.session_state["user_token"] = token
                 else:
                     st.error(f"User creation failed. {token["detail"]}")
 
@@ -89,5 +89,4 @@ def validate_user_input(email, password):
     password_pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{7,}$"
     if re.match(password_pattern, password):
         password_valid = True
-    print(email_valid, password_valid)
     return email_valid, password_valid
