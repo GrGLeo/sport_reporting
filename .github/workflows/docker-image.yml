@@ -1,9 +1,11 @@
 name: Docker Image CI
 
 on:
-  push:
-    tags:
-      - 'v*'
+  pull_request:
+    branches:
+      - prod
+    types:
+      - closed
 
 jobs:
 
@@ -21,19 +23,19 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build Frontend Image
-      run: docker build -t endurace_reporting:front.${{ github.ref_name }} -f front/Dockerfile .
+      run: docker build -t endurace_reporting:frontend.${{ github.sha }} -f front/Dockerfile .
 
     - name: Build Backend Image
-      run: docker build -t endurace_reporting:backend.${{ github.ref_name }} -f back/Dockerfile .
+      run: docker build -t endurace_reporting:backend.${{ github.sha }} -f back/Dockerfile .
 
     - name: Push Frontend Image
       run: |
-        docker tag myrepo:front.${{ github.ref_name }} myrepo:front.latest
-        docker push myrepo:front.${{ github.ref_name }}
-        docker push myrepo:front.latest
+        docker tag endurace_reporting:frontend.${{ github.sha }} myrepo:frontend.latest
+        docker push endurace_reporting:frontend.${{ github.sha }}
+        docker push endurace_reporting:frontend.latest
 
     - name: Push Backend Image
       run: |
-          docker tag endurace_reporting:backend.${{ github.ref_name }} myrepo:backend.latest
-          docker push endurace_reporting:backend.${{ github.ref_name }}
+          docker tag endurace_reporting:backend.${{ github.sha }} myrepo:backend.latest
+          docker push endurace_reporting:backend.${{ github.sha }}
           docker push endurace_reporting:backend.latest
