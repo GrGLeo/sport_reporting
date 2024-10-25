@@ -23,19 +23,19 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build Frontend Image
-      run: docker build -t endurace_reporting:frontend.${{ github.sha }} -f front/Dockerfile front/
+      run: docker build -t deretz/endurace_reporting:frontend.${{ github.sha }} -f front/Dockerfile front/
 
     - name: Build Backend Image
-      run: docker build -t endurace_reporting:backend.${{ github.sha }} -f back/Dockerfile back/
+      run: docker build -t deretz/endurace_reporting:backend.${{ github.sha }} -f back/Dockerfile back/
 
     - name: Push Frontend Image
       run: |
-        docker tag endurace_reporting:frontend.${{ github.sha }} myrepo:frontend.latest
-        docker push endurace_reporting:frontend.${{ github.sha }}
-        docker push endurace_reporting:frontend.latest
+        docker tag deretz/endurace_reporting:frontend.${{ github.sha }} deretz/endurace_reporting:frontend.latest
+        docker push deretz/endurace_reporting:frontend.${{ github.sha }}
+        docker push deretz/endurace_reporting:frontend.latest
 
     - name: Push Backend Image
       run: |
-          docker tag endurace_reporting:backend.${{ github.sha }} myrepo:backend.latest
-          docker push endurace_reporting:backend.${{ github.sha }}
-          docker push endurace_reporting:backend.latest
+          docker tag deretz/endurace_reporting:backend.${{ github.sha }} deretz/endurace_reporting:backend.latest
+          docker push deretz/endurace_reporting:backend.${{ github.sha }}
+          docker push deretz/endurace_reporting:backend.latest
