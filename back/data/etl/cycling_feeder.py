@@ -111,7 +111,6 @@ class CyclingFeeder(ActivityFeeder):
         )
         zones = zones.reset_index(drop=True)
         syn = pd.concat([syn, zones], axis=1)
-        syn.to_csv("~/Code/test.csv", index=False)
         #
         distance = records["distance"].iloc[-1]
         syn["distance"] = distance
