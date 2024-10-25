@@ -30,7 +30,6 @@ def auth_user(username, password):
 def create_user(username, password, email):
     db_user = UserCRUD(f'postgresql://{DB_URL}')
     u_exist, e_exist = db_user.check_user_exist(username, email)
-    print(u_exist, e_exist)
     if u_exist:
         raise UserTaken('Username already taken')
     elif e_exist:
@@ -38,4 +37,6 @@ def create_user(username, password, email):
     else:
         password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
         db_user.add_user(username, password.decode(), email)
-    return auth_user(username, password.decode())
+        # change logic: need to log after creating the user
+        return True
+        # return auth_user(username, password.decode())
