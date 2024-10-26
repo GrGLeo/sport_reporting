@@ -86,7 +86,7 @@ class User:
         full_data['date'] = wkt_date.strftime('%Y-%m-%d')
         full_data['sport'] = sport
         full_data['data'] = wkt
-        response = requests.post(f"{API}/push_program_wkt/", json=full_data)
+        response = requests.post(f"{self.API}/push_program_wkt/", json=full_data)
         response.raise_for_status()
         return True
 
