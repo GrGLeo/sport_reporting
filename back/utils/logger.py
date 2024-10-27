@@ -37,3 +37,6 @@ class ConsoleLogger:
 
     def critical(self, message):
         self.logger.critical(message)
+
+
+logger = ConsoleLogger(__name__)
