@@ -86,3 +86,8 @@ def create_jwt(data: dict, expire: timedelta = timedelta(hours=1)):
     expire_delta = datetime.now() + expire
     data["exp"] = expire_delta
     return jwt.encode(data, SECRET, algorithm="HS256")
+
+
+def decode_jwt(token: str):
+    payload = jwt.decode(token, SECRET, ALGORITHM)
+    return payload["user_id"]

@@ -5,6 +5,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Form, status
 from fitparse import FitFile
 import pandas as pd
 from sqlalchemy import create_engine
+from back.endpoints.auth import router
 from back.data.etl.running_feeder import RunningFeeder
 from back.data.etl.comment_feeder import CommentFeeder
 from back.data.etl.event_feeder import EventFeeder
@@ -12,16 +13,11 @@ from back.data.etl.cycling_feeder import CyclingFeeder
 from back.data.etl.threshold_feeder import ThresholdFeeder
 from back.data.etl.futur_wkt_feeder import FuturWorkoutFeeder
 from back.data.tables import Base
-from back.data.utils import create_schema
-from back.utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttempt, UserLocked
 from back.utils.data_handler import get_data
-from back.utils.logger import ConsoleLogger
-from back.auth import auth_user, create_user
+from back.utils.logger import logger
 from back.fit.fit_writer import WorkoutWriter
 from back.api_model import (
-    UserModel,
     EventModel,
-    LoginModel,
     CommentModel,
     ThresholdModel,
     FuturWktModel
@@ -30,7 +26,7 @@ from back.api_model import (
 
 DB_URL = os.getenv("DATABASE_URL", "leo:postgres@localhost:5432/sporting")
 app = FastAPI()
-logger = ConsoleLogger(__name__)
+app.include_router(router)
 
 
 @app.on_event("startup")
@@ -115,34 +111,3 @@ async def save_program_wkt(futur_wkt: FuturWktModel):
     ftr_wkt_feeder.compute()
     wkt_writer = WorkoutWriter(futur_wkt)
     wkt_writer.write_workout()
-
-
-
-@app.post("/login")
-async def login(login_data: LoginModel):
-    try:
-        logger.info(f'User: {login_data.username} login attempt')
-        token = auth_user(login_data.username, login_data.password)
-    except UnknownUser as e:
-        logger.warning(f'User: {login_data.username} {e}')
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-    except UserLocked as e:
-        logger.warning(f'User: {login_data.username} {e}')
-        raise HTTPException(status_code=status.HTTP_423_LOCKED, detail=str(e))
-    except FailedAttempt as e:
-        logger.warning(f'User: {login_data.username} {e}')
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
-
-    if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    logger.info(f'User: {login_data.username} login successfull')
-    return {"token": token}
-
-
-@app.post("/create_user")
-async def create_new_user(new_user: UserModel):
-    try:
-        token = create_user(new_user.username, new_user.password, new_user.email)
-    except (UserTaken, EmailTaken) as e:
-        raise HTTPException(status_code=401, detail=f'{e}')
-    return {"token": token}
