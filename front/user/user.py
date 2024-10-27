@@ -20,8 +20,8 @@ class User:
         ORDER BY priority
     """
 
-    def __init__(self, user_id: int, conn):
-        self.user_id = user_id
+    def __init__(self, token, conn):
+        self.token = token
         self.conn = conn
 
     def get_calendar(self) -> pd.DataFrame:
@@ -103,22 +103,24 @@ class User:
     def _get_zone(self, sport: str) -> pd.DataFrame:
         return self._get_query(f'param.{sport}')
 
-    def _get_query(self, table: str, wkt_id: int = None, order_by: str = None, limit: int = None) -> pd.DataFrame:
-        query = self.GET_TABLE_QUERY.format(table=table)
-        params = {'user_id': self.user_id}
+    def _get_query(self, table: str, select: str = "*", wkt_id: int = None, order_by: str = None, limit: int = None) -> pd.DataFrame:
+        headers = {"Authorization": f"Bearer {self.token}"}
+        params = {
+            "table": str(table),
+            "select": "*"
+        }
 
         if wkt_id:
-            query += ' AND activity_id = :wkt_id'
-            params['wkt_id'] = int(wkt_id)
-
+            params['wkt_id'] = wkt_id
         if order_by:
-            query += f' ORDER BY {order_by}'
-
+            params['order'] = order_by
         if limit:
-            query += f' LIMIT {limit}'
+            params['limit'] = limit
 
-        query += ';'
-        return self.conn.query(query, params=params)
+        response = requests.get(f"{self.API}/query/simple_query", headers=headers, json=params)
+        if response.status_code == 200:
+            data = response.json()
+            return pd.DataFrame(data["data"])
 
     def _prep_calendar(self, data: pd.DataFrame, sport: str) -> pd.DataFrame:
         cols = ['activity_id', 'date', 'duration']

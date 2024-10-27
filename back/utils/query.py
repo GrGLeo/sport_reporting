@@ -30,8 +30,5 @@ class Query:
         query = text(query)
         with self.conn.connect() as connection:
             result = connection.execute(query, params)
-            print(query)
-            print(result.fetchall())
-            return
-            rows = [dict(row) for row in result]
+            rows = [dict(zip(result.keys(), row)) for row in result.fetchall()]
             return {"data": rows}

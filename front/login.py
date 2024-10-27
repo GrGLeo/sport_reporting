@@ -18,7 +18,6 @@ def login_page():
 
             if submit:
                 success, token = auth_user(username, password)
-
                 if success:
                     st.session_state["user_token"] = token
                     st.success("Login sucess")
@@ -62,7 +61,7 @@ def auth_user(username, password):
         f"{API}/login", json={"username": username, "password": password}
     )
     if response.status_code == 200:
-        token = response.json()["token"]
+        token = response.json()
         return True, token
     elif response.status_code != 200:
         return False, response.json()

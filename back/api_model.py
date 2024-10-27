@@ -1,5 +1,7 @@
 from pydantic import BaseModel, FutureDate
+from typing import Optional
 from datetime import date
+from fastapi import Query
 
 class LoginModel(BaseModel):
     username: str
@@ -40,3 +42,11 @@ class FuturWktModel(BaseModel):
     date: date
     sport: str
     data: dict
+
+
+class QueryModel(BaseModel):
+    table: str
+    select: str
+    # wkt_id: Optional[str]
+    # order: Optional[str]
+    # limit: Optional[str]

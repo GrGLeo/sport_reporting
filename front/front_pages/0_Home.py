@@ -31,7 +31,7 @@ conn = st.connection(
 )
 
 
-user = User(st.session_state["user_token"], conn)
+user = User(st.session_state["user_token"]["access_token"], conn)
 
 if "conn" not in st.session_state:
     st.session_state.conn = conn
