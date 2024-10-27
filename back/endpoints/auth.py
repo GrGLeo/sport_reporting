@@ -85,9 +85,13 @@ def create_user(username, password, email):
 def create_jwt(data: dict, expire: timedelta = timedelta(hours=1)):
     expire_delta = datetime.now() + expire
     data["exp"] = expire_delta
-    return jwt.encode(data, SECRET, algorithm="HS256")
+    return jwt.encode(data, SECRET, algorithm=ALGORITHM)
 
 
 def decode_jwt(token: str):
-    payload = jwt.decode(token, SECRET, ALGORITHM)
+    if len(token.split(".")) != 3:
+        print(token)
+        raise HTTPException(status_code=401, detail="Invalid JWT token structure")
+
+    payload = jwt.decode(token, SECRET, [ALGORITHM])
     return payload["user_id"]

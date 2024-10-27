@@ -6,6 +6,7 @@ from fitparse import FitFile
 import pandas as pd
 from sqlalchemy import create_engine
 from back.endpoints.auth import router
+from back.endpoints.db_query import db_router
 from back.data.etl.running_feeder import RunningFeeder
 from back.data.etl.comment_feeder import CommentFeeder
 from back.data.etl.event_feeder import EventFeeder
@@ -27,6 +28,7 @@ from back.api_model import (
 DB_URL = os.getenv("DATABASE_URL", "leo:postgres@localhost:5432/sporting")
 app = FastAPI()
 app.include_router(router)
+app.include_router(db_router)
 
 
 @app.on_event("startup")

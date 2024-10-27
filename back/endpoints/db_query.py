@@ -9,11 +9,11 @@ db_router = APIRouter(prefix="/query")
 DB_URL = os.getenv("DATABASE_URL", "leo:postgres@localhost:5432/sporting")
 
 
-conn = create_engine(DB_URL)
+conn = create_engine("postgresql://" + DB_URL)
 
 
 @db_router.get("/simple_query/")
-async def simple_query(table: str, select: str, authorization: str = Header(None), **kwargs):
+async def simple_query(table: str, select: str, authorization: str = Header(None)):
     if authorization is None:
         raise HTTPException(status_code=401, detail="Missing authorization header")
     token = authorization.split(" ")[1]
