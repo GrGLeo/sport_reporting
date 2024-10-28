@@ -96,8 +96,13 @@ async def post_comment(comment: CommentModel):
 
 
 @app.post("/post_event")
-async def post_event(event: EventModel):
-    event_feeder = EventFeeder(event)
+async def post_event(event: EventModel, authorization: str = Header(None)):
+    if authorization is None:
+        raise HTTPException(status_code=401, detail="Missing authorization header")
+
+    token = authorization.split(" ")[1]
+    user_id = decode_jwt(token)
+    event_feeder = EventFeeder(event, user_id)
     event_feeder.compute()
 
 

@@ -48,7 +48,7 @@ if threshold.empty:
 home_tab, zone_tab = st.tabs(["Home", "Zone"])
 with home_tab:
     with st.expander("Add Event"):
-        create_event(st.session_state["user_token"])
+        create_event(st.session_state["user_token"]["access_token"])
     today = date.today()
 
     # Event display

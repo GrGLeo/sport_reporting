@@ -21,7 +21,6 @@ class CommentModel(BaseModel):
 
 
 class EventModel(BaseModel):
-    user_id: int
     date: FutureDate
     name: str
     sport: str

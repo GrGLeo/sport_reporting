@@ -6,7 +6,7 @@ import requests
 API = os.getenv("API_ENDPOINT", "http://127.0.0.1:8000")
 
 
-def create_event(user_id):
+def create_event(token):
     with st.form(key="event_form"):
         eventname = st.text_input("Event Name")
         date = st.date_input("Event Date")
@@ -17,15 +17,16 @@ def create_event(user_id):
         submit = st.form_submit_button("Add Event!")
     if submit:
         json = {
-            "user_id": user_id,
             "date": date.isoformat(),
             "name": eventname,
             "sport": sport,
             "priority": priority
         }
+        headers = {"Authorization": f"Bearer {token}"}
         response = requests.post(
             f"{API}/post_event",
-            json=json
+            json=json,
+            headers=headers
         )
         if response.status_code == 200:
             st.toast("Event added successfully", icon=":material/thumb_up:")
