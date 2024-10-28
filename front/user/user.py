@@ -74,7 +74,7 @@ class User:
 
     def update_threshold(self, threshold: dict) -> None:
         headers = {"Authorization": f"Bearer {self.token}"}
-        response = requests.post(f"{self.API}/threshold/", json=threshold)
+        response = requests.post(f"{self.API}/threshold/", json=threshold, headers=headers)
         response.raise_for_status()
 
     def push_programmed_wkt(self, wkt_date, sport, wkt, name):
