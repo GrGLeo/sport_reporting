@@ -27,7 +27,6 @@ class User:
     def get_calendar(self) -> pd.DataFrame:
         syn_run = self._get_query('running.syn')
         if not syn_run.empty:
-            print(syn_run.head())
             syn_run = self._prep_calendar(syn_run, 'running')
         syn_cycling = self._get_query('cycling.syn')
         if not syn_cycling.empty:
@@ -39,22 +38,21 @@ class User:
         return ftr_wkt
 
     def get_analysis(self, schema: str, wkt_id: int) -> tuple[pd.DataFrame, pd.DataFrame]:
-        df_laps = self._get_query(f'{schema}.lap', wkt_id).drop(['activity_id', 'user_id', 'lap_id'], axis=1)
+        df_laps = self._get_query(f'{schema}.lap', wkt_id=wkt_id).drop(['activity_id', 'user_id', 'lap_id'], axis=1)
         df_laps['distance'] = (df_laps['distance'] / 1000).round(2)
 
-        df_zones = self._get_query(f'{schema}.syn', wkt_id)
+        df_zones = self._get_query(f'{schema}.syn', wkt_id=wkt_id)
         duration = time_to_seconds(df_zones.iloc[0]['duration'])
         df_zones = df_zones[['recovery', 'endurance', 'tempo', 'threshold', 'vo2max']]
         for col in df_zones.columns:
             df_zones[col] = round(df_zones[col] / duration * 100, 2)
 
-        df_records = self._get_query(f'{schema}.workout', wkt_id)
+        df_records = self._get_query(f'{schema}.workout', wkt_id=wkt_id)
 
         return df_laps, df_zones, df_records
 
     def get_events(self) -> pd.DataFrame:
-        params = {"user_id": self.user_id}
-        return self.conn.query(self.GET_EVENTS_QUERY, params=params)
+        return self._get_query("param.events", select="date, name, sport, priority", order_by="priority")
 
     def get_full_workouts(self) -> pd.DataFrame:
         syn_run = self._get_query('running.syn')
@@ -93,7 +91,6 @@ class User:
     def get_programmed_wkt(self, activity_id):
         res = self._get_query('planning.workout', wkt_id=activity_id)
         return res
-        print(res)
 
     def get_zones(self) -> tuple[pd.DataFrame]:
         run_zone = self._get_zone('run_zone')
@@ -107,7 +104,7 @@ class User:
         headers = {"Authorization": f"Bearer {self.token}"}
         params = {
             "table": str(table),
-            "select": "*"
+            "select": "*",
         }
 
         if wkt_id:
@@ -115,12 +112,17 @@ class User:
         if order_by:
             params['order'] = order_by
         if limit:
-            params['limit'] = limit
+            params['limit'] = str(limit)
 
         response = requests.get(f"{self.API}/query/simple_query", headers=headers, json=params)
         if response.status_code == 200:
             data = response.json()
-            return pd.DataFrame(data["data"])
+            df = pd.DataFrame(data["data"])
+            for col in df.columns:
+                dt_ = ["date", "timestamp", "duration", "timer"]
+                if col in dt_:
+                    df[col] = pd.to_datetime(df[col])
+            return df
 
     def _prep_calendar(self, data: pd.DataFrame, sport: str) -> pd.DataFrame:
         cols = ['activity_id', 'date', 'duration']

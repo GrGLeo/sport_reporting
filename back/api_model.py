@@ -47,6 +47,6 @@ class FuturWktModel(BaseModel):
 class QueryModel(BaseModel):
     table: str
     select: str
-    # wkt_id: Optional[str]
-    # order: Optional[str]
-    # limit: Optional[str]
+    wkt_id: Optional[int] = None
+    order: Optional[str] = None
+    limit: Optional[int] = None

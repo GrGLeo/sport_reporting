@@ -90,7 +90,6 @@ def create_jwt(data: dict, expire: timedelta = timedelta(hours=1)):
 
 def decode_jwt(token: str):
     if len(token.split(".")) != 3:
-        print(token)
         raise HTTPException(status_code=401, detail="Invalid JWT token structure")
 
     payload = jwt.decode(token, SECRET, [ALGORITHM])

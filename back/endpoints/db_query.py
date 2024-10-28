@@ -18,10 +18,10 @@ async def simple_query(param: QueryModel, authorization: str = Header(None)):
     if authorization is None:
         raise HTTPException(status_code=401, detail="Missing authorization header")
 
-    table = param.table
-    select = param.select
     token = authorization.split(" ")[1]
     user_id = decode_jwt(token)
-    queryer = Query(table, select, user_id, conn)
-    data = queryer.get_query()
+
+    queryer = Query(user_id, conn)
+    param = {k: v for k, v in param.model_dump().items() if v is not None}
+    data = queryer.get_query(**param)
     return data

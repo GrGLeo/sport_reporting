@@ -24,6 +24,7 @@ if planned:
 # Activity specific
 col1, col2, col3 = st.columns([0.30, 0.40, 0.3])
 if activity_id:
+    activity_id = int(activity_id)
     df_laps, df_zones, df_records = user.get_analysis(sport, activity_id)
     y = 'pace' if sport == 'running' else 'power'
 

@@ -57,7 +57,6 @@ class WorkoutWriter:
         step.duration_type = WorkoutStepDuration.TIME
         # Convert minute to ms
         step.duration_value = duration * 60 * 1000
-        print(self.sport)
         if self.sport == 'Running':
             step.target_type = WorkoutStepTarget.SPEED
             # Convert km/h to mm/s
