@@ -1,5 +1,7 @@
 from pydantic import BaseModel, FutureDate
+from typing import Optional
 from datetime import date
+
 
 class LoginModel(BaseModel):
     username: str
@@ -19,7 +21,6 @@ class CommentModel(BaseModel):
 
 
 class EventModel(BaseModel):
-    user_id: int
     date: FutureDate
     name: str
     sport: str
@@ -27,7 +28,6 @@ class EventModel(BaseModel):
 
 
 class ThresholdModel(BaseModel):
-    user_id: int
     date: date
     swim: int
     ftp: int
@@ -35,8 +35,15 @@ class ThresholdModel(BaseModel):
 
 
 class FuturWktModel(BaseModel):
-    user_id: int
     name: str
     date: date
     sport: str
     data: dict
+
+
+class QueryModel(BaseModel):
+    table: str
+    select: str
+    wkt_id: Optional[int] = None
+    order: Optional[str] = None
+    limit: Optional[int] = None

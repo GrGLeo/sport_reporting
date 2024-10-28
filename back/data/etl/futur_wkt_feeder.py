@@ -5,8 +5,8 @@ import pandas as pd
 
 
 class FuturWorkoutFeeder(Feeder):
-    def __init__(self, futur_wkt: FuturWktModel):
-        self.user_id = futur_wkt.user_id
+    def __init__(self, futur_wkt: FuturWktModel, user_id: int):
+        self.user_id = user_id
         self.futur_wkt = futur_wkt.model_dump()
         super().__init__({}, None)
         self.schema = 'planning'

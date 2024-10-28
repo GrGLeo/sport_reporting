@@ -14,15 +14,3 @@ def fit_parsing(file: str) -> pd.DataFrame:
 
     df = pd.DataFrame(records)
     return df
-
-
-if __name__ == "__main__":
-    df = fit_parsing('bike.fit')
-    power = df.power
-    power = power.rolling(window=30).mean()
-    power = power ** 4
-    power = power.mean()
-    np = power ** 0.25
-
-    print(np)
-    print(df.info())

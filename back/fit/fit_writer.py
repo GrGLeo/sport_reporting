@@ -16,12 +16,12 @@ from fit_tool.profile.profile_type import (FileType, Intensity, Manufacturer,
 
 
 class WorkoutWriter:
-    def __init__(self, wkt: FuturWktModel):
+    def __init__(self, wkt: FuturWktModel, user_id: int):
         self.sport = wkt.sport
         self.workout = wkt.data
         self.builder = FitFileBuilder(auto_define=True, min_string_size=50)
         self.name = wkt.name
-        self.user = wkt.user_id
+        self.user = user_id
         self._path = None
 
     @property
@@ -57,7 +57,6 @@ class WorkoutWriter:
         step.duration_type = WorkoutStepDuration.TIME
         # Convert minute to ms
         step.duration_value = duration * 60 * 1000
-        print(self.sport)
         if self.sport == 'Running':
             step.target_type = WorkoutStepTarget.SPEED
             # Convert km/h to mm/s
