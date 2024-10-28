@@ -44,7 +44,6 @@ if threshold.empty:
     st.switch_page("front_pages/4_Threshold_update.py")
 
 
-
 home_tab, zone_tab = st.tabs(["Home", "Zone"])
 with home_tab:
     with st.expander("Add Event"):
@@ -59,7 +58,7 @@ with home_tab:
             cols[i].subheader(f"{row['name']} Priority: {row.priority}")
             cols[i].write(f"{row.date.strftime('%Y-%m-%d')}")
             cols[i].write(f"Sport: {row.sport}")
-            difference = row.date - today
+            difference = row.date.date() - today
             weeks = difference.days // 7
             cols[i].write(f"Weeks remaining: {weeks}")
 
