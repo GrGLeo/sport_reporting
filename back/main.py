@@ -113,10 +113,15 @@ async def update_threshold(threshold: ThresholdModel, authorization: str = Heade
 
 
 @app.post("/push_program_wkt")
-async def save_program_wkt(futur_wkt: FuturWktModel):
-    ftr_wkt_feeder = FuturWorkoutFeeder(futur_wkt)
+async def save_program_wkt(futur_wkt: FuturWktModel, authorization: str = Header(None)):
+    if authorization is None:
+        raise HTTPException(status_code=401, detail="Missing authorization header")
+
+    token = authorization.split(" ")[1]
+    user_id = decode_jwt(token)
+    ftr_wkt_feeder = FuturWorkoutFeeder(futur_wkt, user_id)
     ftr_wkt_feeder.compute()
-    wkt_writer = WorkoutWriter(futur_wkt)
+    wkt_writer = WorkoutWriter(futur_wkt, user_id)
     wkt_writer.write_workout()
 
 import logging
