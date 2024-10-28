@@ -73,8 +73,8 @@ class User:
         return self._get_query('param.user_threshold', order_by='date DESC', limit=limit)
 
     def update_threshold(self, threshold: dict) -> None:
-        threshold['user_id'] = self.user_id
-        response = requests.post(f"{self.API}/threshold/", json=threshold)
+        headers = {"Authorization": f"Bearer {self.token}"}
+        response = requests.post(f"{self.API}/threshold/", json=threshold, headers=headers)
         response.raise_for_status()
 
     def push_programmed_wkt(self, wkt_date, sport, wkt, name):
@@ -114,7 +114,7 @@ class User:
         if limit:
             params['limit'] = str(limit)
 
-        response = requests.get(f"{self.API}/query/simple_query", headers=headers, json=params)
+        response = requests.get(f"{self.API}/query/simple_query/", headers=headers, json=params)
         if response.status_code == 200:
             data = response.json()
             df = pd.DataFrame(data["data"])

@@ -1,7 +1,7 @@
 from pydantic import BaseModel, FutureDate
 from typing import Optional
 from datetime import date
-from fastapi import Query
+
 
 class LoginModel(BaseModel):
     username: str
@@ -29,7 +29,6 @@ class EventModel(BaseModel):
 
 
 class ThresholdModel(BaseModel):
-    user_id: int
     date: date
     swim: int
     ftp: int

@@ -1,11 +1,11 @@
 import os
 import time
 from sqlalchemy.exc import OperationalError
-from fastapi import FastAPI, File, UploadFile, HTTPException, Form, status
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form, status, Header
 from fitparse import FitFile
 import pandas as pd
 from sqlalchemy import create_engine
-from back.endpoints.auth import router
+from back.endpoints.auth import router, decode_jwt
 from back.endpoints.db_query import db_router
 from back.data.etl.running_feeder import RunningFeeder
 from back.data.etl.comment_feeder import CommentFeeder
@@ -102,8 +102,13 @@ async def post_event(event: EventModel):
 
 
 @app.post("/threshold")
-async def update_threshold(threshold: ThresholdModel):
-    threshold_feeder = ThresholdFeeder(threshold)
+async def update_threshold(threshold: ThresholdModel, authorization: str = Header(None)):
+    if authorization is None:
+        raise HTTPException(status_code=401, detail="Missing authorization header")
+
+    token = authorization.split(" ")[1]
+    user_id = decode_jwt(token)
+    threshold_feeder = ThresholdFeeder(threshold, user_id)
     threshold_feeder.compute()
 
 

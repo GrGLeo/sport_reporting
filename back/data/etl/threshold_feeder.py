@@ -4,10 +4,10 @@ from back.api_model import ThresholdModel
 
 
 class ThresholdFeeder(Feeder):
-    def __init__(self, threshold: ThresholdModel):
-        self.user_id = threshold.user_id
+    def __init__(self, threshold: ThresholdModel, user_id):
         self.schema = 'param'
         self.threshold = threshold
+        self.user_id = user_id
         super().__init__({})
 
     def process(self):
