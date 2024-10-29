@@ -13,14 +13,15 @@ uploaded_file = st.file_uploader("Choose a file", type=['fit', 'fits'])
 app_type = ["application/fit", "application/fits"]
 
 if uploaded_file is not None:
-    user_id = str(st.session_state['user_token'])
+    token = st.session_state["user_token"]["access_token"]
     if uploaded_file.type in app_type:
         with st.spinner("Uploading file..."):
             file = {"file": uploaded_file.getvalue()}
+            headers = {"Authorization": f"Bearer {token}"}
             response = requests.post(
                 f"{API}/uploadfile/",
                 files=file,
-                data={'user_id': user_id}
+                headers=headers
             )
             if response.status_code == 200:
                 st.switch_page('front_pages/1_Calendar.py')
