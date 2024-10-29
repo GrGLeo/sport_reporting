@@ -8,3 +8,4 @@ start_rec.sh
 /setup.py
 !/front/setup.py
 !/back/setup.py
+!template.env
