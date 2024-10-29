@@ -53,8 +53,14 @@ async def startup_event():
 @app.post("/uploadfile/")
 async def upload_file(
     file: UploadFile = File(...),
-    user_id: int = Form(...)
+    authorization: str = Header(None)
 ):
+    if authorization is None:
+        raise HTTPException(status_code=401, detail="Missing authorization header")
+
+    token = authorization.split(" ")[1]
+    user_id = decode_jwt(token)
+
     contents = await file.read()
     fitfile = FitFile(contents)
     records = get_data(fitfile, 'record')

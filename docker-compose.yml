@@ -14,7 +14,7 @@ services:
       - app-network
 
   back:
-    image: deretz/endurace_reporting:backend.lastest
+    image: deretz/endurace_reporting:backend.latest
     build:
       context: ./back
     environment:
@@ -27,7 +27,7 @@ services:
       - app-network
 
   front:
-    image: deretz/endurace_reporting:frontend.lastest
+    image: deretz/endurace_reporting:frontend.latest
     build:
       context: ./front
     depends_on:
