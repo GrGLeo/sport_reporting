@@ -9,23 +9,24 @@ API = os.getenv("API_ENDPOINT", "http://127.0.0.1:8000")
 @st.dialog('Add a comment')
 def add_comment(activity_id):
     comment = st.text_area("Write your comment here")
+    headers = {"Authorization": f"Bearer {st.session_state["user_token"]["access_token"]}"}
 
     if st.button("Submit"):
         json = {
                     "activity_id": activity_id,
                     "comment_text": comment,
-                    "user_id": st.session_state['user_token']
                 }
         response = requests.post(
-                f"{API}/post_comment",
-                json=json
+                f"{API}/comments/post_comment",
+                json=json,
+                headers=headers
         )
         if response.status_code != 200:
             raise Exception(f'Error {response.status_code}')
 
 
 def write_comment(conn, activity_id):
-    query = "select * from param.comment where activity_id = :activity_id"
+    query = "select * from param.activity_comments where activity_id = :activity_id"
     comments = conn.query(query, params={'activity_id': activity_id})
     comment_section = """
         <div style='

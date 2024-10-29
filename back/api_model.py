@@ -16,7 +16,6 @@ class UserModel(BaseModel):
 
 class CommentModel(BaseModel):
     activity_id: int
-    user_id: int
     comment_text: str
 
 

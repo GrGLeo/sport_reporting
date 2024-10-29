@@ -7,19 +7,17 @@ import pandas as pd
 from sqlalchemy import create_engine
 from back.endpoints.auth import router, decode_jwt
 from back.endpoints.db_query import db_router
+from back.endpoints.comments import comment_router
 from back.data.etl.running_feeder import RunningFeeder
-from back.data.etl.comment_feeder import CommentFeeder
 from back.data.etl.event_feeder import EventFeeder
 from back.data.etl.cycling_feeder import CyclingFeeder
 from back.data.etl.threshold_feeder import ThresholdFeeder
 from back.data.etl.futur_wkt_feeder import FuturWorkoutFeeder
 from back.data.tables import Base
 from back.utils.data_handler import get_data
-from back.utils.logger import logger
 from back.fit.fit_writer import WorkoutWriter
 from back.api_model import (
     EventModel,
-    CommentModel,
     ThresholdModel,
     FuturWktModel
 )
@@ -29,6 +27,7 @@ DB_URL = os.getenv("DATABASE_URL", "leo:postgres@localhost:5432/sporting")
 app = FastAPI()
 app.include_router(router)
 app.include_router(db_router)
+app.include_router(comment_router)
 
 
 @app.on_event("startup")
@@ -85,20 +84,6 @@ async def upload_file(
         }
     else:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='An error occured while uploading activity')
-
-
-@app.post("/post_comment")
-async def post_comment(comment: CommentModel):
-    if len(comment.comment_text.strip()) == 0:
-        logger.warning("Empty comment")
-        raise HTTPException(status_code=400, detail="Comment can not be empty")
-
-    try:
-        comment_feeder = CommentFeeder(comment)
-        comment_feeder.compute()
-    except Exception as e:
-        logger.error(e)
-        pass
 
 
 @app.post("/post_event")
