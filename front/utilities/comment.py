@@ -26,8 +26,12 @@ def add_comment(activity_id):
 
 
 def write_comment(conn, activity_id):
-    query = "select * from param.activity_comments where activity_id = :activity_id"
-    comments = conn.query(query, params={'activity_id': activity_id})
+    response = requests.get(f"{API}/comments/get_comments/?activity_id={activity_id}")
+    if response.status_code == 200:
+        comments = response.json()['data']
+    else:
+        comments = [{"comment": "No comments yet"}]
+
     comment_section = """
         <div style='
             min-height: 100px;
@@ -40,8 +44,8 @@ def write_comment(conn, activity_id):
         '>
     """
 
-    for _, comment in comments.iterrows():
-        comment_section += f"<div style='padding: 5px; margin-bottom: 5px; border-bottom: 1px solid #ddd;'>{comment.comment}</div>"
+    for comment in comments:
+        comment_section += f"<div style='padding: 5px; margin-bottom: 5px; border-bottom: 1px solid #ddd;'>{comment['comment']}</div>"
 
     # Close the scrollable container div
     comment_section += "</div>"

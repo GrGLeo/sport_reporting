@@ -1,11 +1,11 @@
 import pandas as pd
 import bleach
 from back.data.etl import Feeder
-from back.api_model import CommentModel
+from back.api_model import PostCommentModel
 
 
 class CommentFeeder(Feeder):
-    def __init__(self, comment: CommentModel, user_id: int):
+    def __init__(self, comment: PostCommentModel, user_id: int):
         self.user_id = user_id
         self.text = comment.comment_text
         self.schema = 'param'

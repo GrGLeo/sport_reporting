@@ -14,7 +14,7 @@ class UserModel(BaseModel):
     email: str
 
 
-class CommentModel(BaseModel):
+class PostCommentModel(BaseModel):
     activity_id: int
     comment_text: str
 
