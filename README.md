@@ -1,48 +1,59 @@
-#     ______          __      ____                
-#    / ________  ____/ __  __/ __ \____ _________ 
-#   / __/ / __ \/ __  / / / / /_/ / __ `/ ___/ _ \
-#  / /___/ / / / /_/ / /_/ / _, _/ /_/ / /__/  __/
-# /_____/_/ /_/\__,_/\__,_/_/ |_|\__,_/\___/\___/ 
-#                                                 
-# 
+    ______          __      ____                
+   / ________  ____/ __  __/ __ \____ _________ 
+  / __/ / __ \/ __  / / / / /_/ / __ `/ ___/ _ \
+ / /___/ / / / /_/ / /_/ / _, _/ /_/ / /__/  __/
+/_____/_/ /_/\__,_/\__,_/_/ |_|\__,_/\___/\___/ 
+                                                
 
 # Workout Analytics Platform
 
-This platform is designed to analyze swim, bike, and run workouts using key metrics such as Training Stress Score (TSS), Chronic Training Load (CTL), Acute Training Load (ATL), and Training Stress Balance (TSB).
+An all-in-one solution for analyzing swim, bike, and run workouts with performance insights, personalized workout planning, and metrics tracking.
 
-## Calendar view
+![Build Status](https://img.shields.io/github/workflow/status/GrGLeo/sport_reporting/CI) ![License](https://img.shields.io/github/license/username/repo)
 
-This allow the user to see all activities done, and by clicking on an acitivity, the user can see in details the workout, planned workout are also available, and on click show the program.
+---
 
-## Analytics
-In this, the user can see the detail, of the workout, the metrics per lap, the time spent in the five zones. Two graph are available, one showes the pace and heart rate, the second one shows the average pace per lap.
+## Features
 
-## Workout planner
-In this section, the user can create a workout, through a form two step are mandatory, warm up and cooldown, then set can be added, with one active and one rest period. The workout is then uploaded and shown on the calendar, and be download and used on a Garmin watch, the upload need to be done by connecting the watch to a computer.
+### Calendar View
+- **Activity Overview:** View all completed and planned workouts in one place.
+- **Detailed Activity Metrics:** Click on activities to see an in-depth look at workout details, including planned workouts with pacing goals.
 
-## View plan
-After selecting in the calendar, a planned workout, this page simply show the workout, pace or power per lap.
+### Analytics
+- **Workout Details:** View detailed metrics for each workout, including metrics per lap and time spent in training zones.
+- **Graphs:** Visualize pace and heart rate trends, as well as lap-based average pace.
 
-## Upload
-A .fit file can be upload, and this will show up in the calendar, and Home page metrics will be updated
+### Workout Planner
+- **Custom Workouts:** Create workouts with configurable warm-up, cooldown, and intervals. Each workout must include a warm-up and cooldown, and users can add sets with active and rest periods.
+- **Export for Garmin:** After creating a workout, download it for use with a Garmin watch (requires connecting the watch to a computer for upload).
 
-## Threshold Update
-This allow, the user to set his threshold, zones will be calculated, for futur uses. And threshold can be updated to have metrics calculated with up to date metrics.
+### View Plan
+- **Planned Workout Details:** Click on a planned workout in the calendar to see pacing or power targets per lap.
 
+### Upload
+- **Upload Activities:** Upload a `.fit` file to log a workout, which will then appear in the calendar and update home page metrics.
 
-# Roadmap
-Here’s the current roadmap for the project.
+### Threshold Update
+- **Set Training Thresholds:** Set thresholds to personalize training zones, which are then used for future calculations. Update thresholds at any time to keep metrics aligned with current fitness levels.
+
+---
+
+## Roadmap
+
+Here’s the current roadmap for the project:
 
 - [ ] **Q4 2024** - Initial Release
-  - [ ] Fixing planned workout, for cycling and more than one set 
-  - [ ] Adding feedback and activity for RPE 
-  - [ ] Complete CI/CD
+  - [ ] Fix issues with planned workouts for cycling (support multiple sets)
+  - [ ] Enable activity rating and feedback based on RPE (Rate of Perceived Exertion)
+  - [ ] Complete CI/CD pipeline setup
 
-- [ ] **Q1 2025** - Generating Workout 
-  - [ ] Generate a workout based on past activities 
-  - [ ] Build LoadBalancer 
-  - [ ] Adding intra workout calories consumption tracking 
-  - [ ] Overall improvement in UX
+- [ ] **Q1 2025** - Workout Generation and Improvements
+  - [ ] Generate a workout based on past activities
+  - [ ] Implement load balancer
+  - [ ] Track intra-workout calorie consumption
+  - [ ] Improve overall user experience (UX)
+
+---
 
 # Key Metrics
 
