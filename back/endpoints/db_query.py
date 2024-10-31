@@ -21,7 +21,7 @@ async def simple_query(param: QueryModel, authorization: str = Header(None)):
     token = authorization.split(" ")[1]
     user_id = decode_jwt(token)
 
-    queryer = Query(user_id, conn)
+    query = Query(user_id, conn)
     param = {k: v for k, v in param.model_dump().items() if v is not None}
-    data = queryer.get_query(**param)
+    data = query.get_query(**param)
     return data

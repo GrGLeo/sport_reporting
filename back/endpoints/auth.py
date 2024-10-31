@@ -88,9 +88,17 @@ def create_jwt(data: dict, expire: timedelta = timedelta(hours=1)):
     return jwt.encode(data, SECRET, algorithm=ALGORITHM)
 
 
-def decode_jwt(token: str):
+def decode_jwt(token: str) -> int:
     if len(token.split(".")) != 3:
         raise HTTPException(status_code=401, detail="Invalid JWT token structure")
 
     payload = jwt.decode(token, SECRET, [ALGORITHM])
     return payload["user_id"]
+
+
+def retrieve_user_id(authorization: str) -> int:
+    if authorization is None:
+        raise HTTPException(status_code=401, detail="Missing authorization header")
+
+    token = authorization.split(" ")[1]
+    return decode_jwt(token)

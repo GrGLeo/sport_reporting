@@ -1,20 +1,20 @@
 import pytest
 import pandas as pd
-from back.api_model import CommentModel
+from back.api_model import PostCommentModel
 from back.data.etl.comment_feeder import CommentFeeder
 
 
 def test_sanitize_comment():
-    comment = CommentModel(user_id=1, activity_id=1, comment_text= "<script>alert('hack');</script>")
+    comment = PostCommentModel(user_id=1, activity_id=1, comment_text= "<script>alert('hack');</script>")
     feeder = CommentFeeder(comment)
 
     sanitized = feeder._sanitize_comment(comment.comment_text)
 
     assert sanitized == "&lt;script&gt;alert('hack');&lt;/script&gt;"
-    
+
 
 def test_process_comment():
-    comment = CommentModel(user_id=1, activity_id=1, comment_text="This is a test comment!")
+    comment = PostCommentModel(user_id=1, activity_id=1, comment_text="This is a test comment!")
     feeder = CommentFeeder(comment)
 
     feeder.process()
