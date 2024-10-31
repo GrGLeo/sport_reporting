@@ -95,13 +95,11 @@ if activity_id:
                 unsafe_allow_html=True
             )
             with st.popover("Update RPE"):
-                RPE = rpe_setter("update_slider")
-                post_rpe(sport, activity_id, RPE)
+                rpe_setter("update_slider", sport, activity_id)
 
         elif RPE is None:
             with st.popover("Post RPE"):
-                RPE = rpe_setter("post_slider")
-                post_rpe(sport, activity_id, RPE)
+                rpe_setter("update_slider", sport, activity_id)
 
         # Comments
         st.subheader('Comments')

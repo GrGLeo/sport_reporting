@@ -63,7 +63,7 @@ def get_rpe(sport, activity_id):
         return None
 
 
-def rpe_setter(key):
+def rpe_setter(key, sport, activity_id):
     rpe = st.slider(
         "Rate of Perceived Exertion (RPE): 🟢 (1) - 🔴 (10)",
         min_value=1,
@@ -72,7 +72,7 @@ def rpe_setter(key):
         step=1,
         key=key+"_slider")
     if st.button("Submit RPE", key=key+"_button"):
-        return rpe
+        post_rpe(sport, activity_id, rpe)
 
 
 def post_rpe(sport, activity_id, rpe):
