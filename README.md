@@ -11,6 +11,7 @@ An all-in-one solution for analyzing swim, bike, and run workouts with performan
 ### Calendar View
 - **Activity Overview:** View all completed and planned workouts in one place.
 - **Detailed Activity Metrics:** Click on activities to see an in-depth look at workout details, including planned workouts with pacing goals.
+![Calendar view](images/1.jpeg)
 
 ### Analytics
 - **Workout Details:** View detailed metrics for each workout, including metrics per lap and time spent in training zones.
