@@ -19,6 +19,12 @@ class PostCommentModel(BaseModel):
     comment_text: str
 
 
+class RpeModel(BaseModel):
+    activity_id: int
+    sport: str
+    rpe: int
+
+
 class EventModel(BaseModel):
     date: FutureDate
     name: str

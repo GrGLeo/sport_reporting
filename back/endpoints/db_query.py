@@ -1,6 +1,7 @@
 import os
 from fastapi import APIRouter, Header, HTTPException
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from back.endpoints.auth import decode_jwt
 from back.utils.query import Query
 from back.api_model import QueryModel
@@ -11,6 +12,8 @@ DB_URL = os.getenv("DATABASE_URL", "leo:postgres@localhost:5432/sporting")
 
 
 conn = create_engine("postgresql://" + DB_URL)
+Session = sessionmaker(conn)
+session = Session()
 
 
 @db_router.get("/simple_query/")

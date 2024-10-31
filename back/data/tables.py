@@ -137,6 +137,7 @@ class Syn(Base):
     tempo = Column(Integer)
     threshold = Column(Integer)
     vo2max = Column(Integer)
+    rpe = Column(Integer)
 
 
 class SynRun(Syn):
