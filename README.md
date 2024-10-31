@@ -4,8 +4,6 @@
 
 An all-in-one solution for analyzing swim, bike, and run workouts with performance insights, personalized workout planning, and metrics tracking.
 
-![Build Status](https://img.shields.io/github/workflow/status/GrGLeo/sport_reporting/CI) ![License](https://img.shields.io/github/license/username/repo)
-
 ---
 
 ## Features
