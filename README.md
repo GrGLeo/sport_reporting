@@ -1,8 +1,58 @@
+![Workout Analytics Platform](images/logo.jpeg)
+
 # Workout Analytics Platform
 
-This platform is designed to analyze swim, bike, and run workouts using key metrics such as Training Stress Score (TSS), Chronic Training Load (CTL), Acute Training Load (ATL), and Training Stress Balance (TSB).
+An all-in-one solution for analyzing swim, bike, and run workouts with performance insights, personalized workout planning, and metrics tracking.
 
-## Key Metrics
+---
+
+## Features
+
+### Calendar View
+- **Activity Overview:** View all completed and planned workouts in one place.
+- **Detailed Activity Metrics:** Click on activities to see an in-depth look at workout details, including planned workouts with pacing goals.  
+![Calendar view](images/1.jpeg)
+
+### Analytics
+- **Workout Details:** View detailed metrics for each workout, including metrics per lap and time spent in training zones.
+- **Graphs:** Visualize pace and heart rate trends, as well as lap-based average pace.
+![Analytics view](images/2.jpeg)
+
+### Workout Planner
+- **Custom Workouts:** Create workouts with configurable warm-up, cooldown, and intervals. Each workout must include a warm-up and cooldown, and users can add sets with active and rest periods.
+- **Export for Garmin:** After creating a workout, download it for use with a Garmin watch (requires connecting the watch to a computer for upload).
+![Workout planner](images/3.jpeg)
+
+### View Plan
+- **Planned Workout Details:** Click on a planned workout in the calendar to see pacing or power targets per lap.
+![Planned workout](images/4.jpeg)
+
+### Upload
+- **Upload Activities:** Upload a `.fit` file to log a workout, which will then appear in the calendar and update home page metrics.
+
+### Threshold Update
+- **Set Training Thresholds:** Set thresholds to personalize training zones, which are then used for future calculations. Update thresholds at any time to keep metrics aligned with current fitness levels.
+
+---
+
+## Roadmap
+
+Here’s the current roadmap for the project:
+
+- [ ] **Q4 2024** - Initial Release
+  - [ ] Fix issues with planned workouts for cycling (support multiple sets)
+  - [ ] Enable activity rating and feedback based on RPE (Rate of Perceived Exertion)
+  - [ ] Complete CI/CD pipeline setup
+
+- [ ] **Q1 2025** - Workout Generation and Improvements
+  - [ ] Generate a workout based on past activities
+  - [ ] Implement load balancer
+  - [ ] Track intra-workout calorie consumption
+  - [ ] Improve overall user experience (UX)
+
+---
+
+# Key Metrics
 
 ### Training Stress Score (TSS)
 
