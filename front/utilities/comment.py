@@ -63,25 +63,28 @@ def get_rpe(sport, activity_id):
         return None
 
 
-@st.dialog("RPE for workout")
-def rpe_setter():
+def rpe_setter(key):
     rpe = st.slider(
         "Rate of Perceived Exertion (RPE): 🟢 (1) - 🔴 (10)",
         min_value=1,
         max_value=10,
         value=1,
-        step=1)
-    if st.button("Submit RPE"):
+        step=1,
+        key=key+"_slider")
+    if st.button("Submit RPE", key=key+"_button"):
         return rpe
 
 
 def post_rpe(sport, activity_id, rpe):
-    response = requests.get(f"{API}/activity/{activity_id}/post_rpe/?sport={sport}")
+    json = {"activity_id": activity_id, "sport": sport, "rpe": rpe}
+    headers = {"Authorization": f"Bearer {st.session_state["user_token"]["access_token"]}"}
+    response = requests.post(f"{API}/activity/post_rpe/", json=json, headers=headers)
     if response.status_code == 200:
         return True
 
 
 def update_rpe(sport, activity_id, rpe):
+    return True
     response = requests.get(f"{API}/activity/{activity_id}/update_rpe/?sport={sport}")
     if response.status_code == 200:
         pass

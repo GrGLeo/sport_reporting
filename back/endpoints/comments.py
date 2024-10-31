@@ -34,17 +34,24 @@ async def get_comment(activity_id):
         return {"data": rows}
 
 
-@activity_router.post("/upsert_rpe/")
-async def upsert_rpe(rpe: RpeModel, authorization: str = Header(None)):
+@activity_router.post("/post_rpe/")
+async def post_rpe(rpe: RpeModel, authorization: str = Header(None)):
     user_id = retrieve_user_id(authorization)
-    activity = RpeModel.activity_id
-    sport = RpeModel.sport
+    activity = rpe.activity_id
+    sport = rpe.sport
+    rpe = rpe.rpe
+    query = text(f"update {sport}.syn set rpe=:rpe  where activity_id = :activity_id and user_id=:user_id")
+    params = {"activity_id": activity, "rpe": rpe, "user_id": user_id}
+    with conn.connect() as connection:
+        result = connection.execute(query, params)
+        print(result.rowcount)
 
 
 @activity_router.get("/{activity_id}/get_rpe/")
 async def get_rpe(activity_id: int, sport: str):
-    query = text(f"select rpe from {sport}.syn where activity_id = {activity_id}")
+    query = text(f"select rpe from {sport}.syn where activity_id = :activity_id")
+    params = {'activity_id': activity_id}
     with conn.connect() as connection:
-        result = connection.execute(query)
+        result = connection.execute(query, params)
         rows = [dict(zip(result.keys(), row)) for row in result.fetchall()]
         return {"data": rows}
