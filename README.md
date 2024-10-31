@@ -16,13 +16,16 @@ An all-in-one solution for analyzing swim, bike, and run workouts with performan
 ### Analytics
 - **Workout Details:** View detailed metrics for each workout, including metrics per lap and time spent in training zones.
 - **Graphs:** Visualize pace and heart rate trends, as well as lap-based average pace.
+![Analytics view](images/2.jpeg)
 
 ### Workout Planner
 - **Custom Workouts:** Create workouts with configurable warm-up, cooldown, and intervals. Each workout must include a warm-up and cooldown, and users can add sets with active and rest periods.
 - **Export for Garmin:** After creating a workout, download it for use with a Garmin watch (requires connecting the watch to a computer for upload).
+![Workout planner](images/3.jpeg)
 
 ### View Plan
 - **Planned Workout Details:** Click on a planned workout in the calendar to see pacing or power targets per lap.
+![Planned workout](images/4.jpeg)
 
 ### Upload
 - **Upload Activities:** Upload a `.fit` file to log a workout, which will then appear in the calendar and update home page metrics.
