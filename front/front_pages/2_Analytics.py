@@ -7,7 +7,6 @@ from utilities.comment import (
         get_rpe,
         rpe_setter,
         post_rpe,
-        update_rpe
 )
 from utils import time_to_seconds, get_color
 from user.user import User
@@ -34,10 +33,16 @@ col1, col2, col3 = st.columns([0.30, 0.40, 0.3])
 if activity_id:
     activity_id = int(activity_id)
     df_laps, df_zones, df_records = user.get_analysis(sport, activity_id)
+    st.write(df_laps.iloc[0]['timer'])
     y = 'pace' if sport == 'running' else 'power'
 
     with col1:
-        st.dataframe(df_laps, hide_index=True)
+        shown_df = df_laps.copy()
+        shown_df['timer'] = shown_df['timer'].apply(
+            lambda td:
+                f"{int(td.total_seconds() // 3600):02}:{int((td.total_seconds() % 3600) // 60):02}:{int(td.total_seconds() % 60):02}"
+        )
+        st.write(shown_df, hide_index=True)
 
     with col2:
         st.markdown("""

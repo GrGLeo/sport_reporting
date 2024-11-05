@@ -61,6 +61,7 @@ class User:
         syn_cycling['sport'] = 'cycling'
         total = pd.concat([syn_run, syn_cycling], axis=0)
 
+        print(total.dtypes)
         total = self._process_duration(total)
         date_range = pd.date_range(start=datetime.today() - timedelta(days=92), end=datetime.today())
         date_range = date_range.strftime('%Y-%m-%d')
@@ -119,9 +120,15 @@ class User:
             data = response.json()
             df = pd.DataFrame(data["data"])
             for col in df.columns:
-                dt_ = ["date", "timestamp", "duration", "timer"]
+                dt_ = ["date", "timestamp"]
+                tp_ = ["duration", "timer"]
                 if col in dt_:
-                    df[col] = pd.to_datetime(df[col])
+                    try:
+                        df[col] = pd.to_datetime(df[col], format="%Y-%m-%dT%H:%M:%S")
+                    except ValueError:
+                        df[col] = pd.to_datetime(df[col], format="%Y-%m-%d")
+                if col in tp_:
+                    df[col] = pd.to_timedelta(df[col])
             return df
 
     def _prep_calendar(self, data: pd.DataFrame, sport: str) -> pd.DataFrame:
@@ -133,8 +140,8 @@ class User:
 
     def _process_duration(self, total: pd.DataFrame) -> pd.DataFrame:
         total['week'] = total['date'].dt.isocalendar().week
-        total['hour'] = total['duration'].apply(lambda x: x.hour)
-        total['minute'] = total['duration'].apply(lambda x: x.minute)
+        total['hour'] = total['duration'].apply(lambda x: x.total_seconds() // 3600)
+        total['minute'] = total['duration'].apply(lambda x: (x.total_seconds() % 3600) // 60)
         total['duration'] = total['hour'] * 60 + total['minute']
         total['date'] = total['date'].dt.strftime('%Y-%m-%d')
         return total

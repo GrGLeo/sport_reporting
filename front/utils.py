@@ -2,13 +2,18 @@ import datetime
 
 
 def time_to_seconds(t):
-    h, m, s = t.hour, t.minute, t.second
+    h = t.total_seconds() // 3600
+    m = (t.total_seconds() % 3600) // 60
+    s = t.total_seconds() % 60
     time = datetime.timedelta(hours=h, minutes=m, seconds=s).total_seconds()
     return int(time)
 
 
 def time_to_timedelta(t):
-    return datetime.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
+    hours = t.total_seconds() // 3600
+    minutes = (t.total_seconds() % 3600) // 60
+    seconds = t.total_seconds() % 60
+    return datetime.timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
 
 def get_color(rpe):
