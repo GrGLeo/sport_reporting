@@ -1,8 +1,15 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-from utilities.comment import add_comment, write_comment
-from utils import time_to_seconds
+from utilities.comment import (
+        add_comment,
+        write_comment,
+        get_rpe,
+        rpe_setter,
+        post_rpe,
+        update_rpe
+)
+from utils import time_to_seconds, get_color
 from user.user import User
 
 
@@ -20,6 +27,7 @@ user: User = st.session_state.user
 if planned:
     st.error('Please select an activity in the calendar')
     st.stop()
+
 
 # Activity specific
 col1, col2, col3 = st.columns([0.30, 0.40, 0.3])
@@ -78,6 +86,26 @@ if activity_id:
             """, unsafe_allow_html=True)
 
     with col3:
+        # RPE
+        RPE = get_rpe(sport, activity_id)
+        if RPE is not None:
+            color = get_color(RPE)
+            st.markdown(
+                f"<h2 style='color: black;'>Workout RPE: <span style='color: {color};'>{RPE}</span></h2>",
+                unsafe_allow_html=True
+            )
+            with st.popover("Update RPE"):
+                status = rpe_setter("update_slider", sport, activity_id)
+                if status == "ok":
+                    st.toast("RPE updated")
+
+        elif RPE is None:
+            with st.popover("Post RPE"):
+                status = rpe_setter("update_slider", sport, activity_id)
+                if status == "ok":
+                    st.toast("RPE set")
+
+        # Comments
         st.subheader('Comments')
         write_comment(conn, activity_id)
         add_com = st.button('Comments')

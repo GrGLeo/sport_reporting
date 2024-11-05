@@ -17,7 +17,7 @@ def add_comment(activity_id):
                     "comment_text": comment,
                 }
         response = requests.post(
-                f"{API}/comments/post_comment",
+                f"{API}/activity/post_comment",
                 json=json,
                 headers=headers
         )
@@ -26,7 +26,7 @@ def add_comment(activity_id):
 
 
 def write_comment(conn, activity_id):
-    response = requests.get(f"{API}/comments/get_comments/?activity_id={activity_id}")
+    response = requests.get(f"{API}/activity/get_comments/?activity_id={activity_id}")
     if response.status_code == 200:
         comments = response.json()['data']
     else:
@@ -52,3 +52,40 @@ def write_comment(conn, activity_id):
 
     # Render the entire comment section in one st.markdown call
     st.markdown(comment_section, unsafe_allow_html=True)
+
+
+def get_rpe(sport, activity_id):
+    response = requests.get(f"{API}/activity/{activity_id}/get_rpe/?sport={sport}")
+    if response.status_code == 200:
+        data = response.json()["data"]
+        return data[0]["rpe"]
+    else:
+        return None
+
+
+def rpe_setter(key, sport, activity_id):
+    rpe = st.slider(
+        "Rate of Perceived Exertion (RPE): 🟢 (1) - 🔴 (10)",
+        min_value=1,
+        max_value=10,
+        value=1,
+        step=1,
+        key=key+"_slider")
+    if st.button("Submit RPE", key=key+"_button"):
+        status = post_rpe(sport, activity_id, rpe)
+        return status
+
+
+def post_rpe(sport, activity_id, rpe):
+    json = {"activity_id": activity_id, "sport": sport, "rpe": rpe}
+    headers = {"Authorization": f"Bearer {st.session_state["user_token"]["access_token"]}"}
+    response = requests.post(f"{API}/activity/post_rpe/", json=json, headers=headers)
+    if response.status_code == 200:
+        return response.json()["status"]
+
+
+def update_rpe(sport, activity_id, rpe):
+    return True
+    response = requests.get(f"{API}/activity/{activity_id}/update_rpe/?sport={sport}")
+    if response.status_code == 200:
+        pass
