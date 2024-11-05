@@ -95,11 +95,15 @@ if activity_id:
                 unsafe_allow_html=True
             )
             with st.popover("Update RPE"):
-                rpe_setter("update_slider", sport, activity_id)
+                status = rpe_setter("update_slider", sport, activity_id)
+                if status == "ok":
+                    st.toast("RPE updated")
 
         elif RPE is None:
             with st.popover("Post RPE"):
-                rpe_setter("update_slider", sport, activity_id)
+                status = rpe_setter("update_slider", sport, activity_id)
+                if status == "ok":
+                    st.toast("RPE set")
 
         # Comments
         st.subheader('Comments')

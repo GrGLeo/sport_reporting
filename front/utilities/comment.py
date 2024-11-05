@@ -72,7 +72,8 @@ def rpe_setter(key, sport, activity_id):
         step=1,
         key=key+"_slider")
     if st.button("Submit RPE", key=key+"_button"):
-        post_rpe(sport, activity_id, rpe)
+        status = post_rpe(sport, activity_id, rpe)
+        return status
 
 
 def post_rpe(sport, activity_id, rpe):
@@ -80,7 +81,7 @@ def post_rpe(sport, activity_id, rpe):
     headers = {"Authorization": f"Bearer {st.session_state["user_token"]["access_token"]}"}
     response = requests.post(f"{API}/activity/post_rpe/", json=json, headers=headers)
     if response.status_code == 200:
-        return True
+        return response.json()["status"]
 
 
 def update_rpe(sport, activity_id, rpe):

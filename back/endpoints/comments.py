@@ -44,7 +44,8 @@ async def post_rpe(rpe: RpeModel, authorization: str = Header(None)):
     params = {"activity_id": activity, "rpe": rpe, "user_id": user_id}
     with conn.connect() as connection:
         result = connection.execute(query, params)
-        print(result.rowcount)
+        connection.commit()
+    return {"status": "ok", "updated_rows": result.rowcount}
 
 
 @activity_router.get("/{activity_id}/get_rpe/")
