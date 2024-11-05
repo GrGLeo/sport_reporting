@@ -91,8 +91,6 @@ if activity_id:
             """, unsafe_allow_html=True)
 
     with col3:
-        # Feedback
-        st.feedback("stars")
         # RPE
         RPE = get_rpe(sport, activity_id)
         if RPE is not None:
