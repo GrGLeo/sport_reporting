@@ -52,7 +52,8 @@ class User:
         return df_laps, df_zones, df_records
 
     def get_events(self) -> pd.DataFrame:
-        return self._get_query("param.events", select="date, name, sport, priority", order_by="priority")
+        df_event = self._get_query("param.events", select="date, name, sport, priority", order_by="priority")
+        return df_event[df_event['date'] >= datetime.today()].reset_index(drop=True)
 
     def get_full_workouts(self) -> pd.DataFrame:
         syn_run = self._get_query('running.syn')
