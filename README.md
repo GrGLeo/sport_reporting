@@ -41,7 +41,7 @@ Here’s the current roadmap for the project:
 
 - [ ] **Q4 2024** - Initial Release
   - [ ] Fix issues with planned workouts for cycling (support multiple sets)
-  - [ ] Enable activity rating and feedback based on RPE (Rate of Perceived Exertion)
+  - [x] Enable activity rating and feedback based on RPE (Rate of Perceived Exertion)
   - [ ] Complete CI/CD pipeline setup
 
 - [ ] **Q1 2025** - Workout Generation and Improvements
@@ -49,6 +49,8 @@ Here’s the current roadmap for the project:
   - [ ] Implement load balancer
   - [ ] Track intra-workout calorie consumption
   - [ ] Improve overall user experience (UX)
+
+- [ ] **2025** - Switching streamlit to Vue.js
 
 ---
 
