@@ -67,7 +67,7 @@ class WorkoutWriter:
             step.custom_target_speed_low = low_target_value
             step.custom_target_speed_high = high_target_value
 
-        elif self.sport == 'cycling':
+        elif self.sport == 'Cycling':
             step.target_type = WorkoutStepTarget.POWER
             step.target_value = target_value
         else:
