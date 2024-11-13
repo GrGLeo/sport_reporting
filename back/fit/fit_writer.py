@@ -78,7 +78,12 @@ class WorkoutWriter:
 
     def write_workout(self):
         workout = WorkoutMessage()
-        workout.sport = Sport.RUNNING
+        if self.sport == "Running":
+            workout.sport = Sport.RUNNING
+        elif self.sport == "Cycling":
+            workout.sport = Sport.CYCLING
+        else:
+            raise ValueError
 
         steps = []
         # write warmup step
@@ -104,20 +109,29 @@ class WorkoutWriter:
 
 
 if __name__ == "__main__":
+
     workout_dict = {
-        "warmup": {"timer": 10, "work": 10.5},
+        "warmup": {"timer": 10, "work": 140},
         "set_1": {
-            "step_0": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}},
-            "step_1": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}},
-            "step_2": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}},
-            "step_3": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}},
-            "step_4": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}}
+            "step_0": {"active": {"timer": 4, "work": 300}, "rest": {"timer": 2, "work": 120}},
+            "step_1": {"active": {"timer": 4, "work": 300}, "rest": {"timer": 2, "work": 120}},
+            "step_2": {"active": {"timer": 4, "work": 300}, "rest": {"timer": 2, "work": 120}},
+            "step_3": {"active": {"timer": 4, "work": 300}, "rest": {"timer": 2, "work": 120}},
+            "step_4": {"active": {"timer": 4, "work": 300}, "rest": {"timer": 2, "work": 120}}
         },
         "set_2": {
-            "step_0": {"active": {"timer": 8, "work": 13.0}, "rest": {"timer": 2, "work": 10.0}},
-            "step_1": {"active": {"timer": 8, "work": 13.0}, "rest": {"timer": 2, "work": 10.0}},
+            "step_0": {"active": {"timer": 8, "work": 200}, "rest": {"timer": 2, "work": 120}},
+            "step_1": {"active": {"timer": 8, "work": 200}, "rest": {"timer": 2, "work": 120}},
         },
-        "cooldown": {"timer": 10, "work": 10.5}
+        "cooldown": {"timer": 10, "work": 140}
     }
-    builder = WorkoutWriter("running", workout_dict, "123", 1)
+    data = {
+            "name": "repeat",
+            "date": datetime.date.today(),
+            "sport": "Cycling",
+            "data": workout_dict
+    }
+
+    workout = FuturWktModel(**data)
+    builder = WorkoutWriter(workout, 1)
     builder.write_workout()
