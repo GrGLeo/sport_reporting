@@ -67,7 +67,7 @@ class WorkoutWriter:
             step.custom_target_speed_low = low_target_value
             step.custom_target_speed_high = high_target_value
 
-        elif self.sport == 'cycling':
+        elif self.sport == 'Cycling':
             step.target_type = WorkoutStepTarget.POWER
             step.target_value = target_value
         else:
@@ -78,16 +78,24 @@ class WorkoutWriter:
 
     def write_workout(self):
         workout = WorkoutMessage()
-        workout.sport = Sport.RUNNING
+        if self.sport == "Running":
+            workout.sport = Sport.RUNNING
+        elif self.sport == "Cycling":
+            workout.sport = Sport.CYCLING
+        else:
+            raise ValueError
 
         steps = []
         # write warmup step
         steps.append(self._write_step("Warmup", self.workout["warmup"]["timer"], self.workout["warmup"]["work"]))
 
         # for now just write one step and will break if not step_
-        for set_key, set_steps in self.workout["set_1"].items():
-            steps.append(self._write_step("active", set_steps["active"]["timer"], set_steps["active"]["work"]))
-            steps.append(self._write_step("rest", set_steps["rest"]["timer"], set_steps["rest"]["work"]))
+        set_number = [key for key in self.workout.keys() if "set_" in key]
+        if len(set_number) > 0:
+            for set_ in set_number:
+                for set_key, set_steps in self.workout[set_].items():
+                    steps.append(self._write_step("active", set_steps["active"]["timer"], set_steps["active"]["work"]))
+                    steps.append(self._write_step("rest", set_steps["rest"]["timer"], set_steps["rest"]["work"]))
 
         # write cooldown step
         steps.append(self._write_step("Cooldown", self.workout["cooldown"]["timer"], self.workout["cooldown"]["timer"]))
@@ -101,16 +109,29 @@ class WorkoutWriter:
 
 
 if __name__ == "__main__":
+
     workout_dict = {
-        "warmup": {"timer": 10, "work": 10.5},
+        "warmup": {"timer": 10, "work": 140},
         "set_1": {
-            "step_0": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}},
-            "step_1": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}},
-            "step_2": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}},
-            "step_3": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}},
-            "step_4": {"active": {"timer": 4, "work": 15.0}, "rest": {"timer": 2, "work": 10.0}}
+            "step_0": {"active": {"timer": 4, "work": 300}, "rest": {"timer": 2, "work": 120}},
+            "step_1": {"active": {"timer": 4, "work": 300}, "rest": {"timer": 2, "work": 120}},
+            "step_2": {"active": {"timer": 4, "work": 300}, "rest": {"timer": 2, "work": 120}},
+            "step_3": {"active": {"timer": 4, "work": 300}, "rest": {"timer": 2, "work": 120}},
+            "step_4": {"active": {"timer": 4, "work": 300}, "rest": {"timer": 2, "work": 120}}
         },
-        "cooldown": {"timer": 10, "work": 10.5}
+        "set_2": {
+            "step_0": {"active": {"timer": 8, "work": 200}, "rest": {"timer": 2, "work": 120}},
+            "step_1": {"active": {"timer": 8, "work": 200}, "rest": {"timer": 2, "work": 120}},
+        },
+        "cooldown": {"timer": 10, "work": 140}
     }
-    builder = WorkoutWriter("running", workout_dict, "123", 1)
+    data = {
+            "name": "repeat",
+            "date": datetime.date.today(),
+            "sport": "Cycling",
+            "data": workout_dict
+    }
+
+    workout = FuturWktModel(**data)
+    builder = WorkoutWriter(workout, 1)
     builder.write_workout()
