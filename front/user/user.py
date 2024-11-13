@@ -53,7 +53,6 @@ class User:
 
     def get_events(self) -> pd.DataFrame:
         df_event = self._get_query("param.events", select="date, name, sport, priority", order_by="priority")
-        if df_event
         return df_event[df_event['date'] >= datetime.today()].reset_index(drop=True)
 
     def get_full_workouts(self) -> pd.DataFrame:

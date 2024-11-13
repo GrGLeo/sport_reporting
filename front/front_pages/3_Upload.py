@@ -10,7 +10,7 @@ st.title("Fit File Upload")
 
 uploaded_file = st.file_uploader("Choose a file", type=['fit', 'fits'])
 
-app_type = ["application/fit", "application/fits"]
+app_type = ["application/fit", "application/fits", "image/fit", "image/fits"]
 
 if uploaded_file is not None:
     token = st.session_state["user_token"]["access_token"]
@@ -29,3 +29,4 @@ if uploaded_file is not None:
                 st.toast('Upload failed, try again later')
     else:
         st.toast("Uploaded file is not a fit file")
+        st.toast(uploaded_file.type)
