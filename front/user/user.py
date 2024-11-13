@@ -62,7 +62,6 @@ class User:
         syn_cycling['sport'] = 'cycling'
         total = pd.concat([syn_run, syn_cycling], axis=0)
 
-        print(total.dtypes)
         total = self._process_duration(total)
         date_range = pd.date_range(start=datetime.today() - timedelta(days=92), end=datetime.today())
         date_range = date_range.strftime('%Y-%m-%d')
