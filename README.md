@@ -40,7 +40,7 @@ An all-in-one solution for analyzing swim, bike, and run workouts with performan
 Here’s the current roadmap for the project:
 
 - [ ] **Q4 2024** - Initial Release
-  - [ ] Fix issues with planned workouts for cycling (support multiple sets)
+  - [x] Fix issues with planned workouts for cycling (support multiple sets)
   - [x] Enable activity rating and feedback based on RPE (Rate of Perceived Exertion)
   - [ ] Complete CI/CD pipeline setup
 
