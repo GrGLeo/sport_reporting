@@ -51,16 +51,18 @@ with home_tab:
     today = date.today()
 
     # Event display
-    df_events = user.get_events()
-    if len(df_events) > 0:
-        cols = st.columns(len(df_events))
+    try:
+        df_events = user.get_events()
         for i, row in df_events.iterrows():
+            cols = st.columns(len(df_events))
             cols[i].subheader(f"{row['name']} Priority: {row.priority}")
             cols[i].write(f"{row.date.strftime('%Y-%m-%d')}")
             cols[i].write(f"Sport: {row.sport}")
             difference = row.date.date() - today
             weeks = difference.days // 7
             cols[i].write(f"Weeks remaining: {weeks}")
+    except KeyError:
+        pass
 
     st.header("Weekly Stats")
     total_wkt = user.get_full_workouts()
