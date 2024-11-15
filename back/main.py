@@ -87,7 +87,7 @@ async def upload_file(
     else:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='An error occured while uploading activity')
 
-@app.get("/dowload-workout/")
+@app.get("/dowload-workout/{name}")
 async def download_workout(name:str, authorization: str = Header(None)):
     if authorization is None:
         raise HTTPException(status_code=401, detail="Missing authorization header")
@@ -100,7 +100,6 @@ async def download_workout(name:str, authorization: str = Header(None)):
             media_type="application/octet-stream",
             filename=f"{name}.fit"
             )
-
 
 
 @app.post("/post_event")

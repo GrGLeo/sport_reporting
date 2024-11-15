@@ -1,3 +1,5 @@
+import os
+import requests
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -64,8 +66,12 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig)
-path = f'/home/leo/Code/personnal/python/project_sub/back/workout/{user_id}/{name}.fit'
-with open(path, "rb") as file:
-    file_data = file.read()
 
-st.download_button('Download workout', file_data, file_name=f'{name}.fit')
+# Download associated fit file
+API = os.getenv("API_ENDPOINT", "http://127.0.0.1:8000")
+response = requests.get(f"{API}/download-file/{name}")
+
+if response.status_code == 200:
+    file_content = response.content
+
+st.download_button('Download workout', file_content, file_name=f'{name}.fit', mime="application/stream-octet")
