@@ -3,7 +3,7 @@ import time
 from sqlalchemy.exc import OperationalError
 from fastapi import FastAPI, File, UploadFile, HTTPException, Request, status, Header
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fitparse import FitFile
 import pandas as pd
 from sqlalchemy import create_engine
@@ -86,6 +86,21 @@ async def upload_file(
         }
     else:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='An error occured while uploading activity')
+
+@app.get("/dowload-workout/")
+async def download_workout(name:str, authorization: str = Header(None)):
+    if authorization is None:
+        raise HTTPException(status_code=401, detail="Missing authorization header")
+    token = authorization.split(" ")[1]
+    user_id = decode_jwt(token)
+
+    path = f"/app/back/workout/{user_id}/{name}.fit"  
+    return FileResponse(
+            path,
+            media_type="application/octet-stream",
+            filename=f"{name}.fit"
+            )
+
 
 
 @app.post("/post_event")
