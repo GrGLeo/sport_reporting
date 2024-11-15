@@ -6,7 +6,6 @@ from utilities.comment import (
         write_comment,
         get_rpe,
         rpe_setter,
-        post_rpe,
 )
 from utils import time_to_seconds, get_color
 from user.user import User
