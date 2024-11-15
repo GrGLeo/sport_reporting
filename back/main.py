@@ -87,14 +87,15 @@ async def upload_file(
     else:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='An error occured while uploading activity')
 
-@app.get("/dowload-workout/{name}")
-async def download_workout(name:str, authorization: str = Header(None)):
+
+@app.get("/download-workout/{name}")
+async def download_workout(name: str, authorization: str = Header(None)):
     if authorization is None:
         raise HTTPException(status_code=401, detail="Missing authorization header")
     token = authorization.split(" ")[1]
     user_id = decode_jwt(token)
 
-    path = f"/app/back/workout/{user_id}/{name}.fit"  
+    path = f"/app/back/workout/{user_id}/{name}.fit"
     return FileResponse(
             path,
             media_type="application/octet-stream",
@@ -139,6 +140,6 @@ async def save_program_wkt(futur_wkt: FuturWktModel, authorization: str = Header
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-	exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
-	content = {'status_code': 10422, 'message': exc_str, 'data': None}
-	return JSONResponse(content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+    exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
+    content = {'status_code': 10422, 'message': exc_str, 'data': None}
+    return JSONResponse(content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)

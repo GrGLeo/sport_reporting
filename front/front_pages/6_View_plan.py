@@ -69,7 +69,9 @@ st.plotly_chart(fig)
 
 # Download associated fit file
 API = os.getenv("API_ENDPOINT", "http://127.0.0.1:8000")
-response = requests.get(f"{API}/download-file/{name}")
+token = st.session_state["user_token"]["access_token"]
+headers = {"Authorization": f"Bearer {token}"}
+response = requests.get(f"{API}/download-workout/{name}", headers=headers)
 
 if response.status_code == 200:
     file_content = response.content
