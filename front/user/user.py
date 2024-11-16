@@ -2,7 +2,7 @@ import os
 from datetime import timedelta, datetime
 import requests
 import pandas as pd
-from utils import time_to_timedelta, time_to_seconds
+from utils import time_to_timedelta, time_to_seconds, UnAuthorizeError
 
 
 class User:
@@ -116,6 +116,8 @@ class User:
             params['limit'] = str(limit)
 
         response = requests.get(f"{self.API}/query/simple_query/", headers=headers, json=params)
+        if response.status_code == 401:
+            raise UnAuthorizeError()
         if response.status_code == 200:
             data = response.json()
             df = pd.DataFrame(data["data"])
