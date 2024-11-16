@@ -13,14 +13,14 @@ def calculate_metric(df: pd.DataFrame, col: str, days: int) -> pd.DataFrame:
 
 def calculate_ctl(df: pd.DataFrame) -> pd.DataFrame:
     ctl_days = 42
-    df['ctl'] = 0
+    df['ctl'] = 0.
 
     return calculate_metric(df, 'ctl', ctl_days)
 
 
 def calculate_atl(df: pd.DataFrame) -> pd.DataFrame:
     atl_days = 7
-    df['atl'] = 0
+    df['atl'] = 0.
 
     return calculate_metric(df, 'atl', atl_days)
 
@@ -28,7 +28,7 @@ def calculate_atl(df: pd.DataFrame) -> pd.DataFrame:
 def calculate_form(df: pd.DataFrame) -> pd.DataFrame:
     for i in range(len(df)):
         if i == 0:
-            df['form'] = 0
+            df['form'] = 0.
         else:
             df.loc[i, 'form'] = df.loc[i - 1, 'ctl'] - df.loc[i - 1, 'atl']
 
