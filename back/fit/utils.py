@@ -2,6 +2,7 @@ import os
 from fit_tool.profile.profile_type import Intensity
 
 
+# retrieve intensity
 def get_intensity(name):
     match name:
         case "active":
