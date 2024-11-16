@@ -2,7 +2,7 @@ import os
 import bcrypt
 from datetime import timedelta, datetime
 import jwt
-from fastapi import APIRouter, HTTPException, status, Requests
+from fastapi import APIRouter, HTTPException, status, Request
 from back.utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttempt, UserLocked
 from back.data.tables import UserCRUD
 from back.api_model import UserModel, LoginModel
@@ -88,7 +88,7 @@ def create_jwt(data: dict, expire: timedelta = timedelta(hours=1)):
     return jwt.encode(data, SECRET, algorithm=ALGORITHM)
 
 
-def authorize_user(requests: Requests) -> int:
+def authorize_user(requests: Request) -> int:
     authorization = requests.headers.get("Authorization")
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing authorization header")

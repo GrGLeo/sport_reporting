@@ -1,13 +1,13 @@
 import os
 import time
 from sqlalchemy.exc import OperationalError
-from fastapi import FastAPI, File, UploadFile, HTTPException, Request, status, Header
+from fastapi import FastAPI, File, UploadFile, HTTPException, Request, status, Depends
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, FileResponse
 from fitparse import FitFile
 import pandas as pd
 from sqlalchemy import create_engine
-from back.endpoints.auth import router, decode_jwt
+from back.endpoints.auth import router, authorize_user
 from back.endpoints.db_query import db_router
 from back.endpoints.comments import activity_router
 from back.data.etl.running_feeder import RunningFeeder
@@ -54,14 +54,8 @@ async def startup_event():
 @app.post("/uploadfile/")
 async def upload_file(
     file: UploadFile = File(...),
-    authorization: str = Header(None)
+    user_id: int = Depends(authorize_user)
 ):
-    if authorization is None:
-        raise HTTPException(status_code=401, detail="Missing authorization header")
-
-    token = authorization.split(" ")[1]
-    user_id = decode_jwt(token)
-
     contents = await file.read()
     fitfile = FitFile(contents)
     records = get_data(fitfile, 'record')
@@ -89,12 +83,7 @@ async def upload_file(
 
 
 @app.get("/download-workout/{name}")
-async def download_workout(name: str, authorization: str = Header(None)):
-    if authorization is None:
-        raise HTTPException(status_code=401, detail="Missing authorization header")
-    token = authorization.split(" ")[1]
-    user_id = decode_jwt(token)
-
+async def download_workout(name: str, user_id: int = Depends(authorize_user)):
     path = f"/app/back/workout/{user_id}/{name}.fit"
     return FileResponse(
             path,
@@ -104,34 +93,19 @@ async def download_workout(name: str, authorization: str = Header(None)):
 
 
 @app.post("/post_event")
-async def post_event(event: EventModel, authorization: str = Header(None)):
-    if authorization is None:
-        raise HTTPException(status_code=401, detail="Missing authorization header")
-
-    token = authorization.split(" ")[1]
-    user_id = decode_jwt(token)
+async def post_event(event: EventModel, user_id: int = Depends(authorize_user)):
     event_feeder = EventFeeder(event, user_id)
     event_feeder.compute()
 
 
 @app.post("/threshold")
-async def update_threshold(threshold: ThresholdModel, authorization: str = Header(None)):
-    if authorization is None:
-        raise HTTPException(status_code=401, detail="Missing authorization header")
-
-    token = authorization.split(" ")[1]
-    user_id = decode_jwt(token)
+async def update_threshold(threshold: ThresholdModel, user_id: int = Depends(authorize_user)):
     threshold_feeder = ThresholdFeeder(threshold, user_id)
     threshold_feeder.compute()
 
 
 @app.post("/push_program_wkt")
-async def save_program_wkt(futur_wkt: FuturWktModel, authorization: str = Header(None)):
-    if authorization is None:
-        raise HTTPException(status_code=401, detail="Missing authorization header")
-
-    token = authorization.split(" ")[1]
-    user_id = decode_jwt(token)
+async def save_program_wkt(futur_wkt: FuturWktModel, user_id: int = Depends(authorize_user)):
     ftr_wkt_feeder = FuturWorkoutFeeder(futur_wkt, user_id)
     ftr_wkt_feeder.compute()
     wkt_writer = WorkoutWriter(futur_wkt, user_id)
