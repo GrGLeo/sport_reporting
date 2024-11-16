@@ -2,7 +2,7 @@ import os
 import bcrypt
 from datetime import timedelta, datetime
 import jwt
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Request
 from back.utils.exception import UserTaken, EmailTaken, UnknownUser, FailedAttempt, UserLocked
 from back.data.tables import UserCRUD
 from back.api_model import UserModel, LoginModel
@@ -88,17 +88,26 @@ def create_jwt(data: dict, expire: timedelta = timedelta(hours=1)):
     return jwt.encode(data, SECRET, algorithm=ALGORITHM)
 
 
-def decode_jwt(token: str) -> int:
-    if len(token.split(".")) != 3:
-        raise HTTPException(status_code=401, detail="Invalid JWT token structure")
-
-    payload = jwt.decode(token, SECRET, [ALGORITHM])
-    return payload["user_id"]
-
-
-def retrieve_user_id(authorization: str) -> int:
-    if authorization is None:
+def authorize_user(requests: Request) -> int:
+    authorization = requests.headers.get("Authorization")
+    if not authorization:
         raise HTTPException(status_code=401, detail="Missing authorization header")
 
+    if not authorization.startswith("Bearer"):
+        raise HTTPException(status_code=401, detail="Invalid authorization header")
+
     token = authorization.split(" ")[1]
-    return decode_jwt(token)
+
+    if len(token.split(".")) != 3:
+        raise HTTPException(status_code=401, detail="Invalid JWT token structure.")
+
+    try:
+        payload = jwt.decode(token, SECRET, [ALGORITHM])
+        user_id = payload.get("user_id")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token: user_id missing.")
+        return user_id
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired.")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token.")

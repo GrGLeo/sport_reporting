@@ -1,7 +1,7 @@
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import text
 from back.api_model import PostCommentModel, RpeModel
-from back.endpoints.auth import retrieve_user_id
+from back.endpoints.auth import authorize_user
 from back.utils.logger import logger
 from back.endpoints.db_query import conn
 from back.data.etl.comment_feeder import CommentFeeder
@@ -11,8 +11,7 @@ activity_router = APIRouter(prefix="/activity")
 
 
 @activity_router.post("/post_comment/")
-async def post_comment(comment: PostCommentModel, authorization: str = Header(None)):
-    user_id = retrieve_user_id(authorization)
+async def post_comment(comment: PostCommentModel, user_id: int = Depends(authorize_user)):
     if len(comment.comment_text.strip()) == 0:
         logger.warning("Empty comment")
         raise HTTPException(status_code=400, detail="Comment can not be empty")
@@ -35,8 +34,7 @@ async def get_comment(activity_id):
 
 
 @activity_router.post("/post_rpe/")
-async def post_rpe(rpe: RpeModel, authorization: str = Header(None)):
-    user_id = retrieve_user_id(authorization)
+async def post_rpe(rpe: RpeModel, user_id: int = Depends(authorize_user)):
     activity = rpe.activity_id
     sport = rpe.sport
     rpe = rpe.rpe
