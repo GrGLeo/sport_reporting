@@ -27,3 +27,9 @@ def get_color(rpe):
         return "red"
     else:
         return "black"
+
+
+class UnAuthorizeError(Exception):
+    def __init__(self, message="Unauthorize, please log in."):
+        self.message = message
+        super().__init__(self.message)
