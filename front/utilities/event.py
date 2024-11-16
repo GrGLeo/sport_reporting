@@ -1,11 +1,13 @@
 import os
 import streamlit as st
 import requests
+from utils import UnAuthorizeError, handle_unauthorize
 
 
 API = os.getenv("API_ENDPOINT", "http://127.0.0.1:8000")
 
 
+@handle_unauthorize
 def create_event(token):
     with st.form(key="event_form"):
         eventname = st.text_input("Event Name")
@@ -28,7 +30,10 @@ def create_event(token):
             json=json,
             headers=headers
         )
-        if response.status_code == 200:
+
+        if response.status_code == 401:
+            raise UnAuthorizeError()
+        elif response.status_code == 200:
             st.toast("Event added successfully", icon=":material/thumb_up:")
         elif response.status_code == 422:
             st.toast("Event can't be a past date")

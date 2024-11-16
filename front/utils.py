@@ -1,4 +1,5 @@
 import datetime
+import streamlit as st
 
 
 def time_to_seconds(t):
@@ -27,3 +28,22 @@ def get_color(rpe):
         return "red"
     else:
         return "black"
+
+
+class UnAuthorizeError(Exception):
+    def __init__(self, message="Unauthorize, please log in."):
+        self.message = message
+        super().__init__(self.message)
+
+
+def handle_unauthorize(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except UnAuthorizeError:
+            print("glop")
+            if "user_token" in st.session_state:
+                print("glopiglop")
+                del st.session_state["user_token"]
+            st.rerun()
+    return wrapper
