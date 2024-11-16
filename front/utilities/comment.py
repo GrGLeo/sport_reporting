@@ -1,7 +1,7 @@
 import os
 import streamlit as st
 import requests
-from utils import handle_unauthorize
+from utils import handle_unauthorize, UnAuthorizeError
 
 
 API = os.getenv("API_ENDPOINT", "http://127.0.0.1:8000")
@@ -82,7 +82,9 @@ def post_rpe(sport, activity_id, rpe):
     json = {"activity_id": activity_id, "sport": sport, "rpe": rpe}
     headers = {"Authorization": f"Bearer {st.session_state["user_token"]["access_token"]}"}
     response = requests.post(f"{API}/activity/post_rpe/", json=json, headers=headers)
-    if response.status_code == 200:
+    if response.status_code == 401:
+        raise UnAuthorizeError()
+    elif response.status_code == 200:
         return response.json()["status"]
 
 
