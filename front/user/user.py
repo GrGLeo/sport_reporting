@@ -2,7 +2,7 @@ import os
 from datetime import timedelta, datetime
 import requests
 import pandas as pd
-from utils import time_to_timedelta, time_to_seconds, UnAuthorizeError
+from utils import time_to_timedelta, time_to_seconds, handle_unauthorize, UnAuthorizeError
 
 
 class User:
@@ -73,11 +73,14 @@ class User:
         limit = 2 if past else 1
         return self._get_query('param.user_threshold', order_by='date DESC', limit=limit)
 
+    @handle_unauthorize
     def update_threshold(self, threshold: dict) -> None:
         headers = {"Authorization": f"Bearer {self.token}"}
         response = requests.post(f"{self.API}/threshold/", json=threshold, headers=headers)
-        response.raise_for_status()
+        if response.status_code == 401:
+            raise UnAuthorizeError()
 
+    @handle_unauthorize
     def push_programmed_wkt(self, wkt_date, sport, wkt, name):
         full_data = {}
         full_data['name'] = name
@@ -86,7 +89,8 @@ class User:
         full_data['data'] = wkt
         headers = {"Authorization": f"Bearer {self.token}"}
         response = requests.post(f"{self.API}/push_program_wkt/", json=full_data, headers=headers)
-        response.raise_for_status()
+        if response.status_code == 401:
+            raise UnAuthorizeError()
         return True
 
     def get_programmed_wkt(self, activity_id):
@@ -101,6 +105,7 @@ class User:
     def _get_zone(self, sport: str) -> pd.DataFrame:
         return self._get_query(f'param.{sport}')
 
+    @handle_unauthorize
     def _get_query(self, table: str, select: str = "*", wkt_id: int = None, order_by: str = None, limit: int = None) -> pd.DataFrame:
         headers = {"Authorization": f"Bearer {self.token}"}
         params = {
@@ -118,7 +123,7 @@ class User:
         response = requests.get(f"{self.API}/query/simple_query/", headers=headers, json=params)
         if response.status_code == 401:
             raise UnAuthorizeError()
-        if response.status_code == 200:
+        elif response.status_code == 200:
             data = response.json()
             df = pd.DataFrame(data["data"])
             for col in df.columns:

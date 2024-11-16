@@ -1,6 +1,7 @@
 import os
 import streamlit as st
 import requests
+from utils import handle_unauthorize
 
 
 API = os.getenv("API_ENDPOINT", "http://127.0.0.1:8000")
@@ -76,6 +77,7 @@ def rpe_setter(key, sport, activity_id):
         return status
 
 
+@handle_unauthorize
 def post_rpe(sport, activity_id, rpe):
     json = {"activity_id": activity_id, "sport": sport, "rpe": rpe}
     headers = {"Authorization": f"Bearer {st.session_state["user_token"]["access_token"]}"}
