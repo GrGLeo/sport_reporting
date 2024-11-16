@@ -1,4 +1,13 @@
 services:
+  watchtower:
+    image: containrrr/watchtower
+    command:
+      - "--label-enable"
+      - "--interval"
+      - "60"
+    volumes:
+      - /home/leo/.docker/config.json:/config.json
+      - /var/run/docker.sock:/var/run/docker.sock
   db:
     image: postgres:latest
     environment:
@@ -15,6 +24,8 @@ services:
 
   back:
     image: deretz/endurace_reporting:backend.latest
+    labels: 
+      - "com.centurylinklabs.watchtower.enable=true"
     build:
       context: ./back
     environment:
