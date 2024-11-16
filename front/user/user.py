@@ -133,9 +133,9 @@ class User:
 
     def _prep_calendar(self, data: pd.DataFrame, sport: str) -> pd.DataFrame:
         cols = ['activity_id', 'date', 'duration']
-        data = data[cols]
-        data['title'] = sport
-        data['end'] = data.apply(lambda row: row['date'] + time_to_timedelta(row['duration']), axis=1)
+        data = data[cols].copy()
+        data.loc[:, 'title'] = sport
+        data.loc[:, 'end'] = data.apply(lambda row: row['date'] + time_to_timedelta(row['duration']), axis=1)
         return data
 
     def _process_duration(self, total: pd.DataFrame) -> pd.DataFrame:

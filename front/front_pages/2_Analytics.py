@@ -41,7 +41,7 @@ if activity_id:
             lambda td:
                 f"{int(td.total_seconds() // 3600):02}:{int((td.total_seconds() % 3600) // 60):02}:{int(td.total_seconds() % 60):02}"
         )
-        st.write(shown_df, hide_index=True)
+        st.write(shown_df)
 
     with col2:
         st.markdown("""
