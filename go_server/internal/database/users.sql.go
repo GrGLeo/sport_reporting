@@ -7,6 +7,9 @@ package database
 
 import (
 	"context"
+	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -14,7 +17,7 @@ INSERT INTO settings.users(user_id, username, password, email, created_at, updat
 VALUES (
   gen_random_uuid(), $1, $2, $3, NOW(), NOW()
 )
-RETURNING (user_id, username, email, created_at)
+RETURNING user_id, username, email, created_at
 `
 
 type CreateUserParams struct {
@@ -23,9 +26,21 @@ type CreateUserParams struct {
 	Email    string
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (interface{}, error) {
+type CreateUserRow struct {
+	UserID    uuid.UUID
+	Username  string
+	Email     string
+	CreatedAt sql.NullTime
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
 	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.Password, arg.Email)
-	var column_1 interface{}
-	err := row.Scan(&column_1)
-	return column_1, err
+	var i CreateUserRow
+	err := row.Scan(
+		&i.UserID,
+		&i.Username,
+		&i.Email,
+		&i.CreatedAt,
+	)
+	return i, err
 }
