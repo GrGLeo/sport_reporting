@@ -86,6 +86,11 @@ func (cfg *ApiConfig) LogUser (w http.ResponseWriter, r *http.Request) {
   //TODO: verify if user is locked
   userInfo, err := cfg.DBQueries.GetPassword(r.Context(), reqBody.Username)
   if err != nil {
+    // User not found
+    if err == sql.ErrNoRows {
+      ResponseWithError(w, 404, err)
+      return
+    }
     ResponseWithError(w, 500, err)
     return
   }
@@ -120,9 +125,8 @@ func (cfg *ApiConfig) LogUser (w http.ResponseWriter, r *http.Request) {
   if attempts.Attempts == 5 {
     // Checking is user is still locked
     lockedTime := attempts.LastAttempt.Add(1 * time.Minute)
-    fmt.Printf("%v", lockedTime)
-    fmt.Printf("%v", time.Now().UTC())
-    if lockedTime.After(time.Now()) {
+    // TODO: need to fix this time zone issue
+    if lockedTime.After(time.Now().Add(60 * time.Minute)) {
       ResponseWithError(w, 401, errors.New("User is locked."))
       return
     // User is unlocked check pwd and reset count to 1 if wrong
