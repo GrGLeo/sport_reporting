@@ -10,6 +10,7 @@ import (
 
 type ApiConfig struct {
   DBQueries *database.Queries
+  TokenSecret string
 }
 
 func ResponseWithError(w http.ResponseWriter, code int, err error) {

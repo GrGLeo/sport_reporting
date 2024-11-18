@@ -24,6 +24,7 @@ func main() {
   }
 
   dbURL := config.GetEnvVar("POSTGRES_URL", "unset")
+  TokenSecret := config.GetEnvVar("SECRET", "secret")
   db, err := sql.Open("postgres", dbURL)
   if err != nil {
     log.Fatalf("Error: %v, Shutting down.", err)
@@ -33,6 +34,7 @@ func main() {
   mux := http.NewServeMux()
   apiCfg := api.ApiConfig{
     DBQueries: dbQueries,
+    TokenSecret: TokenSecret,
   }
 
  mux.Handle("GET /healthcheck", http.HandlerFunc(healthCheck))

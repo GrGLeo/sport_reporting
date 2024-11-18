@@ -33,9 +33,21 @@ type UserResponse struct {
   UpdatedAt time.Time `json:"updated_at"`
 }
 
-func SuccessResponse(w http.ResponseWriter) {
+type LoggedResponse struct {
+  Token string `json:"token"`
 }
 
+func ResponseLoggedSuccess(w http.ResponseWriter, userID uuid.UUID, tokenSecret string) {
+  token, err := auth.MakeJWT(userID, tokenSecret)
+  if err != nil {
+    ResponseWithError(w, 500, errors.New("Failed to create JWT"))
+  }
+  response := LoggedResponse{
+    Token: token,
+  }
+  ResponseWithJson(w, 200, response)
+  return
+}
 
 func (cfg *ApiConfig) CreateUser (w http.ResponseWriter, r *http.Request) {
   var reqBody CreateUserBody
@@ -112,9 +124,7 @@ func (cfg *ApiConfig) LogUser (w http.ResponseWriter, r *http.Request) {
         ResponseWithError(w, 500, err)
         return
       }
-      w.WriteHeader(200)
-      w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-      w.Write([]byte("Ok"))
+      ResponseLoggedSuccess(w, userInfo.UserID, cfg.TokenSecret)
       return
     }
     ResponseWithError(w, 500, err)
@@ -145,9 +155,7 @@ func (cfg *ApiConfig) LogUser (w http.ResponseWriter, r *http.Request) {
         return
       }
       cfg.DBQueries.DeleteAttempt(r.Context(), userInfo.UserID)
-      w.WriteHeader(200)
-      w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-      w.Write([]byte("Ok"))
+      ResponseLoggedSuccess(w, userInfo.UserID, cfg.TokenSecret)
       return
     }
   } else {
@@ -166,9 +174,7 @@ func (cfg *ApiConfig) LogUser (w http.ResponseWriter, r *http.Request) {
       return
     }
     cfg.DBQueries.DeleteAttempt(r.Context(), userInfo.UserID)
-    w.WriteHeader(200)
-    w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-    w.Write([]byte("Ok"))
+    ResponseLoggedSuccess(w, userInfo.UserID, cfg.TokenSecret)
     return
   }
 }
