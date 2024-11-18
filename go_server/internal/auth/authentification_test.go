@@ -1,6 +1,10 @@
 package auth
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/google/uuid"
+)
 
 func TestHashPassword(t *testing.T) {
   pwd := "hello"
@@ -18,4 +22,22 @@ func TestHashPassword(t *testing.T) {
   if err != nil {
     t.Error("Password shoud match.")
   } 
+}
+
+func TestJWT(t *testing.T) {
+  UserID := uuid.New()
+  tokenSecret := "secret"
+
+  token, err := MakeJWT(UserID, tokenSecret)
+  if err != nil {
+    t.Error("Error while making JWT")
+  }
+
+  JWTUserId, err := ValidateJWT(token, tokenSecret)
+  if err != nil {
+    t.Error("Error while validating JWT")
+  }
+  if UserID != JWTUserId {
+    t.Errorf("Got: %q, want: %q", JWTUserId, UserID)
+  }
 }

@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -32,6 +31,9 @@ type UserResponse struct {
   Email string `json:"email"`
   CreatedAt time.Time `json:"created_at"`
   UpdatedAt time.Time `json:"updated_at"`
+}
+
+func SuccessResponse(w http.ResponseWriter) {
 }
 
 
@@ -82,19 +84,16 @@ func (cfg *ApiConfig) LogUser (w http.ResponseWriter, r *http.Request) {
     ResponseWithError(w, 422, errors.New("Invalid JSON"))
     return
   }
-  
-  //TODO: verify if user is locked
   userInfo, err := cfg.DBQueries.GetPassword(r.Context(), reqBody.Username)
   if err != nil {
     // User not found
     if err == sql.ErrNoRows {
-      ResponseWithError(w, 404, err)
+      ResponseWithError(w, 404, errors.New("user not found."))
       return
     }
     ResponseWithError(w, 500, err)
     return
   }
-
   attempts, err := cfg.DBQueries.GetAttempt(r.Context(), userInfo.UserID)
   if err != nil {
     if err == sql.ErrNoRows {
