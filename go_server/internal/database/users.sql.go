@@ -44,3 +44,65 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateU
 	)
 	return i, err
 }
+
+const deleteAttempt = `-- name: DeleteAttempt :exec
+DELETE FROM settings.login_attempts
+WHERE user_id = $1
+`
+
+func (q *Queries) DeleteAttempt(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteAttempt, userID)
+	return err
+}
+
+const getAttempt = `-- name: GetAttempt :one
+SELECT attempts, last_attempt
+FROM settings.login_attempts
+WHERE user_id = $1
+`
+
+type GetAttemptRow struct {
+	Attempts    sql.NullInt32
+	LastAttempt sql.NullTime
+}
+
+func (q *Queries) GetAttempt(ctx context.Context, userID uuid.UUID) (GetAttemptRow, error) {
+	row := q.db.QueryRowContext(ctx, getAttempt, userID)
+	var i GetAttemptRow
+	err := row.Scan(&i.Attempts, &i.LastAttempt)
+	return i, err
+}
+
+const getPassword = `-- name: GetPassword :one
+SELECT user_id, password
+FROM settings.users
+WHERE username = $1
+`
+
+type GetPasswordRow struct {
+	UserID   uuid.UUID
+	Password string
+}
+
+func (q *Queries) GetPassword(ctx context.Context, username string) (GetPasswordRow, error) {
+	row := q.db.QueryRowContext(ctx, getPassword, username)
+	var i GetPasswordRow
+	err := row.Scan(&i.UserID, &i.Password)
+	return i, err
+}
+
+const updateAttempt = `-- name: UpdateAttempt :exec
+UPDATE settings.login_attempts
+SET attempts = $1, last_attempt = NOW()
+WHERE user_id = $2
+`
+
+type UpdateAttemptParams struct {
+	Attempts sql.NullInt32
+	UserID   uuid.UUID
+}
+
+func (q *Queries) UpdateAttempt(ctx context.Context, arg UpdateAttemptParams) error {
+	_, err := q.db.ExecContext(ctx, updateAttempt, arg.Attempts, arg.UserID)
+	return err
+}

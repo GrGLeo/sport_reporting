@@ -10,12 +10,11 @@ import (
 	"github.com/google/uuid"
 )
 
-type SettingsLoginAttemtp struct {
+type SettingsLoginAttempt struct {
 	AttemptID   int32
 	UserID      uuid.UUID
 	Attempts    sql.NullInt32
 	LastAttempt sql.NullTime
-	IsLocked    sql.NullBool
 }
 
 type SettingsUser struct {

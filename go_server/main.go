@@ -37,6 +37,7 @@ func main() {
 
  mux.Handle("GET /healthcheck", http.HandlerFunc(healthCheck))
  mux.Handle("POST /users/", http.HandlerFunc(apiCfg.CreateUser))
+ mux.Handle("POST /login/", http.HandlerFunc(apiCfg.LogUser))
 
   server := &http.Server{
     Addr: ":8080",

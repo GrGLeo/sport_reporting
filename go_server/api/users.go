@@ -19,6 +19,11 @@ type CreateUserBody struct {
   Email string `json:"email"`
 }
 
+type LogUserBody struct {
+  Username string `json:"username"`
+  Password string `json:"password"`
+}
+
 type UserResponse struct {
   ID uuid.UUID `json:"user_id"`
   Username string `json:"username"`
@@ -65,6 +70,38 @@ func (cfg *ApiConfig) CreateUser (w http.ResponseWriter, r *http.Request) {
     Email: user.Email,
     CreatedAt: createdAt,
   }
-  ResponseWithJson(w, 204, User)
+  ResponseWithJson(w, 201, User)
   return
+}
+
+func (cfg *ApiConfig) LogUser (w http.ResponseWriter, r *http.Request) {
+  var reqBody LogUserBody
+  if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+    ResponseWithError(w, 422, errors.New("Invalid JSON"))
+    return
+  }
+  
+  //TODO: verify if user is locked
+  userInfo, err := cfg.DBQueries.GetPassword(r.Context(), reqBody.Username)
+  if err != nil {
+    ResponseWithError(w, 500, err)
+    return
+  }
+
+  attempts, err := cfg.DBQueries.GetAttempt(userInfo.UserID)
+  if err != nil {
+    ResponseWithError(w, 500, err)
+    return
+  }
+
+  err = auth.CheckPassword(userInfo.Password, reqBody.Password)
+  if err != nil {
+    // TODO: prevent brute force
+    // write on attempt table
+    ResponseWithError(w, 401, err)
+    return
+  }
+  w.WriteHeader(200)
+  w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+  w.Write([]byte("Ok"))
 }
