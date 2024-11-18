@@ -1,5 +1,6 @@
 -- +goose UP
 CREATE SCHEMA IF NOT EXISTS settings;
+SET TIME ZONE 'CET';
 
 CREATE TABLE settings.users (
   user_id UUID PRIMARY KEY,
@@ -10,12 +11,11 @@ CREATE TABLE settings.users (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE settings.login_attemtps (
+CREATE TABLE settings.login_attempts (
     attempt_id SERIAL PRIMARY KEY,
     user_id UUID NOT NULL,
-    attempts INTEGER DEFAULT 0 CHECK (attempts >= 0),
-    last_attempt TIMESTAMP,
-    is_locked BOOLEAN DEFAULT FALSE,
+    attempts INTEGER NOT NULL DEFAULT 0 CHECK (attempts >= 0),
+    last_attempt TIMESTAMP NOT NULL,
     CONSTRAINT fk_user_login_attempts FOREIGN KEY (user_id) REFERENCES settings.users(user_id)
 );
 

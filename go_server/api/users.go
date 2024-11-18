@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -96,11 +97,11 @@ func (cfg *ApiConfig) LogUser (w http.ResponseWriter, r *http.Request) {
       err = auth.CheckPassword(userInfo.Password, reqBody.Password)
       if err != nil {
         if errors.Is(err, auth.ErrIncorrect) {
-          UpdatedAttempt := database.CreateAttemptParams{
+          FirstWrongAttempt := database.CreateAttemptParams{
             UserID: userInfo.UserID,
             Attempts: 1,
           }
-          cfg.DBQueries.CreateAttempt(r.Context(), UpdatedAttempt)
+          cfg.DBQueries.CreateAttempt(r.Context(), FirstWrongAttempt)
           ResponseWithError(w, 401, err)
           return
         }
@@ -117,6 +118,54 @@ func (cfg *ApiConfig) LogUser (w http.ResponseWriter, r *http.Request) {
   }
   // An attempt was made
   if attempts.Attempts == 5 {
+    // Checking is user is still locked
+    lockedTime := attempts.LastAttempt.Add(1 * time.Minute)
+    fmt.Printf("%v", lockedTime)
+    fmt.Printf("%v", time.Now().UTC())
+    if lockedTime.After(time.Now()) {
+      ResponseWithError(w, 401, errors.New("User is locked."))
+      return
+    // User is unlocked check pwd and reset count to 1 if wrong
+    } else {
+      err = auth.CheckPassword(userInfo.Password, reqBody.Password)
+      if err != nil {
+        if errors.Is(err, auth.ErrIncorrect) {
+          UpdatedAttempt := database.UpdateAttemptParams{
+            UserID: userInfo.UserID,
+            Attempts: 1,
+          }
+          cfg.DBQueries.UpdateAttempt(r.Context(), UpdatedAttempt)
+          ResponseWithError(w, 401, err)
+          return
+        }
+        ResponseWithError(w, 500, err)
+        return
+      }
+      cfg.DBQueries.DeleteAttempt(r.Context(), userInfo.UserID)
+      w.WriteHeader(200)
+      w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+      w.Write([]byte("Ok"))
+      return
+    }
+  } else {
+    err = auth.CheckPassword(userInfo.Password, reqBody.Password)
+    if err != nil {
+      if errors.Is(err, auth.ErrIncorrect) {
+        UpdatedAttempt := database.UpdateAttemptParams{
+          UserID: userInfo.UserID,
+          Attempts: attempts.Attempts + 1,
+        }
+        cfg.DBQueries.UpdateAttempt(r.Context(), UpdatedAttempt)
+        ResponseWithError(w, 401, err)
+        return
+      }
+      ResponseWithError(w, 500, err)
+      return
+    }
+    cfg.DBQueries.DeleteAttempt(r.Context(), userInfo.UserID)
+    w.WriteHeader(200)
+    w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+    w.Write([]byte("Ok"))
+    return
   }
-
 }
