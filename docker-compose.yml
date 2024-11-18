@@ -29,14 +29,13 @@ services:
     environment:
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_NAME: ${POSTGRES_DB}
       DB_HOST: db
       DB_PORT: 5432
+    entrypoint: ["/bin/sh", "/app/migration/wait-for-db.sh"]
     depends_on:
       - db
     networks:
       - app-network
-
 
   back:
     image: deretz/endurace_reporting:backend.latest
