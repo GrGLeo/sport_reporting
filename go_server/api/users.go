@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -88,20 +89,34 @@ func (cfg *ApiConfig) LogUser (w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  attempts, err := cfg.DBQueries.GetAttempt(userInfo.UserID)
+  attempts, err := cfg.DBQueries.GetAttempt(r.Context(), userInfo.UserID)
   if err != nil {
+    if err == sql.ErrNoRows {
+      // No attempts are recorded user can login
+      err = auth.CheckPassword(userInfo.Password, reqBody.Password)
+      if err != nil {
+        if errors.Is(err, auth.ErrIncorrect) {
+          UpdatedAttempt := database.CreateAttemptParams{
+            UserID: userInfo.UserID,
+            Attempts: 1,
+          }
+          cfg.DBQueries.CreateAttempt(r.Context(), UpdatedAttempt)
+          ResponseWithError(w, 401, err)
+          return
+        }
+        ResponseWithError(w, 500, err)
+        return
+      }
+      w.WriteHeader(200)
+      w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+      w.Write([]byte("Ok"))
+      return
+    }
     ResponseWithError(w, 500, err)
     return
   }
-
-  err = auth.CheckPassword(userInfo.Password, reqBody.Password)
-  if err != nil {
-    // TODO: prevent brute force
-    // write on attempt table
-    ResponseWithError(w, 401, err)
-    return
+  // An attempt was made
+  if attempts.Attempts == 5 {
   }
-  w.WriteHeader(200)
-  w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-  w.Write([]byte("Ok"))
+
 }

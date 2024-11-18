@@ -15,6 +15,12 @@ SELECT attempts, last_attempt
 FROM settings.login_attempts
 WHERE user_id = $1;
 
+-- name: CreateAttempt :exec
+INSERT INTO settings.login_attempts(user_id, attempts, last_attempt)
+VALUES (
+  $1, $2, NOW()
+);
+
 -- name: UpdateAttempt :exec
 UPDATE settings.login_attempts
 SET attempts = $1, last_attempt = NOW()

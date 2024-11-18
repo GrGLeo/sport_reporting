@@ -6,6 +6,7 @@ package database
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -13,8 +14,8 @@ import (
 type SettingsLoginAttempt struct {
 	AttemptID   int32
 	UserID      uuid.UUID
-	Attempts    sql.NullInt32
-	LastAttempt sql.NullTime
+	Attempts    int32
+	LastAttempt time.Time
 }
 
 type SettingsUser struct {

@@ -7,6 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var ErrIncorrect = errors.New("Incorrect password")
 
 func HashPassword(pwd string) (string, error) {
   hash, err := bcrypt.GenerateFromPassword([]byte(pwd), 1)
@@ -21,7 +22,7 @@ func CheckPassword(dbPwd, inputPwd string) error {
   err := bcrypt.CompareHashAndPassword([]byte(dbPwd), []byte(inputPwd))
   if err != nil {
     if err == bcrypt.ErrMismatchedHashAndPassword {
-      return errors.New("Incorrect password")
+      return ErrIncorrect
     }
     return err
   }

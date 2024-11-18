@@ -8,9 +8,27 @@ package database
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
+
+const createAttempt = `-- name: CreateAttempt :exec
+INSERT INTO settings.login_attempts(user_id, attempts, last_attempt)
+VALUES (
+  $1, $2, NOW()
+)
+`
+
+type CreateAttemptParams struct {
+	UserID   uuid.UUID
+	Attempts int32
+}
+
+func (q *Queries) CreateAttempt(ctx context.Context, arg CreateAttemptParams) error {
+	_, err := q.db.ExecContext(ctx, createAttempt, arg.UserID, arg.Attempts)
+	return err
+}
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO settings.users(user_id, username, password, email, created_at, updated_at)
@@ -62,8 +80,8 @@ WHERE user_id = $1
 `
 
 type GetAttemptRow struct {
-	Attempts    sql.NullInt32
-	LastAttempt sql.NullTime
+	Attempts    int32
+	LastAttempt time.Time
 }
 
 func (q *Queries) GetAttempt(ctx context.Context, userID uuid.UUID) (GetAttemptRow, error) {
@@ -98,7 +116,7 @@ WHERE user_id = $2
 `
 
 type UpdateAttemptParams struct {
-	Attempts sql.NullInt32
+	Attempts int32
 	UserID   uuid.UUID
 }
 
