@@ -13,7 +13,7 @@ uploaded_file = st.file_uploader("Choose a file", type=['fit', 'fits'])
 app_type = ["application/fit", "application/fits", "image/fit", "image/fits"]
 
 if uploaded_file is not None:
-    token = st.session_state["user_token"]["access_token"]
+    token = st.session_state["user_token"]["token"]
     if uploaded_file.type in app_type:
         with st.spinner("Uploading file..."):
             file = {"file": uploaded_file.getvalue()}

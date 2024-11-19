@@ -28,7 +28,7 @@ conn = st.connection(
 )
 
 
-user = User(st.session_state["user_token"]["access_token"], conn)
+user = User(st.session_state["user_token"]["token"], conn)
 
 if "conn" not in st.session_state:
     st.session_state.conn = conn
@@ -44,7 +44,7 @@ if threshold.empty:
 home_tab, zone_tab = st.tabs(["Home", "Zone"])
 with home_tab:
     with st.expander("Add Event"):
-        create_event(st.session_state["user_token"]["access_token"])
+        create_event(st.session_state["user_token"]["token"])
     today = date.today()
 
     # Event display

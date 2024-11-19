@@ -22,6 +22,21 @@ services:
     networks:
       - app-network
 
+  goose:
+    build:
+      context: .
+      dockerfile: Dockerfile.goose
+    environment:
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_HOST: db
+      DB_PORT: 5432
+    entrypoint: ["/bin/sh", "/app/migration/wait-for-db.sh"]
+    depends_on:
+      - db
+    networks:
+      - app-network
+
   back:
     image: deretz/endurace_reporting:backend.latest
     labels: 
@@ -39,6 +54,24 @@ services:
       - back_workout:/app/back/workout
     networks:
       - app-network
+    
+  go_server:
+    image: deretz/endurace_reporting:go_server.latest
+    labels: 
+      - "com.centurylinklabs.watchtower.enable=true"
+    build:
+      context: .
+      dockerfile: Dockerfile.go_server
+    environment:
+      POSTGRES_URL: ${POSTGRES_URL}
+      SECRET : ${SECRET}
+      DATABASE_URL: ${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
 
   front:
     image: deretz/endurace_reporting:frontend.latest
@@ -49,6 +82,7 @@ services:
       - back
     environment:
       API_ENDPOINT: ${API_ENDPOINT}
+      API_AUTH: ${API_AUTH}
       DB_HOST: db
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}

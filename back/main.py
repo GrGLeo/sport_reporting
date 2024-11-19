@@ -7,7 +7,6 @@ from fastapi.responses import JSONResponse, FileResponse
 from fitparse import FitFile
 import pandas as pd
 from sqlalchemy import create_engine
-from back.endpoints.auth import router, authorize_user
 from back.endpoints.db_query import db_router
 from back.endpoints.comments import activity_router
 from back.data.etl.running_feeder import RunningFeeder
@@ -18,6 +17,7 @@ from back.data.etl.futur_wkt_feeder import FuturWorkoutFeeder
 from back.data.tables import Base
 from back.utils.data_handler import get_data
 from back.fit.fit_writer import WorkoutWriter
+from back.utils.utilities import authorize_user
 from back.api_model import (
     EventModel,
     ThresholdModel,
@@ -27,7 +27,6 @@ from back.api_model import (
 
 DB_URL = os.getenv("DATABASE_URL", "leo:postgres@localhost:5432/sporting")
 app = FastAPI()
-app.include_router(router)
 app.include_router(db_router)
 app.include_router(activity_router)
 
@@ -69,10 +68,10 @@ async def upload_file(
     }
 
     if activity == "running":
-        feeder = RunningFeeder(wkt, activity_id, int(user_id))
+        feeder = RunningFeeder(wkt, activity_id, user_id)
         feeder.compute()
     elif activity == "cycling":
-        feeder = CyclingFeeder(wkt, activity_id, int(user_id))
+        feeder = CyclingFeeder(wkt, activity_id, user_id)
         feeder.compute()
     if feeder.complete:
         return {
@@ -83,7 +82,7 @@ async def upload_file(
 
 
 @app.get("/download-workout/{name}")
-async def download_workout(name: str, user_id: int = Depends(authorize_user)):
+async def download_workout(name: str, user_id: str = Depends(authorize_user)):
     path = f"/app/back/workout/{user_id}/{name}.fit"
     return FileResponse(
             path,
@@ -93,19 +92,19 @@ async def download_workout(name: str, user_id: int = Depends(authorize_user)):
 
 
 @app.post("/post_event")
-async def post_event(event: EventModel, user_id: int = Depends(authorize_user)):
+async def post_event(event: EventModel, user_id: str = Depends(authorize_user)):
     event_feeder = EventFeeder(event, user_id)
     event_feeder.compute()
 
 
 @app.post("/threshold")
-async def update_threshold(threshold: ThresholdModel, user_id: int = Depends(authorize_user)):
+async def update_threshold(threshold: ThresholdModel, user_id: str = Depends(authorize_user)):
     threshold_feeder = ThresholdFeeder(threshold, user_id)
     threshold_feeder.compute()
 
 
 @app.post("/push_program_wkt")
-async def save_program_wkt(futur_wkt: FuturWktModel, user_id: int = Depends(authorize_user)):
+async def save_program_wkt(futur_wkt: FuturWktModel, user_id: str = Depends(authorize_user)):
     ftr_wkt_feeder = FuturWorkoutFeeder(futur_wkt, user_id)
     ftr_wkt_feeder.compute()
     wkt_writer = WorkoutWriter(futur_wkt, user_id)

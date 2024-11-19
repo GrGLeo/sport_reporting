@@ -2,8 +2,8 @@ import os
 from fastapi import APIRouter, Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from back.endpoints.auth import authorize_user
 from back.utils.query import Query
+from back.utils.utilities import authorize_user
 from back.api_model import QueryModel
 
 

@@ -1,13 +1,16 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import text
 from back.api_model import PostCommentModel, RpeModel
-from back.endpoints.auth import authorize_user
 from back.utils.logger import logger
 from back.endpoints.db_query import conn
 from back.data.etl.comment_feeder import CommentFeeder
 
 
 activity_router = APIRouter(prefix="/activity")
+
+
+def authorize_user():
+    pass
 
 
 @activity_router.post("/post_comment/")
