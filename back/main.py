@@ -68,10 +68,10 @@ async def upload_file(
     }
 
     if activity == "running":
-        feeder = RunningFeeder(wkt, activity_id, int(user_id))
+        feeder = RunningFeeder(wkt, activity_id, user_id)
         feeder.compute()
     elif activity == "cycling":
-        feeder = CyclingFeeder(wkt, activity_id, int(user_id))
+        feeder = CyclingFeeder(wkt, activity_id, user_id)
         feeder.compute()
     if feeder.complete:
         return {
@@ -82,7 +82,7 @@ async def upload_file(
 
 
 @app.get("/download-workout/{name}")
-async def download_workout(name: str, user_id: int = Depends(authorize_user)):
+async def download_workout(name: str, user_id: str = Depends(authorize_user)):
     path = f"/app/back/workout/{user_id}/{name}.fit"
     return FileResponse(
             path,
@@ -92,19 +92,19 @@ async def download_workout(name: str, user_id: int = Depends(authorize_user)):
 
 
 @app.post("/post_event")
-async def post_event(event: EventModel, user_id: int = Depends(authorize_user)):
+async def post_event(event: EventModel, user_id: str = Depends(authorize_user)):
     event_feeder = EventFeeder(event, user_id)
     event_feeder.compute()
 
 
 @app.post("/threshold")
-async def update_threshold(threshold: ThresholdModel, user_id: int = Depends(authorize_user)):
+async def update_threshold(threshold: ThresholdModel, user_id: str = Depends(authorize_user)):
     threshold_feeder = ThresholdFeeder(threshold, user_id)
     threshold_feeder.compute()
 
 
 @app.post("/push_program_wkt")
-async def save_program_wkt(futur_wkt: FuturWktModel, user_id: int = Depends(authorize_user)):
+async def save_program_wkt(futur_wkt: FuturWktModel, user_id: str = Depends(authorize_user)):
     ftr_wkt_feeder = FuturWorkoutFeeder(futur_wkt, user_id)
     ftr_wkt_feeder.compute()
     wkt_writer = WorkoutWriter(futur_wkt, user_id)

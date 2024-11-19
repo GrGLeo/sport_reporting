@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Optional
 from sqlalchemy import Column, Integer, Float, Time, DateTime, String, Date, JSON
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
@@ -15,7 +16,7 @@ class Comments(Base):
 
     comment_id = Column(Integer, primary_key=True, autoincrement=True)
     activity_id = Column(Integer)
-    user_id = Column(Integer)
+    user_id = Column(UUID)
     comment = Column(String)
 
 
@@ -23,7 +24,7 @@ class Events(Base):
     __tablename__ = "events"
     __table_args__ = {'schema': 'param'}
 
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(UUID, primary_key=True)
     date = Column(Date, primary_key=True)
     name = Column(String)
     sport = Column(String)
@@ -35,7 +36,7 @@ class FuturWorkout(Base):
     __table_args__ = {"schema": "planning"}
 
     activity_id = Column(Integer, autoincrement=True, primary_key=True)
-    user_id = Column(Integer)
+    user_id = Column(UUID)
     date = Column(Date)
     name = Column(String)
     sport = Column(String)
@@ -46,7 +47,7 @@ class Workout(Base):
     __abstract__ = True
     __tablename__ = "workout"
 
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(UUID, primary_key=True)
     record_id = Column(Integer, primary_key=True)
     activity_id = Column(Integer, primary_key=True)
     timestamp = Column(DateTime)
@@ -78,7 +79,7 @@ class Lap(Base):
     __abstract__ = True
     __tablename__ = "lap"
 
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(UUID, primary_key=True)
     activity_id = Column(Integer, primary_key=True)
     lap_id = Column(Integer, primary_key=True)
     timer = Column(Time)
@@ -105,7 +106,7 @@ class Syn(Base):
     __abstract__ = True
     __tablename__ = "syn"
 
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(UUID, primary_key=True)
     activity_id = Column(Integer, primary_key=True)
     date = Column(DateTime)
     duration = Column(Time)
@@ -137,7 +138,7 @@ class User(Base):
     __tablename__ = "user_threshold"
     __table_args__ = {'schema': 'param'}
 
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(UUID, primary_key=True)
     date = Column(DateTime, primary_key=True)
     swim = Column(Integer)
     vma = Column(Float)
@@ -148,7 +149,7 @@ class Zone(Base):
     __abstract__ = True
     __table_args__ = {'schema': 'param'}
 
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(UUID, primary_key=True)
     recovery = Column(Integer)
     endurance = Column(Integer)
     tempo = Column(Integer)
