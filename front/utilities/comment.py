@@ -10,7 +10,7 @@ API = os.getenv("API_ENDPOINT", "http://127.0.0.1:8000")
 @st.dialog('Add a comment')
 def add_comment(activity_id):
     comment = st.text_area("Write your comment here")
-    headers = {"Authorization": f"Bearer {st.session_state["user_token"]["access_token"]}"}
+    headers = {"Authorization": f'Bearer {st.session_state["user_token"]["token"]}'}
 
     if st.button("Submit"):
         json = {
@@ -80,7 +80,7 @@ def rpe_setter(key, sport, activity_id):
 @handle_unauthorize
 def post_rpe(sport, activity_id, rpe):
     json = {"activity_id": activity_id, "sport": sport, "rpe": rpe}
-    headers = {"Authorization": f"Bearer {st.session_state["user_token"]["access_token"]}"}
+    headers = {"Authorization": f'Bearer {st.session_state["user_token"]["token"]}'}
     response = requests.post(f"{API}/activity/post_rpe/", json=json, headers=headers)
     if response.status_code == 401:
         raise UnAuthorizeError()

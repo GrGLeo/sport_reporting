@@ -4,8 +4,7 @@ import re
 import requests
 import streamlit as st
 
-API = os.getenv("API_ENDPOINT", "http://127.0.0.1:8000")
-
+API = os.getenv("API_AUTH", "http://127.0.0.1:8080")
 
 def login_page():
     login_tab, create_tab = st.tabs(["Login", "Create account"])
@@ -58,7 +57,7 @@ def create_user_page():
 
 def auth_user(username, password):
     response = requests.post(
-        f"{API}/login", json={"username": username, "password": password}
+        f"{API}/login/", json={"username": username, "password": password}
     )
     if response.status_code == 200:
         token = response.json()
@@ -69,10 +68,10 @@ def auth_user(username, password):
 
 def create_user(username, password, email):
     response = requests.post(
-        f"{API}/create_user",
+        f"{API}/users/",
         json={"username": username, "password": password, "email": email},
     )
-    if response.status_code == 200:
+    if response.status_code == 201:
         token = response.json()["token"]
         return True, token
     elif response.status_code == 401:
