@@ -26,11 +26,10 @@ type LogUserBody struct {
 }
 
 type UserResponse struct {
-  ID uuid.UUID `json:"user_id"`
-  Username string `json:"username"`
   Email string `json:"email"`
   CreatedAt time.Time `json:"created_at"`
   UpdatedAt time.Time `json:"updated_at"`
+  Token string `json:"token"`
 }
 
 type LoggedResponse struct {
@@ -80,12 +79,17 @@ func (cfg *ApiConfig) CreateUser (w http.ResponseWriter, r *http.Request) {
     createdAt = time.Time{}
   }
 
+  token, err := auth.MakeJWT(user.UserID, cfg.TokenSecret)
+  if err != nil {
+    ResponseWithError(w, 500, errors.New("Failed to create JWT"))
+  }
+
   User := UserResponse{
-    ID: user.UserID,
-    Username: user.Username,
     Email: user.Email,
     CreatedAt: createdAt,
+    Token: token,
   }
+
   ResponseWithJson(w, 201, User)
   return
 }

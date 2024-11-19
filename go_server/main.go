@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/GrGLeo/sport_reporting/go_server/api"
 	"github.com/GrGLeo/sport_reporting/go_server/internal/config"
@@ -45,6 +46,7 @@ func main() {
     Addr: ":8080",
     Handler: mux,
   }
+  fmt.Printf("\n%s: Go server ready to listen and serve", time.Now())
   if err := server.ListenAndServe(); err != nil {
     fmt.Printf("Error: %q, shutdown.", err)
   }

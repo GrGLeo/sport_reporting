@@ -39,8 +39,6 @@ services:
 
   back:
     image: deretz/endurace_reporting:backend.latest
-    labels: 
-      - "com.centurylinklabs.watchtower.enable=true"
     build:
       context: ./back
     environment:
@@ -61,6 +59,7 @@ services:
       context: .
       dockerfile: Dockerfile.go_server
     environment:
+      POSTGRES_URL: ${POSTGRES_URL}
       SECRET : ${SECRET}
       DATABASE_URL: ${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     depends_on:
@@ -79,6 +78,7 @@ services:
       - back
     environment:
       API_ENDPOINT: ${API_ENDPOINT}
+      API_AUTH: ${API_AUTH}
       DB_HOST: db
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
