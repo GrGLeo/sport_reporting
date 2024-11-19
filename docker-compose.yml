@@ -39,6 +39,8 @@ services:
 
   back:
     image: deretz/endurace_reporting:backend.latest
+    labels: 
+      - "com.centurylinklabs.watchtower.enable=true"
     build:
       context: ./back
     environment:
@@ -55,6 +57,8 @@ services:
     
   go_server:
     image: deretz/endurace_reporting:go_server.latest
+    labels: 
+      - "com.centurylinklabs.watchtower.enable=true"
     build:
       context: .
       dockerfile: Dockerfile.go_server
