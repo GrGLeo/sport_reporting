@@ -1,3 +1,7 @@
+import os
+import jwt
+from fastapi import HTTPException, Request
+
 from datetime import time, timedelta
 
 
@@ -37,3 +41,32 @@ def assign_zone(power, zones):
         return 'vo2max'
     else:
         return 'vo2max'
+
+
+def authorize_user(requests: Request) -> int:
+    SECRET = os.getenv("SECRET", "secret")
+    ALGORITHM = os.getenv("ALGORITHM", "HS256")
+
+    authorization = requests.headers.get("Authorization")
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing authorization header")
+
+    if not authorization.startswith("Bearer"):
+        raise HTTPException(status_code=401, detail="Invalid authorization header")
+
+    token = authorization.split(" ")[1]
+
+    if len(token.split(".")) != 3:
+        raise HTTPException(status_code=401, detail="Invalid JWT token structure.")
+
+    try:
+        payload = jwt.decode(token, SECRET, [ALGORITHM])
+        print(payload.keys())
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token: user_id missing.")
+        return user_id
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired.")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token.")
