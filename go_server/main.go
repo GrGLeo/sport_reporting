@@ -13,6 +13,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+
 func healthCheck(w http.ResponseWriter, r *http.Request) {
   w.Header().Set("Content-Type", "text/plain; charset=utf-8")
   w.WriteHeader(200)
@@ -40,13 +41,13 @@ func main() {
 
  mux.Handle("GET /healthcheck", http.HandlerFunc(healthCheck))
  mux.Handle("POST /users/", http.HandlerFunc(apiCfg.CreateUser))
- mux.Handle("POST /login/", http.HandlerFunc(apiCfg.LogUser))
+ mux.Handle("POST /login/", apiCfg.InfoLog(http.HandlerFunc(apiCfg.LogUser)))
 
   server := &http.Server{
     Addr: ":8080",
     Handler: mux,
   }
-  fmt.Printf("\n%s: Go server ready to listen and serve", time.Now())
+  fmt.Printf("\n%s: Go server ready to listen and serve", time.Now().Format("2006-01-02T15:04:05"))
   if err := server.ListenAndServe(); err != nil {
     fmt.Printf("Error: %q, shutdown.", err)
   }
