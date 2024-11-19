@@ -34,7 +34,7 @@ jobs:
       run: docker build -t deretz/endurace_reporting:backend.${{ github.ref_name }} -f back/Dockerfile back/
 
     - name: Build GO Image
-      run: docker build -t deretz/endurace_reporting:backend.${{ github.ref_name }} -f Dockerfile.go_server .
+      run: docker build -t deretz/endurace_reporting:go_server.${{ github.ref_name }} -f Dockerfile.go_server .
 
     - name: Build goose Image
       run: docker build -t deretz/endurace_reporting:goose.${{ github.ref_name }} -f Dockerfile.goose .
