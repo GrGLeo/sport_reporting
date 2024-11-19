@@ -5,6 +5,7 @@ __pycache__/
 *.egg-info
 start_.sh
 start_rec.sh
+/tmp/
 /setup.py
 !/front/setup.py
 !/back/setup.py
