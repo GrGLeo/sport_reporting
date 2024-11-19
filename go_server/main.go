@@ -10,6 +10,7 @@ import (
 	"github.com/GrGLeo/sport_reporting/go_server/api"
 	"github.com/GrGLeo/sport_reporting/go_server/internal/config"
 	"github.com/GrGLeo/sport_reporting/go_server/internal/database"
+	glogger "github.com/GrGLeo/sport_reporting/go_server/internal/logger"
 	_ "github.com/lib/pq"
 )
 
@@ -32,11 +33,15 @@ func main() {
     log.Fatalf("Error: %v, Shutting down.", err)
   }
   dbQueries := database.New(db)
+  log := glogger.Glogger{
+    Filepath: "../tmp/go_server.go",
+  }
 
   mux := http.NewServeMux()
   apiCfg := api.ApiConfig{
     DBQueries: dbQueries,
     TokenSecret: TokenSecret,
+    Logger: &log,
   }
 
  mux.Handle("GET /healthcheck", http.HandlerFunc(healthCheck))

@@ -12,7 +12,7 @@ import (
 type ApiConfig struct {
   DBQueries *database.Queries
   TokenSecret string
-  Logger glogger.Glogger
+  Logger *glogger.Glogger
 }
 
 func (cfg *ApiConfig) InfoLog(next http.Handler) http.Handler {
