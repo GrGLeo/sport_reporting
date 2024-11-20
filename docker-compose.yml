@@ -5,6 +5,7 @@ services:
       - "--label-enable"
       - "--interval"
       - "60"
+      - "--include-stopped"
     volumes:
       - /root/.docker/config.json:/config.json
       - /var/run/docker.sock:/var/run/docker.sock
@@ -23,6 +24,9 @@ services:
       - app-network
 
   goose:
+    image: deretz/endurace_reporting:goose.latest
+    labels: 
+      - "com.centurylinklabs.watchtower.enable=true"
     build:
       context: .
       dockerfile: Dockerfile.goose

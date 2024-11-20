@@ -45,7 +45,7 @@ func main() {
   }
 
  mux.Handle("GET /healthcheck", http.HandlerFunc(healthCheck))
- mux.Handle("POST /users/", http.HandlerFunc(apiCfg.CreateUser))
+ mux.Handle("POST /users/", apiCfg.InfoLog(http.HandlerFunc(apiCfg.CreateUser)))
  mux.Handle("POST /login/", apiCfg.InfoLog(http.HandlerFunc(apiCfg.LogUser)))
 
   server := &http.Server{
