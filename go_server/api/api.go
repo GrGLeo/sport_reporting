@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/GrGLeo/sport_reporting/go_server/internal/database"
-	glogger "github.com/GrGLeo/sport_reporting/go_server/internal/logger"
+	"github.com/GrGLeo/sport_reporting/go_server/internal/logger"
 )
 
 
