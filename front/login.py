@@ -22,7 +22,7 @@ def login_page():
                     st.success("Login sucess")
                     st.rerun()
                 else:
-                    st.error(token["detail"])
+                    st.error(token)
 
     with create_tab:
         create_user_page()
