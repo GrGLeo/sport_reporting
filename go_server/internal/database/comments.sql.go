@@ -21,7 +21,7 @@ ON u.user_id = ac.user_id
 
 type GetAllCommentsRow struct {
 	Username sql.NullString
-	Comment  sql.NullString
+	Comment  string
 }
 
 func (q *Queries) GetAllComments(ctx context.Context) ([]GetAllCommentsRow, error) {
@@ -57,7 +57,7 @@ VALUES (
 type PostCommentParams struct {
 	ActivityID int32
 	UserID     uuid.UUID
-	Comment    sql.NullString
+	Comment    string
 }
 
 func (q *Queries) PostComment(ctx context.Context, arg PostCommentParams) error {

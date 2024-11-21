@@ -15,7 +15,7 @@ type ParamActivityComment struct {
 	CommentID  int32
 	ActivityID int32
 	UserID     uuid.UUID
-	Comment    sql.NullString
+	Comment    string
 }
 
 type SettingsLoginAttempt struct {
