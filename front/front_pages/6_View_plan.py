@@ -21,11 +21,13 @@ if not planned:
 st.title('Planned Workout')
 df_wkt = user.get_programmed_wkt(activity_id)
 data = df_wkt['data'].iloc[0]
+sport = df_wkt['sport'].iloc[0]
 name = df_wkt['name'].iloc[0]
 date = df_wkt['date'].iloc[0]
 st.subheader(date)
 
-def extract_data(d: dict, parent_key: str=""):
+
+def extract_data(d: dict, parent_key: str = ""):
     rows = []
     for k, v in d.items():
         new_key = f"{parent_key}_{k}" if parent_key else k
@@ -59,11 +61,18 @@ for _, row in df.iterrows():
 plot_df = pd.DataFrame(plot_data)
 
 fig = px.line(plot_df, x='time', y='work', title=name)
-fig.update_layout(
-        xaxis_title='Duration',
-        yaxis_title='Speed (km/h)',
-        yaxis=dict(range=[0, 21])
-)
+if sport == "Running":
+    fig.update_layout(
+            xaxis_title='Duration',
+            yaxis_title='Speed (km/h)',
+            yaxis=dict(range=[0, 21])
+    )
+elif sport == "Cycling":
+    fig.update_layout(
+            xaxis_title='Duration',
+            yaxis_title='Power (Watt)',
+            yaxis=dict(range=[0, 500])
+    )
 
 st.plotly_chart(fig)
 

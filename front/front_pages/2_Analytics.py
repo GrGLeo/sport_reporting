@@ -164,7 +164,7 @@ if activity_id:
 
         fig.update_layout(
             title='Altitude, Pace, and Heart Rate Over Time',
-            xaxis=dict(title='Distance (km)'),
+            xaxis=dict(title='Distance (m)'),
             yaxis=dict(
                 range=[altitude_range_min, altitude_range_max],
                 showticklabels=False,
@@ -173,7 +173,7 @@ if activity_id:
                 showline=False
             ),
             yaxis2=dict(
-                title='Pace (min/km)',
+                title='Speed (km/h)' if sport == 'running' else 'Power (Watt)',
                 titlefont=dict(color='blue'),
                 tickfont=dict(color='blue'),
                 anchor='free',
