@@ -61,7 +61,6 @@ def authorize_user(requests: Request) -> int:
 
     try:
         payload = jwt.decode(token, SECRET, [ALGORITHM])
-        print(payload.keys())
         user_id = payload.get("sub")
         if not user_id:
             raise HTTPException(status_code=401, detail="Invalid token: user_id missing.")
