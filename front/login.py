@@ -63,7 +63,7 @@ def auth_user(username, password):
         token = response.json()
         return True, token
     elif response.status_code != 200:
-        return False, response.json()
+        return False, response.text
 
 
 def create_user(username, password, email):
