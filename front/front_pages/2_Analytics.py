@@ -196,25 +196,36 @@ if activity_id:
 
     # Laps tab
     with lap_tab:
+        if sport == 'running':
+            title = 'Pace per lap over time'
+            metric = 'pace'
+            title_y = 'Speed (km/h)'
+            range_ = [0, 22]
+        elif sport == 'cycling':
+            title = 'Power per lap over time'
+            metric = 'power'
+            title_y = 'Power (Watt)'
+            range_ = [0, 500]
+
         df_laps['timer_seconds'] = df_laps['timer'].apply(time_to_seconds)
         df_laps['cumulative_time'] = df_laps['timer_seconds'].cumsum()
 
         total_duration = int(df_laps['cumulative_time'].max())
         time_seconds = pd.DataFrame({'second': range(total_duration + 1)})
-        time_seconds['pace'] = None
+        time_seconds[metric] = None
         time_seconds['hr'] = None
 
         for i, lap in df_laps.iterrows():
             start_time = 0 if i == 0 else df_laps.loc[i - 1, 'cumulative_time']
             end_time = lap['cumulative_time']
-            time_seconds.loc[(time_seconds['second'] >= start_time) & (time_seconds['second'] <= end_time), 'pace'] = lap['pace']
+            time_seconds.loc[(time_seconds['second'] >= start_time) & (time_seconds['second'] <= end_time), metric] = lap[metric]
             time_seconds.loc[(time_seconds['second'] >= start_time) & (time_seconds['second'] <= end_time), 'hr'] = lap['hr']
 
         fig = go.Figure()
 
         fig.add_trace(go.Scatter(
             x=time_seconds['second'],
-            y=time_seconds['pace'],
+            y=time_seconds[metric],
             name='Pace',
             mode='lines',
             line=dict(color='blue'),
@@ -222,11 +233,11 @@ if activity_id:
         )
                       )
         fig.update_layout(
-            title='Pace per lap over time',
+            title=title,
             xaxis=dict(title='Time (sec)'),
             yaxis=dict(
-                title='Speed km/h',
-                range=[0, 22],
+                title=title_y,
+                range=range_,
             )
         )
 
