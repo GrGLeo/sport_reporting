@@ -173,7 +173,7 @@ if activity_id:
                 showline=False
             ),
             yaxis2=dict(
-                title='Pace (min/km)' if sport == 'running' else 'Power (Watt)',
+                title='Speed (km/h)' if sport == 'running' else 'Power (Watt)',
                 titlefont=dict(color='blue'),
                 tickfont=dict(color='blue'),
                 anchor='free',
