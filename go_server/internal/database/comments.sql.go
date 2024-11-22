@@ -13,19 +13,22 @@ import (
 )
 
 const getAllComments = `-- name: GetAllComments :many
-SELECT u.username, comment
+SELECT comment_id, u.username, comment
+  
 FROM param.activity_comments as ac
 LEFT JOIN settings.users as u
 ON u.user_id = ac.user_id
+WHERE activity_id = $1
 `
 
 type GetAllCommentsRow struct {
-	Username sql.NullString
-	Comment  string
+	CommentID int32
+	Username  sql.NullString
+	Comment   string
 }
 
-func (q *Queries) GetAllComments(ctx context.Context) ([]GetAllCommentsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getAllComments)
+func (q *Queries) GetAllComments(ctx context.Context, activityID int64) ([]GetAllCommentsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAllComments, activityID)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +36,7 @@ func (q *Queries) GetAllComments(ctx context.Context) ([]GetAllCommentsRow, erro
 	var items []GetAllCommentsRow
 	for rows.Next() {
 		var i GetAllCommentsRow
-		if err := rows.Scan(&i.Username, &i.Comment); err != nil {
+		if err := rows.Scan(&i.CommentID, &i.Username, &i.Comment); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

@@ -15,18 +15,19 @@ type CommentBody struct {
   CommentText string `json:"comment_text"`
   }
 
+type CommentResponse struct {
+  CommentID int `json:"comment_id"`
+  CommentText string `json:"comment_text"`
+  Username string `json:"username"`
+}
+
 type PostResponse struct {
   Status string `json:"status"`
 }
 
 func (cfg *ApiConfig) PostComment (w http.ResponseWriter, r *http.Request) {
-  // Verify authorization
-  token, err := auth.GetBearerToken(r.Header)
-  if err != nil {
-    ResponseWithError(w, 401, err)
-    return
-  }
-  UserID, err := auth.ValidateJWT(token, cfg.TokenSecret)
+  // Verify User authorization
+  UserID, err := auth.ValidateRetrieveUser(r.Header, cfg.TokenSecret)
   if err != nil {
     ResponseWithError(w, 401, err)
     return
@@ -59,5 +60,37 @@ func (cfg *ApiConfig) PostComment (w http.ResponseWriter, r *http.Request) {
     return
   }
   ResponseWithJson(w, 200, PostResponse{Status: "Comment posted",})
+  return
+}
+
+func (cfg *ApiConfig) GetAllComments (w http.ResponseWriter, r *http.Request) {
+  var AllComments []CommentResponse
+
+  // Verify User authorization
+  _, err := auth.ValidateRetrieveUser(r.Header, cfg.TokenSecret)
+  if err != nil {
+    ResponseWithError(w, 401, err)
+    return
+  }
+  ActivityID, err := strconv.Atoi(r.PathValue("activity_id"))
+  CastedActivityID := int64(ActivityID)
+
+  Comments, err := cfg.DBQueries.GetAllComments(r.Context(), CastedActivityID)
+  if err != nil {
+    ResponseWithError(w, 500, err)
+    return
+  }
+
+  for _, Comment := range Comments {
+  AllComments = append(
+    AllComments,
+    CommentResponse{
+      CommentID: int(Comment.CommentID),
+      Username: Comment.Username.String,
+      CommentText: Comment.Comment,
+    },)
+  }
+
+  ResponseWithJson(w, 200, AllComments)
   return
 }

@@ -50,7 +50,7 @@ func main() {
  mux.Handle("POST /login/", apiCfg.InfoLog(http.HandlerFunc(apiCfg.LogUser)))
  // comment related endpoints
  mux.Handle("POST /activities/{activity_id}/comments/", apiCfg.InfoLog(http.HandlerFunc(apiCfg.PostComment)))
- mux.Handle("GET /activities/{activity_id}/comments/", apiCfg.InfoLog(http.HandlerFunc(apiCfg.LogUser)))
+ mux.Handle("GET /activities/{activity_id}/comments/", apiCfg.InfoLog(http.HandlerFunc(apiCfg.GetAllComments)))
  mux.Handle("GET /activities/{activity_id}/comments/{comment_id}", apiCfg.InfoLog(http.HandlerFunc(apiCfg.LogUser)))
  mux.Handle("PUT /activities/{activity_id}/comments/{comment_id}", apiCfg.InfoLog(http.HandlerFunc(apiCfg.LogUser)))
  mux.Handle("DELETE /activities/{activity_id}/comments/{comment_id}", apiCfg.InfoLog(http.HandlerFunc(apiCfg.LogUser)))

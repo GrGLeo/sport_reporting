@@ -5,7 +5,9 @@ VALUES (
 );
 
 -- name: GetAllComments :many
-SELECT u.username, comment
+SELECT comment_id, u.username, comment
+  
 FROM param.activity_comments as ac
 LEFT JOIN settings.users as u
-ON u.user_id = ac.user_id;
+ON u.user_id = ac.user_id
+WHERE activity_id = $1;
