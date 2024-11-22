@@ -13,7 +13,7 @@ import (
 
 type ParamActivityComment struct {
 	CommentID  int32
-	ActivityID int32
+	ActivityID int64
 	UserID     uuid.UUID
 	Comment    string
 }

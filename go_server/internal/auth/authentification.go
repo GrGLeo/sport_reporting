@@ -80,4 +80,3 @@ func GetBearerToken(header http.Header) (string, error) {
   bearerToken := strings.Split(authorization, " ")
   return bearerToken[1], nil
 }
-

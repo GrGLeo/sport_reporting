@@ -3,7 +3,7 @@ CREATE SCHEMA param;
 
 CREATE TABLE param.activity_comments (
   comment_id SERIAL PRIMARY KEY,
-  activity_id INTEGER NOT NULL,
+  activity_id BIGINT NOT NULL,
   user_id UUID NOT NULL,
   comment TEXT NOT NULL DEFAULT '',
   -- CONSTRAINT fk_activity FOREIGN KEY (activity_id) REFERENCES activities(activity_id) ON DELETE CASCADE,

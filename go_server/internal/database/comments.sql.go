@@ -55,7 +55,7 @@ VALUES (
 `
 
 type PostCommentParams struct {
-	ActivityID int32
+	ActivityID int64
 	UserID     uuid.UUID
 	Comment    string
 }
