@@ -12,6 +12,22 @@ import (
 	"github.com/google/uuid"
 )
 
+const deleteComment = `-- name: DeleteComment :exec
+DELETE FROM param.activity_comments
+WHERE comment_id = $1
+AND activity_id = $2
+`
+
+type DeleteCommentParams struct {
+	CommentID  int32
+	ActivityID int64
+}
+
+func (q *Queries) DeleteComment(ctx context.Context, arg DeleteCommentParams) error {
+	_, err := q.db.ExecContext(ctx, deleteComment, arg.CommentID, arg.ActivityID)
+	return err
+}
+
 const getAllComments = `-- name: GetAllComments :many
 SELECT comment_id, u.username, comment
   
@@ -65,5 +81,23 @@ type PostCommentParams struct {
 
 func (q *Queries) PostComment(ctx context.Context, arg PostCommentParams) error {
 	_, err := q.db.ExecContext(ctx, postComment, arg.ActivityID, arg.UserID, arg.Comment)
+	return err
+}
+
+const updateComment = `-- name: UpdateComment :exec
+UPDATE param.activity_comments
+SET comment = $1
+WHERE comment_id = $2
+AND activity_id = $3
+`
+
+type UpdateCommentParams struct {
+	Comment    string
+	CommentID  int32
+	ActivityID int64
+}
+
+func (q *Queries) UpdateComment(ctx context.Context, arg UpdateCommentParams) error {
+	_, err := q.db.ExecContext(ctx, updateComment, arg.Comment, arg.CommentID, arg.ActivityID)
 	return err
 }
