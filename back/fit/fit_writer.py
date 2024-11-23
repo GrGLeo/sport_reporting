@@ -45,7 +45,6 @@ class WorkoutWriter:
     def _write_wkt_message(self, name, workout_steps):
         workout_message = WorkoutMessage()
         workout_message.workout_name = name
-        print(self.sport)
         if self.sport == 'running':
             workout_message.sport = Sport.RUNNING
         elif self.sport == 'cycling':
