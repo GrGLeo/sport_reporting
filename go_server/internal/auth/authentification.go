@@ -81,3 +81,14 @@ func GetBearerToken(header http.Header) (string, error) {
   return bearerToken[1], nil
 }
 
+func ValidateRetrieveUser (header http.Header, tokenSecret string) (uuid.UUID, error) {
+  token, err := GetBearerToken(header)
+  if err != nil {
+    return uuid.Nil, err
+  }
+  UserID, err := ValidateJWT(token, tokenSecret)
+  if err != nil {
+    return uuid.Nil, err
+  }
+  return UserID, nil
+}

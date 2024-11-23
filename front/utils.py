@@ -41,9 +41,7 @@ def handle_unauthorize(func):
         try:
             return func(*args, **kwargs)
         except UnAuthorizeError:
-            print("glop")
             if "user_token" in st.session_state:
-                print("glopiglop")
                 del st.session_state["user_token"]
             st.rerun()
     return wrapper

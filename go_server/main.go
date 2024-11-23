@@ -45,14 +45,20 @@ func main() {
   }
 
  mux.Handle("GET /healthcheck", http.HandlerFunc(healthCheck))
+ // users authentification
  mux.Handle("POST /users/", apiCfg.InfoLog(http.HandlerFunc(apiCfg.CreateUser)))
  mux.Handle("POST /login/", apiCfg.InfoLog(http.HandlerFunc(apiCfg.LogUser)))
+ // comment related endpoints
+ mux.Handle("POST /activities/{activity_id}/comments/", apiCfg.InfoLog(http.HandlerFunc(apiCfg.PostComment)))
+ mux.Handle("GET /activities/{activity_id}/comments/", apiCfg.InfoLog(http.HandlerFunc(apiCfg.GetAllComments)))
+ mux.Handle("PUT /activities/{activity_id}/comments/{comment_id}", apiCfg.InfoLog(http.HandlerFunc(apiCfg.UpdateComment)))
+ mux.Handle("DELETE /activities/{activity_id}/comments/{comment_id}", apiCfg.InfoLog(http.HandlerFunc(apiCfg.DeleteComment)))
 
   server := &http.Server{
     Addr: ":8080",
     Handler: mux,
   }
-  fmt.Printf("\n%s: Go server ready to listen and serve", time.Now().Format("2006-01-02T15:04:05"))
+  fmt.Printf("%s: Go server ready to listen and serve", time.Now().Format("2006-01-02T15:04:05"))
   if err := server.ListenAndServe(); err != nil {
     fmt.Printf("Error: %q, shutdown.", err)
   }

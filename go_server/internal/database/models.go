@@ -11,6 +11,13 @@ import (
 	"github.com/google/uuid"
 )
 
+type ParamActivityComment struct {
+	CommentID  int32
+	ActivityID int64
+	UserID     uuid.UUID
+	Comment    string
+}
+
 type SettingsLoginAttempt struct {
 	AttemptID   int32
 	UserID      uuid.UUID

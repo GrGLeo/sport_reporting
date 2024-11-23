@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from utilities.comment import (
         add_comment,
-        write_comment,
+        show_comment,
         get_rpe,
         rpe_setter,
 )
@@ -110,7 +110,7 @@ if activity_id:
 
         # Comments
         st.subheader('Comments')
-        write_comment(conn, activity_id)
+        show_comment(conn, activity_id)
         add_com = st.button('Comments')
         if add_com:
             add_comment(activity_id)
