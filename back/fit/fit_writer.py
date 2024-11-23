@@ -57,7 +57,7 @@ class WorkoutWriter:
         step.duration_type = WorkoutStepDuration.TIME
         # Convert minute to ms
         step.duration_value = duration * 60 * 1000
-        if self.sport == 'Running':
+        if self.sport == 'running':
             step.target_type = WorkoutStepTarget.SPEED
             # Convert km/h to mm/s
             target_value = round((target_value * 1000) / 3600, 4) * 1000
@@ -67,7 +67,7 @@ class WorkoutWriter:
             step.custom_target_speed_low = low_target_value
             step.custom_target_speed_high = high_target_value
 
-        elif self.sport == 'Cycling':
+        elif self.sport == 'cycling':
             step.target_type = WorkoutStepTarget.POWER
             step.target_value = target_value
         else:
@@ -78,9 +78,9 @@ class WorkoutWriter:
 
     def write_workout(self):
         workout = WorkoutMessage()
-        if self.sport == "Running":
+        if self.sport == "running":
             workout.sport = Sport.RUNNING
-        elif self.sport == "Cycling":
+        elif self.sport == "cycling":
             workout.sport = Sport.CYCLING
         else:
             raise ValueError
@@ -89,7 +89,6 @@ class WorkoutWriter:
         # write warmup step
         steps.append(self._write_step("Warmup", self.workout["warmup"]["timer"], self.workout["warmup"]["work"]))
 
-        # for now just write one step and will break if not step_
         set_number = [key for key in self.workout.keys() if "set_" in key]
         if len(set_number) > 0:
             for set_ in set_number:
@@ -128,7 +127,7 @@ if __name__ == "__main__":
     data = {
             "name": "repeat",
             "date": datetime.date.today(),
-            "sport": "Cycling",
+            "sport": "cycling",
             "data": workout_dict
     }
 

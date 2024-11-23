@@ -71,6 +71,6 @@ with st.form("my_form"):
                 'work': st.session_state[f'work_cooldown_{i+1}']
         }
         date = st.session_state['wkt_date']
-        pushed = user.push_programmed_wkt(date, sport, result, wkt_name)
+        pushed = user.push_programmed_wkt(date, sport.lower(), result, wkt_name)
         if pushed:
             st.toast('Workout planned', icon="✅")
