@@ -59,7 +59,7 @@ func (cfg *ApiConfig) PostComment (w http.ResponseWriter, r *http.Request) {
     ResponseWithError(w, 500, err)
     return
   }
-  ResponseWithJson(w, 200, PostResponse{Status: "Comment posted",})
+  ResponseWithJson(w, 201, PostResponse{Status: "Comment posted",})
   return
 }
 
@@ -123,5 +123,30 @@ func (cfg *ApiConfig) UpdateComment (w http.ResponseWriter, r *http.Request) {
   }
 
   ResponseWithJson(w, 200, PostResponse{Status: "Comment updated",})
+  return
+}
+
+
+func (cfg *ApiConfig) DeleteComment (w http.ResponseWriter, r *http.Request) {
+  // Verify User authorization
+  _, err := auth.ValidateRetrieveUser(r.Header, cfg.TokenSecret)
+  if err != nil {
+    ResponseWithError(w, 401, err)
+    return
+  }
+  ActivityID, err := strconv.Atoi(r.PathValue("activity_id"))
+  CommentID, err := strconv.Atoi(r.PathValue("comment_id"))
+
+  DeleteComment := database.DeleteCommentParams{
+    CommentID: int32(CommentID),
+    ActivityID: int64(ActivityID),
+  }
+
+  err = cfg.DBQueries.DeleteComment(r.Context(), DeleteComment)
+  if err != nil {
+    ResponseWithError(w, 500, errors.New("Error while updating comment"))
+  }
+  
+  w.WriteHeader(204)
   return
 }
