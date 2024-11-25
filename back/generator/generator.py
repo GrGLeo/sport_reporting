@@ -1,18 +1,18 @@
 import os
-import ast
 import json
-from dotenv import load_dotenv
 import pandas as pd
 from openai import OpenAI
 from sqlalchemy import create_engine
 from back.utils.query import Query
 
-load_dotenv()
-
 
 class Generator:
-    def __init__(self, sport, user_id, conn):
+    DB_URL = os.getenv("DATABASE_URL", "user_main:postgresql@localhost:5432/sporting")
+
+    def __init__(self, sport, target, user_id):
+        conn = create_engine("postgresql://" + self.DB_URL)
         self.sport = sport
+        self.target = target
         self.query = Query(user_id, conn)
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -40,7 +40,7 @@ class Generator:
         endurance: {endurance} - {tempo}
         tempo: {tempo} - {threshold}
         threshold: {threshold} - {vo2max}
-        vo2mac: {vo2max} - 
+        vo2max: {vo2max}+
 
         """
 
@@ -53,7 +53,7 @@ class Generator:
             prompt += f"Here is the breakdown for the session number {i+1}.\n"
             prompt += f"{self._get_workout_lap(row['activity_id'])}\n"
         prompt += f"Here are the ahtlete running zone\n{self._get_zones()}"
-        prompt += "What would be a good training session, targetting threshold adaptation?"
+        prompt += f"What would be a good training session, targetting {self.target} adaptation?"
         print(prompt)
         return prompt
 
@@ -82,7 +82,6 @@ class Generator:
 
 if __name__ == "__main__":
     DB_URL = os.getenv("DATABASE_llL", "user_main:postgresql@localhost:5432/sporting")
-    conn = create_engine("postgresql://" + DB_URL)
     gen = Generator("running", "884568f6-beac-436e-baaf-4049e90e8251", conn)
     wkt = gen.generate_workout()
     print(wkt)
