@@ -80,7 +80,7 @@ st.plotly_chart(fig)
 API = os.getenv("API_ENDPOINT", "http://127.0.0.1:8000")
 token = st.session_state["user_token"]["token"]
 headers = {"Authorization": f"Bearer {token}"}
-response = requests.get(f"{API}/download-workout/{name}", headers=headers)
+response = requests.get(f"{API}/workouts/download/{name}", headers=headers)
 
 if response.status_code == 200:
     file_content = response.content

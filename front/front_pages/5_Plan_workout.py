@@ -29,48 +29,68 @@ if 'rows' not in st.session_state:
 def increase_rows():
     st.session_state['rows'] += 1
 
+program_tab, generate_tab = st.tabs(["Program", "Generate"])
 
-st.button('Add step', on_click=increase_rows)
-sport = st.selectbox('Sport', ['Cycling', 'Running'])
+with program_tab:
+    st.button('Add step', on_click=increase_rows)
+    sport = st.selectbox('Sport', ['Cycling', 'Running'])
 
-with st.form("my_form"):
-    st.date_input(label="Workout date", key='wkt_date')
-    st.divider()
-    wkt_name = st.text_input(label="Workout name")
-    wkt_name = wkt_name.lower().replace(' ', '_')
-    st.divider()
-    display_step(0, sport, 'warmup')
-    st.divider()
-    i = 1
-    for i in range(1, st.session_state['rows']):
-        display_set(i, sport)
+    with st.form("my_form"):
+        st.date_input(label="Workout date", key='wkt_date')
         st.divider()
-    display_step(i+1, sport, 'cooldown')
-    submitted = st.form_submit_button("Submit")
-    if submitted:
-        result = {}
-        result['warmup'] = {
-                'timer': st.session_state['timer_warmup_0'],
-                'work': st.session_state['work_warmup_0']
-        }
+        wkt_name = st.text_input(label="Workout name")
+        wkt_name = wkt_name.lower().replace(' ', '_')
+        st.divider()
+        display_step(0, sport, 'warmup')
+        st.divider()
+        i = 1
         for i in range(1, st.session_state['rows']):
-            result[f'set_{i}'] = {
-                f'step_{j}': {
-                    'active': {
-                        'timer': st.session_state[f'timer_active_{i}'],
-                        'work': st.session_state[f'work_active_{i}']
-                    },
-                    'rest': {
-                        'timer': st.session_state[f'timer_rest_{i}'],
-                        'work': st.session_state[f'work_rest_{i}']
-                    }
-                } for j in range(st.session_state['repeat_1'])
+            display_set(i, sport)
+            st.divider()
+        display_step(i+1, sport, 'cooldown')
+        submitted = st.form_submit_button("Submit")
+        if submitted:
+            result = {}
+            result['warmup'] = {
+                    'timer': st.session_state['timer_warmup_0'],
+                    'work': st.session_state['work_warmup_0']
             }
-        result['cooldown'] = {
-                'timer': st.session_state[f'timer_cooldown_{i+1}'],
-                'work': st.session_state[f'work_cooldown_{i+1}']
-        }
-        date = st.session_state['wkt_date']
-        pushed = user.push_programmed_wkt(date, sport.lower(), result, wkt_name)
-        if pushed:
-            st.toast('Workout planned', icon="✅")
+            for i in range(1, st.session_state['rows']):
+                result[f'set_{i}'] = {
+                    f'step_{j}': {
+                        'active': {
+                            'timer': st.session_state[f'timer_active_{i}'],
+                            'work': st.session_state[f'work_active_{i}']
+                        },
+                        'rest': {
+                            'timer': st.session_state[f'timer_rest_{i}'],
+                            'work': st.session_state[f'work_rest_{i}']
+                        }
+                    } for j in range(st.session_state['repeat_1'])
+                }
+            result['cooldown'] = {
+                    'timer': st.session_state[f'timer_cooldown_{i+1}'],
+                    'work': st.session_state[f'work_cooldown_{i+1}']
+            }
+            date = st.session_state['wkt_date']
+            pushed = user.push_programmed_wkt(date, sport.lower(), result, wkt_name)
+            if pushed:
+                st.toast('Workout planned', icon="✅")
+
+with generate_tab:
+    with st.form("generate_form"):
+        date = st.date_input(label="Workout date", key="generate_date")
+        st.divider()
+        sport = st.selectbox('Sport', ['Cycling', 'Running'])
+        st.divider()
+        target = st.selectbox(
+            "Select the training zone.",
+            ("Tempo", "Threshold", "vo2max"),
+        )
+        submitted = st.form_submit_button("Submit")
+        if submitted:
+            generate = user.generate_wkt(date, sport.lower(), target)
+            if generate:
+                st.toast('Workout generated and planned', icon="✅")
+
+
