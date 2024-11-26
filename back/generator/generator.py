@@ -60,7 +60,6 @@ class Generator:
             prompt += f"{self._get_workout_lap(row['activity_id'])}\n"
         prompt += f"Here are the ahtlete {self.sport} zone\n{self._get_zones()}"
         prompt += f"What would be a good training session, targetting {self.target} adaptation?"
-        print(prompt)
         return prompt
 
     def generate_workout(self):
