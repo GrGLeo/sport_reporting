@@ -19,7 +19,12 @@ class Query:
             query += ' AND activity_id = :wkt_id'
             params['wkt_id'] = int(kwargs["wkt_id"])
         if "order" in kwargs:
-            query += f' ORDER BY {kwargs["order"]}'
+            if "asc" in kwargs and kwargs["asc"] is True:
+                query += f' ORDER BY {kwargs["order"]}'
+            elif "asc" in kwargs and kwargs["asc"] is False:
+                query += f' ORDER BY {kwargs["order"]} DESC'
+            else:
+                query += f' ORDER BY {kwargs["order"]}'
         if "limit" in kwargs:
             query += f' LIMIT {kwargs["limit"]}'
         query += ';'

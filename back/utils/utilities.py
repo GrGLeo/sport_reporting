@@ -1,5 +1,7 @@
 import os
 import jwt
+import random
+import string
 from fastapi import HTTPException, Request
 
 from datetime import time, timedelta
@@ -69,3 +71,8 @@ def authorize_user(requests: Request) -> int:
         raise HTTPException(status_code=401, detail="Token has expired.")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token.")
+
+
+def generate_custom_id(length):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+

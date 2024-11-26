@@ -39,17 +39,23 @@ An all-in-one solution for analyzing swim, bike, and run workouts with performan
 
 Here’s the current roadmap for the project:
 
-- [ ] **Q4 2024** - Initial Release
+- [x] **Q4 2024** - Initial Release
   - [x] Fix issues with planned workouts for cycling (support multiple sets)
   - [x] Enable activity rating and feedback based on RPE (Rate of Perceived Exertion)
   - [x] Complete CI/CD pipeline setup
-  - [ ] Fixing known bugs.
+  - [x] Fixing known bugs.
 
 - [ ] **Q1 2025** - Workout Generation and Improvements
   - [ ] Generate a workout based on past activities.
+    - [x] Generate running workout
+    - [ ] Generate cycling workout
   - [ ] Migrate endpoint to GO server.
+    - [x] Comment
+    - [ ] RPE
+    - [ ] Activities
   - [ ] Implement load balancer
   - [ ] Track intra-workout calorie consumption
+  - [ ] Set and select equipement per activity 
   - [ ] Improve overall user experience (UX)
 
 - [ ] **2025** - Switching front framework.

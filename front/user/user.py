@@ -88,7 +88,19 @@ class User:
         full_data['sport'] = sport
         full_data['data'] = wkt
         headers = {"Authorization": f"Bearer {self.token}"}
-        response = requests.post(f"{self.API}/push_program_wkt/", json=full_data, headers=headers)
+        response = requests.post(f"{self.API}/workouts/", json=full_data, headers=headers)
+        if response.status_code == 401:
+            raise UnAuthorizeError()
+        return True
+
+    @handle_unauthorize
+    def generate_wkt(self, wkt_date, sport, target):
+        full_data = {}
+        full_data['date'] = wkt_date.strftime('%Y-%m-%d')
+        full_data['sport'] = sport
+        full_data['target'] = target
+        headers = {"Authorization": f"Bearer {self.token}"}
+        response = requests.post(f"{self.API}/workouts/ai", json=full_data, headers=headers)
         if response.status_code == 401:
             raise UnAuthorizeError()
         return True

@@ -46,6 +46,12 @@ class FuturWktModel(BaseModel):
     data: dict
 
 
+class GenerateWktModel(BaseModel):
+    target: str
+    date: date
+    sport: str
+
+
 class QueryModel(BaseModel):
     table: str
     select: str
