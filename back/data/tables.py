@@ -1,5 +1,3 @@
-from datetime import datetime, timedelta
-from typing import Optional
 from sqlalchemy import Column, Integer, Float, Time, DateTime, String, Date, JSON
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Session, sessionmaker
@@ -8,16 +6,6 @@ from sqlalchemy import create_engine
 
 
 Base = declarative_base()
-
-
-class Comments(Base):
-    __tablename__ = "activity_comments"
-    __table_args__ = {'schema': 'param'}
-
-    comment_id = Column(Integer, primary_key=True, autoincrement=True)
-    activity_id = Column(Integer)
-    user_id = Column(UUID)
-    comment = Column(String)
 
 
 class Events(Base):
