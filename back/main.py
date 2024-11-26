@@ -18,7 +18,7 @@ from back.data.tables import Base
 from back.utils.data_handler import get_data
 from back.fit.fit_writer import WorkoutWriter
 from back.generator.generator import Generator
-from back.utils.utilities import authorize_user
+from back.utils.utilities import authorize_user, generate_custom_id
 from back.api_model import (
     EventModel,
     ThresholdModel,
@@ -83,6 +83,26 @@ async def upload_file(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='An error occured while uploading activity')
 
 
+@app.post("/workouts/")
+async def save_program_wkt(futur_wkt: FuturWktModel, user_id: str = Depends(authorize_user)):
+    ftr_wkt_feeder = FuturWorkoutFeeder(futur_wkt, user_id)
+    ftr_wkt_feeder.compute()
+    wkt_writer = WorkoutWriter(futur_wkt, user_id)
+    wkt_writer.write_workout()
+
+
+@app.post("/workouts/ai")
+async def generate_wkt(generate_param: GenerateWktModel, user_id = Depends(authorize_user)):
+    generator = Generator(generate_param.sport, generate_param.target, user_id)
+    data = generator.generate_workout()
+    name = generate_custom_id(5)
+    model = FuturWktModel(name=name, date=generate_param.date, sport=generate_param.sport, data=data)
+    ftr_wkt_feeder = FuturWorkoutFeeder(model, user_id)
+    ftr_wkt_feeder.compute()
+    wkt_writer = WorkoutWriter(model, user_id)
+    wkt_writer.write_workout()
+
+
 @app.get("/workouts/download/{name}")
 async def download_workout(name: str, user_id: str = Depends(authorize_user)):
     path = f"/app/back/workout/{user_id}/{name}.fit"
@@ -91,17 +111,6 @@ async def download_workout(name: str, user_id: str = Depends(authorize_user)):
             media_type="application/octet-stream",
             filename=f"{name}.fit"
             )
-
-
-@app.post("/workouts/ai")
-async def generate_wkt(generate_param: GenerateWktModel, user_id = Depends(authorize_user)):
-    generator = Generator(generate_param.sport, generate_param.target, user_id)
-    data = generator.generate_workout()
-    model = FuturWktModel(name='i', date=generate_param.date, sport=generate_param.sport, data=data)
-    ftr_wkt_feeder = FuturWorkoutFeeder(model, user_id)
-    ftr_wkt_feeder.compute()
-    wkt_writer = WorkoutWriter(model, user_id)
-    wkt_writer.write_workout()
 
 
 @app.post("/post_event")
@@ -114,14 +123,6 @@ async def post_event(event: EventModel, user_id: str = Depends(authorize_user)):
 async def update_threshold(threshold: ThresholdModel, user_id: str = Depends(authorize_user)):
     threshold_feeder = ThresholdFeeder(threshold, user_id)
     threshold_feeder.compute()
-
-
-@app.post("/workouts/")
-async def save_program_wkt(futur_wkt: FuturWktModel, user_id: str = Depends(authorize_user)):
-    ftr_wkt_feeder = FuturWorkoutFeeder(futur_wkt, user_id)
-    ftr_wkt_feeder.compute()
-    wkt_writer = WorkoutWriter(futur_wkt, user_id)
-    wkt_writer.write_workout()
 
 
 @app.exception_handler(RequestValidationError)

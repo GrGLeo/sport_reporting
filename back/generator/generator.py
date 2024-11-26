@@ -4,6 +4,7 @@ import pandas as pd
 from openai import OpenAI
 from sqlalchemy import create_engine
 from back.utils.query import Query
+pd.set_option('display.max_columns', 50)
 
 
 class Generator:
@@ -17,18 +18,23 @@ class Generator:
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
     def _get_last_workout(self):
-        select_cols = "avg_pace, activity_id, duration, distance, avg_hr, avg_cadence, tss, recovery, endurance, tempo, threshold, vo2max, rpe"
+        select_running = "avg_pace, activity_id, duration, distance, avg_hr, avg_cadence, tss, recovery, endurance, tempo, threshold, vo2max, rpe"
+        select_cycling = "avg_speed, activity_id, duration, distance, avg_hr, avg_cadence, tss, recovery, endurance, tempo, threshold, vo2max, rpe"
+        select_cols = select_running if self.sport == 'running' else select_cycling
         last_workout = self.query.get_query(table=f"{self.sport}.syn", select=select_cols, order="date", asc=False, limit=6)
         return pd.DataFrame(last_workout["data"])
 
     def _get_workout_lap(self, activity_id):
-        select_cols = "pace, lap_id, timer, distance, hr, cadence"
+        select_running = "pace, lap_id, timer, distance, hr, cadence"
+        select_cycling = "power, norm_power, lap_id, timer, distance, hr, cadence"
+        select_cols = select_running if self.sport == 'running' else select_cycling
         session = self.query.get_query(table=f"{self.sport}.lap", select=select_cols, wkt_id=activity_id)["data"]
         return pd.DataFrame(session)
 
     def _get_zones(self):
         select_cols = "recovery, endurance, tempo, threshold, vo2max"
-        zones = self.query.get_query(table=f"param.run_zone", select=select_cols)["data"]
+        table_name = "param.run_zone" if self.sport == "running" else "param.cycling_zone"
+        zones = self.query.get_query(table=table_name, select=select_cols)["data"]
         zones = pd.DataFrame(zones)
         recovery = zones["recovery"].tolist()[0]
         endurance = zones["endurance"].tolist()[0]
@@ -48,11 +54,11 @@ class Generator:
         df = self._get_last_workout()
         clean_df = df.copy()
         clean_df.drop(columns="activity_id", inplace=True)
-        prompt = f"Here are the last 6 running session for the athlete:\n{clean_df}\n"
+        prompt = f"Here are the last 6 {self.sport} session for the athlete:\n{clean_df}\n"
         for i, row in df.iterrows():
             prompt += f"Here is the breakdown for the session number {i+1}.\n"
             prompt += f"{self._get_workout_lap(row['activity_id'])}\n"
-        prompt += f"Here are the ahtlete running zone\n{self._get_zones()}"
+        prompt += f"Here are the ahtlete {self.sport} zone\n{self._get_zones()}"
         prompt += f"What would be a good training session, targetting {self.target} adaptation?"
         print(prompt)
         return prompt
@@ -63,7 +69,7 @@ class Generator:
             system_prompt = f.read()
 
         completion = self.client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-mini",
             messages=[
                 {
                     "role": "system",
@@ -78,10 +84,3 @@ class Generator:
         print(completion.choices[0].message.content)
         wkt = json.loads(completion.choices[0].message.content)
         return wkt
-
-
-if __name__ == "__main__":
-    DB_URL = os.getenv("DATABASE_llL", "user_main:postgresql@localhost:5432/sporting")
-    gen = Generator("running", "884568f6-beac-436e-baaf-4049e90e8251", conn)
-    wkt = gen.generate_workout()
-    print(wkt)
