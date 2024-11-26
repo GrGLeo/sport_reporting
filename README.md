@@ -46,9 +46,9 @@ Here’s the current roadmap for the project:
   - [x] Fixing known bugs.
 
 - [ ] **Q1 2025** - Workout Generation and Improvements
-  - [x] Generate a workout based on past activities.
+  - [ ] Generate a workout based on past activities.
     - [x] Generate running workout
-    - [x] Generate cycling workout
+    - [ ] Generate cycling workout
   - [ ] Migrate endpoint to GO server.
     - [x] Comment
     - [ ] RPE
