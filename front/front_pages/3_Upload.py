@@ -4,6 +4,7 @@ import streamlit as st
 
 
 API = os.getenv("API_ENDPOINT", "http://127.0.0.1:8000")
+API_GO = os.getenv("API_AUTH", "http://127.0.0.1:8080")
 
 
 st.title("Fit File Upload")
@@ -19,7 +20,7 @@ if uploaded_file is not None:
             file = {"file": uploaded_file.getvalue()}
             headers = {"Authorization": f"Bearer {token}"}
             response = requests.post(
-                f"{API}/uploadfile/",
+                f"{API_GO}/activities/",
                 files=file,
                 headers=headers
             )
