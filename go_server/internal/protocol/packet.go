@@ -30,16 +30,9 @@ func (p *Packet) Serialize() ([]byte, error) {
 		return nil, errors.New("failed to serialize packet")
 	}
   
-  dataLength := uint32(len(p.Data))
-  err = binary.Write(buff, binary.BigEndian, dataLength)
+  err = binary.Write(buff, binary.BigEndian, p.Data)
 	if err != nil {
 		return nil, errors.New("failed to serialize packet")
 	}
-  
-  _, err = buff.Write(p.Data)
-	if err != nil {
-		return nil, errors.New("failed to serialize packet")
-	}
-
 	return buff.Bytes(), nil
 }

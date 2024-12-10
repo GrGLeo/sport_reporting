@@ -6,6 +6,8 @@ import (
 	"errors"
 	"hash/crc32"
 	"io"
+	"net"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -14,9 +16,18 @@ const (
   ProtocolVersion = 1
   MaxPacketSize = 1024
   ServerAddress = "localhost:8090"
+  HeaderSize = 11
+  MaxPayloadSize = MaxPacketSize - HeaderSize
   MessageInit = 1
   MessagePacket = 2
 )
+
+type FileSender struct {
+  File io.Reader
+  userID uuid.UUID
+  fileSize int
+  transactionID int
+}
 
 type InitPacket struct {
   MessageType uint8
@@ -33,14 +44,8 @@ type Header struct {
   Checksum uint32
 }
 
-type FileSender struct {
-  File io.Reader
-  userID uuid.UUID
-  fileSize int
-  transactionID int
-}
 
-func (fs *FileSender) SendInitPacket () ([]byte, error) {
+func (fs *FileSender) PrepInitPacket () ([]byte, error) {
   checksum, err := CalculateChecksum(fs.File)
   if err != nil {
     return []byte{}, errors.New("Failed to calculate checksum")
@@ -64,7 +69,7 @@ func (fs *FileSender) SendInitPacket () ([]byte, error) {
   return initPacketBytes, nil
 }
 
-func (fs *FileSender) SendPacket (payload []byte) ([]byte, error) {
+func (fs *FileSender) PrepPacket (payload []byte) ([]byte, error) {
   packet := Packet{
     Header: Header{
       MessageType: MessagePacket,
@@ -87,7 +92,40 @@ func (fs *FileSender) SendPacket (payload []byte) ([]byte, error) {
   return packetBytes, nil
 }
 
-func (fs *FileSender) SendFile () {
+func (fs *FileSender) SendFile () error {
+  con ,err := net.Dial("tcp", ServerAddress)
+  if err != nil {
+    return err
+  }
+  defer con.Close()
+
+  initPacket, err := fs.PrepInitPacket()
+  
+  _, err = con.Write(initPacket)
+  con.SetReadDeadline(time.Now().Add(5 * time.Second))
+  ack := make([]byte, 1)
+  _, err = con.Read(ack)
+  // We stop sending if initPacket is not accepted
+  if ack[0] != 0x01 {
+    return err
+  }
+
+  // We start sending the file 1024 byte packet at the time
+  buffer := make([]byte, MaxPayloadSize)
+  
+  for {
+    n, err := fs.File.Read(buffer)
+    if err != nil {
+      if err == io.EOF {
+        break
+      }
+      return err
+    }
+    chunk := buffer[:n]
+    fs.PrepPacket(chunk)
+    _, err = con.Write(initPacket)
+  }
+  return nil
 }
 
 func CalculateChecksum(reader io.Reader) (uint32, error) {
