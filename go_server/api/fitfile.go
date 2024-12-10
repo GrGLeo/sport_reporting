@@ -34,7 +34,7 @@ func (cfg *ApiConfig) PostFitFile (w http.ResponseWriter, r *http.Request) {
     return
   }
   checksum := hash.Sum32()
-  fmt.Println(fileSize)
-  fmt.Println(checksum)
-  fmt.Println(UserID)
+  fmt.Println("file size: ",fileSize)
+  fmt.Println("checksum: ",checksum)
+  fmt.Println("userID: ", UserID)
 }
