@@ -16,9 +16,7 @@ func TestCalculateChecksum(t *testing.T) {
     Data: []byte("example data"),
   }
 
-  FileSender := FileSender{}
-
-  checksum, err := FileSender.CalculateChecksum(&packet)
+  checksum, err := CalculateChecksum(&packet)
 	if err != nil {
 		t.Fatalf("Failed to calculate checksum: %v", err)
 	}
@@ -27,7 +25,6 @@ func TestCalculateChecksum(t *testing.T) {
 	if checksum != expectedChecksum {
 		t.Errorf("Checksum mismatch: got %v, want %v", checksum, expectedChecksum)
 	}
-
 }
 
 func TestSendInitPacket(t *testing.T) {
@@ -65,3 +62,43 @@ func TestSendInitPacket(t *testing.T) {
 	assert.NoError(t, err, "Failed to decode InitPacket")
 	assert.Equal(t, expectedInitPacket, actualInitPacket, "InitPacket mismatch")
 }
+
+func TestSendPacket(t *testing.T) {
+	payload := []byte("example payload data")
+	expectedPayloadSize := uint32(len(payload))
+	transactionID := 1234
+
+	fileSender := &FileSender{
+		transactionID: transactionID,
+	}
+
+	packet := Packet{
+		Header: Header{
+			MessageType:   MessagePacket,
+			TransactionID: uint16(transactionID),
+			PayloadSize:   expectedPayloadSize,
+		},
+		Data: payload,
+	}
+	expectedChecksum, err := CalculateChecksum(&packet)
+	assert.NoError(t, err, "Failed to calculate expected checksum")
+
+	packet.Header.Checksum = expectedChecksum
+
+	expectedBuff := new(bytes.Buffer)
+	err = binary.Write(expectedBuff, binary.BigEndian, packet)
+	assert.NoError(t, err, "Failed to serialize expected packet")
+	expectedBytes := expectedBuff.Bytes()
+
+	resultBytes, err := fileSender.SendPacket(payload)
+
+	assert.NoError(t, err, "Expected no error from SendPacket")
+	assert.Equal(t, expectedBytes, resultBytes, "Serialized packet mismatch")
+
+	resultBuff := bytes.NewReader(resultBytes)
+	var resultPacket Packet
+	err = binary.Read(resultBuff, binary.BigEndian, &resultPacket)
+	assert.NoError(t, err, "Failed to decode result packet")
+	assert.Equal(t, packet, resultPacket, "Decoded packet mismatch")
+}
+

@@ -29,7 +29,7 @@ type InitPacket struct {
 type Header struct {
   MessageType uint8
   TransactionID uint16
-  FileSize uint32
+  PayloadSize uint32
   Checksum uint32
 }
 
@@ -41,7 +41,7 @@ type FileSender struct {
 }
 
 func (fs *FileSender) SendInitPacket () ([]byte, error) {
-  checksum, err := fs.CalculateChecksum(fs.File)
+  checksum, err := CalculateChecksum(fs.File)
   if err != nil {
     return []byte{}, errors.New("Failed to calculate checksum")
   }
@@ -64,13 +64,33 @@ func (fs *FileSender) SendInitPacket () ([]byte, error) {
   return initPacketBytes, nil
 }
 
-func (fs *FileSender) SendPacket () {
+func (fs *FileSender) SendPacket (payload []byte) ([]byte, error) {
+  packet := Packet{
+    Header: Header{
+      MessageType: MessagePacket,
+      TransactionID: uint16(fs.transactionID),
+      PayloadSize: uint32(len(payload)),
+    },
+    Data: payload,
+  }
+  checksum, err := CalculateChecksum(&packet)
+  if err != nil {
+    return []byte{}, errors.New("Failed to calculate checksum")
+  }
+
+  packet.Header.Checksum = checksum
+  packetBytes, err := packet.Serialize()
+  if err != nil {
+    return []byte{}, err
+  }
+  
+  return packetBytes, nil
 }
 
 func (fs *FileSender) SendFile () {
 }
 
-func (fs *FileSender) CalculateChecksum(reader io.Reader) (uint32, error) {
+func CalculateChecksum(reader io.Reader) (uint32, error) {
   hash := crc32.New(crc32.IEEETable)
   _, err := io.Copy(hash, reader)
   if err != nil {
