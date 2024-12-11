@@ -16,10 +16,11 @@ const (
   ProtocolVersion = 1
   MaxPacketSize = 1024
   ServerAddress = "localhost:8090"
-  HeaderSize = 11
+  HeaderSize = 13
   MaxPayloadSize = MaxPacketSize - HeaderSize
   MessageInit = 1
   MessagePacket = 2
+  MaxRetries = 5
 )
 
 type FileSender struct {
@@ -27,6 +28,7 @@ type FileSender struct {
   userID uuid.UUID
   fileSize int
   transactionID int
+  packetMap map[int]*Packet
 }
 
 type InitPacket struct {
@@ -40,6 +42,7 @@ type InitPacket struct {
 type Header struct {
   MessageType uint8
   TransactionID uint16
+  PacketNumber uint16
   PayloadSize uint32
   Checksum uint32
 }
@@ -69,11 +72,12 @@ func (fs *FileSender) PrepInitPacket () ([]byte, error) {
   return initPacketBytes, nil
 }
 
-func (fs *FileSender) PrepPacket (payload []byte) ([]byte, error) {
+func (fs *FileSender) PrepPacket (payload []byte, pNumber int) ([]byte, error) {
   packet := Packet{
     Header: Header{
       MessageType: MessagePacket,
       TransactionID: uint16(fs.transactionID),
+      PacketNumber: uint16(pNumber),
       PayloadSize: uint32(len(payload)),
     },
     Data: payload,
@@ -90,6 +94,10 @@ func (fs *FileSender) PrepPacket (payload []byte) ([]byte, error) {
   }
   
   return packetBytes, nil
+}
+
+func (fs *FileSender) ReSendPacket(packetNumber uint16) ([]byte, error) {
+  return []byte{}, nil
 }
 
 func (fs *FileSender) SendFile () error {
@@ -112,7 +120,7 @@ func (fs *FileSender) SendFile () error {
 
   // We start sending the file 1024 byte packet at the time
   buffer := make([]byte, MaxPayloadSize)
-  
+  packetNumber := 0 
   for {
     n, err := fs.File.Read(buffer)
     if err != nil {
@@ -122,9 +130,38 @@ func (fs *FileSender) SendFile () error {
       return err
     }
     chunk := buffer[:n]
-    fs.PrepPacket(chunk)
+    packetNumber++
+    fs.PrepPacket(chunk, packetNumber)
     _, err = con.Write(initPacket)
   }
+
+
+  for try := 0; try < MaxRetries; try++ {
+    ack = make([]byte, 516)
+    n, _ := con.Read(ack)
+    if ack[0] == 0x01 {
+      break
+    }
+    
+    if n < 2 {
+      errors.New("Invalid ack format")
+      continue
+    }
+    numMissing := int(ack[1])
+    if n < 2 * numMissing + 2 {
+      errors.New("Invalid ack format")
+      continue
+    }
+
+    for i := 0; i < numMissing; i++ {
+      start := 2 + i*2
+      packetMissing := binary.BigEndian.Uint16(ack[start:start+2])
+      fs.ReSendPacket(packetMissing)
+    }
+    
+    time.Sleep(100 * time.Millisecond)
+  }
+
   return nil
 }
 
