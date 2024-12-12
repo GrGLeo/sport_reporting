@@ -1,6 +1,9 @@
 package api
 
 import (
+	"bytes"
+	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/GrGLeo/sport_reporting/go_server/internal/auth"
@@ -23,9 +26,18 @@ func (cfg *ApiConfig) PostFitFile (w http.ResponseWriter, r *http.Request) {
   defer file.Close()
 
   fileSize := header.Size
+  
+  // We copy the file to a byte.Buffer to be able to reset the pointer
+  var buf bytes.Buffer
+  _, err = io.Copy(&buf, file)
+  if err != nil {
+    fmt.Println("Error copying file to buffer:", err)
+    http.Error(w, "Failed to process file", http.StatusInternalServerError)
+    return
+    }
 
   fs := protocol.FileSender{
-    File: file,
+    File: &buf,
     UserID: UserID,
     FileSize: int(fileSize),
     TransactionID: 1,

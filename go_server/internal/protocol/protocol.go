@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"hash/crc32"
 	"io"
 	"net"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,7 +17,7 @@ import (
 const (
   ProtocolVersion = 1
   MaxPacketSize = 1024
-  ServerAddress = "localhost:8090"
+  ServerAddress = "udp_server:12345"
   HeaderSize = 13
   MaxPayloadSize = MaxPacketSize - HeaderSize
   MessageInit = 1
@@ -101,7 +103,7 @@ func (fs *FileSender) ReSendPacket(packetNumber uint16) ([]byte, error) {
 }
 
 func (fs *FileSender) SendFile () error {
-  con ,err := net.Dial("tcp", ServerAddress)
+  con ,err := net.Dial("udp", ServerAddress)
   if err != nil {
     return err
   }
@@ -117,22 +119,28 @@ func (fs *FileSender) SendFile () error {
   if ack[0] != 0x01 {
     return err
   }
+  fmt.Println("receive ok from server")
 
   // We start sending the file 1024 byte packet at the time
   buffer := make([]byte, MaxPayloadSize)
   packetNumber := 0 
   for {
     n, err := fs.File.Read(buffer)
+    fmt.Println(fmt.Sprintf("Bytes read: %d, Error: %v\n", n, err))
     if err != nil {
       if err == io.EOF {
+        fmt.Println("heyo")
         break
       }
+      fmt.Println("heya")
       return err
     }
     chunk := buffer[:n]
     packetNumber++
     fs.PrepPacket(chunk, packetNumber)
     _, err = con.Write(initPacket)
+    fmt.Println("send!")
+    fmt.Println(packetNumber)
   }
 
 
@@ -173,5 +181,10 @@ func CalculateChecksum(reader io.Reader) (uint32, error) {
   }
   checksum := hash.Sum32()
   return uint32(checksum), nil
+}
+
+func resetFilePointer(file *os.File) error {
+    _, err := file.Seek(0, io.SeekStart)
+    return err
 }
 
