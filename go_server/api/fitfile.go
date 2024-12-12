@@ -37,7 +37,7 @@ func (cfg *ApiConfig) PostFitFile (w http.ResponseWriter, r *http.Request) {
     }
 
   fs := protocol.FileSender{
-    File: &buf,
+    File: buf,
     UserID: UserID,
     FileSize: int(fileSize),
     TransactionID: 1,

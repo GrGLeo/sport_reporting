@@ -26,7 +26,7 @@ const (
 )
 
 type FileSender struct {
-  File io.Reader
+  File bytes.Buffer
   UserID uuid.UUID
   FileSize int
   TransactionID int
@@ -84,7 +84,8 @@ func (fs *FileSender) PrepPacket (payload []byte, pNumber int) ([]byte, error) {
     },
     Data: payload,
   }
-  checksum, err := CalculateChecksum(&packet)
+  data := bytes.NewBuffer(packet.Data)
+  checksum, err := CalculateChecksum(*data)
   if err != nil {
     return []byte{}, errors.New("Failed to calculate checksum")
   }
@@ -173,9 +174,9 @@ func (fs *FileSender) SendFile () error {
   return nil
 }
 
-func CalculateChecksum(reader io.Reader) (uint32, error) {
+func CalculateChecksum(reader bytes.Buffer) (uint32, error) {
   hash := crc32.New(crc32.IEEETable)
-  _, err := io.Copy(hash, reader)
+  _, err := io.Copy(hash, &reader)
   if err != nil {
     return 0, err
   }

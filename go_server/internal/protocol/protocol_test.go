@@ -16,7 +16,8 @@ func TestCalculateChecksum(t *testing.T) {
     Data: []byte("example data"),
   }
 
-  checksum, err := CalculateChecksum(&packet)
+  data := bytes.NewBuffer(packet.Data)
+  checksum, err := CalculateChecksum(*data)
 	if err != nil {
 		t.Fatalf("Failed to calculate checksum: %v", err)
 	}
@@ -29,16 +30,16 @@ func TestCalculateChecksum(t *testing.T) {
 
 func TestPrepInitPacket(t *testing.T) {
 	data := []byte("example file content")
-  reader := bytes.NewReader(data)
+  reader := bytes.NewBuffer(data)
 	userID := uuid.New()
 	transactionID := 1234
 	fileSize := len(data)
 
 	fileSender := &FileSender{
-		File:          reader,
-		userID:        userID,
-		transactionID: transactionID,
-		fileSize:      fileSize,
+		File:          *reader,
+		UserID:        userID,
+		TransactionID: transactionID,
+		FileSize:      fileSize,
 	}
 
 	expectedChecksum := crc32.ChecksumIEEE(data)
@@ -108,7 +109,7 @@ func TestPrepPacket(t *testing.T) {
 	transactionID := 1234
 
 	_ = &FileSender{
-		transactionID: transactionID,
+		TransactionID: transactionID,
 	}
 
 	packet := Packet{
@@ -119,7 +120,8 @@ func TestPrepPacket(t *testing.T) {
 		},
 		Data: payload,
 	}
-	expectedChecksum, err := CalculateChecksum(&packet)
+  data := bytes.NewBuffer(packet.Data)
+	expectedChecksum, err := CalculateChecksum(*data)
 	assert.NoError(t, err, "Failed to calculate expected checksum")
 
 	packet.Header.Checksum = expectedChecksum
