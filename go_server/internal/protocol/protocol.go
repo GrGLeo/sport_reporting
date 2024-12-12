@@ -25,9 +25,9 @@ const (
 
 type FileSender struct {
   File io.Reader
-  userID uuid.UUID
-  fileSize int
-  transactionID int
+  UserID uuid.UUID
+  FileSize int
+  TransactionID int
   packetMap map[int]*Packet
 }
 
@@ -56,10 +56,10 @@ func (fs *FileSender) PrepInitPacket () ([]byte, error) {
 
   initPacket := InitPacket{
     MessageType: MessageInit,
-    TransactionID: uint16(fs.transactionID),
-    FileSize: uint32(fs.fileSize),
+    TransactionID: uint16(fs.TransactionID),
+    FileSize: uint32(fs.FileSize),
     Checksum: checksum,
-    UUID: fs.userID,
+    UUID: fs.UserID,
   }
 
   buff := new(bytes.Buffer)
@@ -76,7 +76,7 @@ func (fs *FileSender) PrepPacket (payload []byte, pNumber int) ([]byte, error) {
   packet := Packet{
     Header: Header{
       MessageType: MessagePacket,
-      TransactionID: uint16(fs.transactionID),
+      TransactionID: uint16(fs.TransactionID),
       PacketNumber: uint16(pNumber),
       PayloadSize: uint32(len(payload)),
     },

@@ -1,12 +1,10 @@
 package api
 
 import (
-	"fmt"
-	"hash/crc32"
-	"io"
 	"net/http"
 
 	"github.com/GrGLeo/sport_reporting/go_server/internal/auth"
+	"github.com/GrGLeo/sport_reporting/go_server/internal/protocol"
 )
 
 func (cfg *ApiConfig) PostFitFile (w http.ResponseWriter, r *http.Request) {
@@ -26,15 +24,12 @@ func (cfg *ApiConfig) PostFitFile (w http.ResponseWriter, r *http.Request) {
 
   fileSize := header.Size
 
-  // Calculate checksum
-  hash := crc32.New(crc32.IEEETable)
-  _, err = io.Copy(hash, file)
-  if err != nil {
-    ResponseWithError(w, 500, err)
-    return
+  fs := protocol.FileSender{
+    File: file,
+    UserID: UserID,
+    FileSize: int(fileSize),
+    TransactionID: 1,
   }
-  checksum := hash.Sum32()
-  fmt.Println("file size: ",fileSize)
-  fmt.Println("checksum: ",checksum)
-  fmt.Println("userID: ", UserID)
+  fs.SendFile()
+  return
 }
