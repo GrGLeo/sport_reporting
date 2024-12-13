@@ -175,9 +175,9 @@ func (fs *FileSender) SendFile () error {
       fmt.Println(err)
     }
     // Testing missing packet
-    if packetNumber == 69 {
-      continue
-    }
+    // if packetNumber == 69 {
+    //   continue
+    // }
     _, err = con.Write(packet)
   }
 

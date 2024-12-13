@@ -56,9 +56,8 @@ def decode_packet(data):
 
         header_format = ">BHHII"  # >: big-endian, B: uint8, H: uint16, I: uint32
         message_type, transaction_id, packet_number, payload_size, checksum = struct.unpack(header_format, header_data)
-        logging.info(f"Received Follow-up Packet - {packet_number}")
         compute_checksum = zlib.crc32(payload_data) & 0xffffffff
-        logging.info(f"Expected checksum: {checksum} | Computed checksum: {computed_checksum}")
+        logging.info(f"Expected checksum: {checksum} | Computed checksum: {compute_checksum}")
         if compute_checksum != checksum:
             logging.info("invalid checksum")
         return {
@@ -68,7 +67,6 @@ def decode_packet(data):
         }
     elif message == END_PACKET:
         header_format = ">B H H"
-        print(len(data))
         message_type, transaction_id, packet_number = struct.unpack(header_format, data)
         return {
             "MessageType": message_type,
@@ -91,6 +89,7 @@ while True:
         filesize = packet["FileSize"]
         expected_checksum = packet["Checksum"]
         file = bytearray(filesize)
+        computed_checksum = zlib.crc32(file) & 0xffffffff
         sock.sendto(bytes([0x01]), addr)
 
     elif data[0] == FOLLOW_UP_PACKET:
@@ -98,9 +97,8 @@ while True:
         packet = decode_packet(data)
         packet_number = packet["PacketNumber"]
         payload = packet["Packet"]
-        # logging.info(f"Packet data: {list(payload)}")
         s += packet["PayloadSize"]
-        start_index = packet_number * PAYLOAD_SIZE
+        start_index = (packet_number - 1) * PAYLOAD_SIZE
         end_index = start_index + PAYLOAD_SIZE
 
         # Write payload to the correct location in the file
@@ -110,7 +108,8 @@ while True:
     elif data[0] == END_PACKET:
         packet = decode_packet(data)
         logging.info("end packet receive")
-        if s == filesize:
+        computed_checksum = zlib.crc32(file) & 0xffffffff
+        if s == filesize and computed_checksum == expected_checksum:
             logging.info("File is a-ok")
             sock.sendto(bytes([0x01]), addr)
         else:
@@ -127,7 +126,6 @@ while True:
             logging.info(data)
             sock.sendto(data, addr)
 
-    computed_checksum = zlib.crc32(file)
 
     # Log the decoded packet
     logging.info(f"Expected checksum: {expected_checksum} | Computed checksum: {computed_checksum}")
