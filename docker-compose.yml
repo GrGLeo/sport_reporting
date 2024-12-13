@@ -25,8 +25,6 @@ services:
 
   goose:
     image: deretz/endurace_reporting:goose.latest
-    labels: 
-      - "com.centurylinklabs.watchtower.enable=true"
     build:
       context: .
       dockerfile: Dockerfile.goose
@@ -43,8 +41,6 @@ services:
 
   back:
     image: deretz/endurace_reporting:backend.latest
-    labels: 
-      - "com.centurylinklabs.watchtower.enable=true"
     build:
       context: ./back
     environment:
@@ -61,8 +57,6 @@ services:
     
   go_server:
     image: deretz/endurace_reporting:go_server.latest
-    labels: 
-      - "com.centurylinklabs.watchtower.enable=true"
     build:
       context: .
       dockerfile: Dockerfile.go_server
@@ -94,6 +88,15 @@ services:
       DB_PORT: "5432"
     ports:
       - "8501:8501"
+    networks:
+      - app-network
+  
+  udp_server:
+    build:
+      context: ./udptest  # This is the directory where your UDP server's Dockerfile is located
+      dockerfile: Dockerfile
+    ports:
+      - "12345:12345/udp"
     networks:
       - app-network
 
