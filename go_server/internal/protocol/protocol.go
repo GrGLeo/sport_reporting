@@ -22,6 +22,7 @@ const (
   MaxPayloadSize = MaxPacketSize - HeaderSize
   MessageInit = 1
   MessagePacket = 2
+  MessageEnd = 3
   MaxRetries = 5
 )
 
@@ -30,7 +31,7 @@ type FileSender struct {
   UserID uuid.UUID
   FileSize int
   TransactionID int
-  packetMap map[int]*Packet
+  PacketMap map[int][]byte
 }
 
 type InitPacket struct {
@@ -39,6 +40,12 @@ type InitPacket struct {
   FileSize uint32
   Checksum uint32
   UUID uuid.UUID
+}
+
+type EndPacket struct {
+  MessageType uint8
+  TransactionID uint16
+  PacketNumberSend uint16
 }
 
 type Header struct {
@@ -74,6 +81,24 @@ func (fs *FileSender) PrepInitPacket () ([]byte, error) {
   return initPacketBytes, nil
 }
 
+func (fs *FileSender) PrepEndPacket(pNumber int) ([]byte, error) {
+  endPacket := EndPacket{
+    MessageType: MessageEnd,
+    TransactionID: uint16(fs.TransactionID),
+    PacketNumberSend: uint16(pNumber),
+  }
+
+  buff := new(bytes.Buffer)
+  err := binary.Write(buff, binary.BigEndian, endPacket)
+  if err != nil {
+    return []byte{}, errors.New("Failed to encode initPacket")
+  }
+
+  endPacketBytes := buff.Bytes()
+  return endPacketBytes, nil
+}
+
+
 func (fs *FileSender) PrepPacket (payload []byte, pNumber int) ([]byte, error) {
   packet := Packet{
     Header: Header{
@@ -96,6 +121,7 @@ func (fs *FileSender) PrepPacket (payload []byte, pNumber int) ([]byte, error) {
     return []byte{}, err
   }
   
+  fs.PacketMap[pNumber] = packetBytes
   return packetBytes, nil
 }
 
@@ -130,47 +156,51 @@ func (fs *FileSender) SendFile () error {
     fmt.Println(fmt.Sprintf("Bytes read: %d, Error: %v\n", n, err))
     if err != nil {
       if err == io.EOF {
-        fmt.Println("heyo")
+        endPacket, _ := fs.PrepEndPacket(packetNumber)
+        _, err = con.Write(endPacket)
         break
       }
-      fmt.Println("heya")
       return err
     }
     chunk := buffer[:n]
-    // fmt.Println(chunk)
+    // Update packet number
     packetNumber++
     packet, err := fs.PrepPacket(chunk, packetNumber)
     if err != nil {
       fmt.Println(err)
     }
+    if packetNumber == 69 {
+      continue
+    }
     _, err = con.Write(packet)
     fmt.Println("send!")
-    fmt.Println(packetNumber)
-    break
   }
-  return nil
-
 
   for try := 0; try < MaxRetries; try++ {
     ack = make([]byte, 516)
     n, _ := con.Read(ack)
+    fmt.Println(n)
     if ack[0] == 0x01 {
       break
     }
     
     if n < 2 {
-      errors.New("Invalid ack format")
+      // errors.New("Invalid ack format")
       continue
     }
-    numMissing := int(ack[1])
-    if n < 2 * numMissing + 2 {
-      errors.New("Invalid ack format")
+    var numMissing uint16
+    _ = binary.Read(bytes.NewReader(ack[1:3]), binary.BigEndian, &numMissing)
+    num := int(numMissing)
+    fmt.Println(numMissing)
+    if n < 2 * num + 2 {
+      // errors.New("Invalid ack format")
       continue
     }
 
-    for i := 0; i < numMissing; i++ {
-      start := 2 + i*2
+    for i := 0; i < num; i++ {
+      start := 3 + i*2
       packetMissing := binary.BigEndian.Uint16(ack[start:start+2])
+      fmt.Println(packetMissing)
       fs.ReSendPacket(packetMissing)
     }
     

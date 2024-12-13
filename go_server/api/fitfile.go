@@ -41,6 +41,8 @@ func (cfg *ApiConfig) PostFitFile (w http.ResponseWriter, r *http.Request) {
     UserID: UserID,
     FileSize: int(fileSize),
     TransactionID: 1,
+    PacketMap: make(map[int][]byte),
+
   }
   fs.SendFile()
   return
