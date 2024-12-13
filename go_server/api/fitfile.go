@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 
 	"github.com/GrGLeo/sport_reporting/go_server/internal/auth"
@@ -40,9 +41,8 @@ func (cfg *ApiConfig) PostFitFile (w http.ResponseWriter, r *http.Request) {
     File: buf,
     UserID: UserID,
     FileSize: int(fileSize),
-    TransactionID: 1,
+    TransactionID: rand.Int(),
     PacketMap: make(map[int][]byte),
-
   }
   fs.SendFile()
   return

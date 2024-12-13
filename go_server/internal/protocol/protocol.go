@@ -8,7 +8,6 @@ import (
 	"hash/crc32"
 	"io"
 	"net"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,12 +25,21 @@ const (
   MaxRetries = 5
 )
 
+// TODO: Add version 
 type FileSender struct {
   File bytes.Buffer
   UserID uuid.UUID
   FileSize int
   TransactionID int
   PacketMap map[int][]byte
+}
+
+type Header struct {
+  MessageType uint8
+  TransactionID uint16
+  PacketNumber uint16
+  PayloadSize uint32
+  Checksum uint32
 }
 
 type InitPacket struct {
@@ -46,14 +54,6 @@ type EndPacket struct {
   MessageType uint8
   TransactionID uint16
   PacketNumberSend uint16
-}
-
-type Header struct {
-  MessageType uint8
-  TransactionID uint16
-  PacketNumber uint16
-  PayloadSize uint32
-  Checksum uint32
 }
 
 
@@ -121,6 +121,7 @@ func (fs *FileSender) PrepPacket (payload []byte, pNumber int) ([]byte, error) {
     return []byte{}, err
   }
   
+  // Adding packet to map in case resend is needed
   fs.PacketMap[pNumber] = packetBytes
   return packetBytes, nil
 }
@@ -150,7 +151,7 @@ func (fs *FileSender) SendFile () error {
   if ack[0] != 0x01 {
     return err
   }
-  fmt.Println("receive ok from server")
+  fmt.Println("Handshake from server")
 
   // We start sending the file 1024 byte packet at the time
   buffer := make([]byte, MaxPayloadSize)
@@ -173,13 +174,14 @@ func (fs *FileSender) SendFile () error {
     if err != nil {
       fmt.Println(err)
     }
+    // Testing missing packet
     if packetNumber == 69 {
       continue
     }
     _, err = con.Write(packet)
-    fmt.Println("send!")
   }
 
+  // Handling EndPacket ack
   for try := 0; try < MaxRetries; try++ {
     ack = make([]byte, 516)
     n, _ := con.Read(ack)
@@ -188,19 +190,19 @@ func (fs *FileSender) SendFile () error {
       break
     }
     
+    // When message is not ok, we receive MessageType|NPacketMissing|PacketMissedNumber
     if n < 2 {
       // errors.New("Invalid ack format")
       continue
     }
-    var numMissing uint16
-    _ = binary.Read(bytes.NewReader(ack[1:3]), binary.BigEndian, &numMissing)
+    numMissing := binary.BigEndian.Uint16(ack[1:3])
     num := int(numMissing)
-    fmt.Println(numMissing)
     if n < 2 * num + 2 {
       // errors.New("Invalid ack format")
       continue
     }
 
+    // We iterate over missing PacketID to send it back
     for i := 0; i < num; i++ {
       start := 3 + i*2
       packetMissing := binary.BigEndian.Uint16(ack[start:start+2])
@@ -209,9 +211,9 @@ func (fs *FileSender) SendFile () error {
       _, err = con.Write(packet)
     }
     
+    // If it's a-ok we should received back "OK"
     time.Sleep(100 * time.Millisecond)
   }
-
   return nil
 }
 
@@ -224,9 +226,3 @@ func CalculateChecksum(reader bytes.Buffer) (uint32, error) {
   checksum := hash.Sum32()
   return uint32(checksum), nil
 }
-
-func resetFilePointer(file *os.File) error {
-    _, err := file.Seek(0, io.SeekStart)
-    return err
-}
-
