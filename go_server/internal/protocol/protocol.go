@@ -137,12 +137,18 @@ func (fs *FileSender) SendFile () error {
       return err
     }
     chunk := buffer[:n]
+    // fmt.Println(chunk)
     packetNumber++
-    fs.PrepPacket(chunk, packetNumber)
-    _, err = con.Write(initPacket)
+    packet, err := fs.PrepPacket(chunk, packetNumber)
+    if err != nil {
+      fmt.Println(err)
+    }
+    _, err = con.Write(packet)
     fmt.Println("send!")
     fmt.Println(packetNumber)
+    break
   }
+  return nil
 
 
   for try := 0; try < MaxRetries; try++ {
