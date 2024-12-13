@@ -126,7 +126,11 @@ func (fs *FileSender) PrepPacket (payload []byte, pNumber int) ([]byte, error) {
 }
 
 func (fs *FileSender) ReSendPacket(packetNumber uint16) ([]byte, error) {
-  return []byte{}, nil
+  packet, ok := fs.PacketMap[int(packetNumber)]
+  if !ok {
+    return []byte{}, errors.New("Packet not found")
+  }
+  return packet, nil
 }
 
 func (fs *FileSender) SendFile () error {
@@ -201,7 +205,8 @@ func (fs *FileSender) SendFile () error {
       start := 3 + i*2
       packetMissing := binary.BigEndian.Uint16(ack[start:start+2])
       fmt.Println(packetMissing)
-      fs.ReSendPacket(packetMissing)
+      packet, _ := fs.ReSendPacket(packetMissing)
+      _, err = con.Write(packet)
     }
     
     time.Sleep(100 * time.Millisecond)
