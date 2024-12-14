@@ -10,10 +10,16 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Set the server's IP and port
 SERVER_IP = "0.0.0.0"  # Listen on all available interfaces
 SERVER_PORT = 12345
+VERSION = 1
+# Packet message
 INIT_PACKET = 1
 FOLLOW_UP_PACKET = 2
 END_PACKET = 3
 PAYLOAD_SIZE = 1011
+# Ack
+OK = 0x01
+NOT_OK = 0x02
+VERSION_ERR = 0x05
 
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -27,17 +33,23 @@ def decode_packet(data):
     if message == INIT_PACKET:
         # Define the format string based on the InitPacket structure
         # MessageType (uint8), TransactionID (uint16), FileSize (uint32), Checksum (uint32), UUID (16 bytes)
-        format_string = ">B H I I 16s"  # Big-endian format: 1 byte, 2 bytes, 4 bytes, 4 bytes, 16 bytes
+        format_string = ">B B H I I 16s"  # Big-endian format: 1 byte, 1 byte,2 bytes, 4 bytes, 4 bytes, 16 bytes
 
         # Unpack the data using the format string
         unpacked_data = struct.unpack(format_string, data)
 
         # Extract each field from the unpacked data
         message_type = unpacked_data[0]
-        transaction_id = unpacked_data[1]
-        file_size = unpacked_data[2]
-        checksum = unpacked_data[3]
-        uuid_bytes = unpacked_data[4]
+        version = unpacked_data[1]
+        transaction_id = unpacked_data[2]
+        file_size = unpacked_data[3]
+        checksum = unpacked_data[4]
+        uuid_bytes = unpacked_data[5]
+        logging.info(version)
+
+        # If version missmatched
+        # We raised an InvalidVersionError
+        raise ValueError
 
         # Convert the UUID bytes to a UUID object
         packet_uuid = uuid.UUID(bytes=uuid_bytes)
@@ -85,12 +97,16 @@ while True:
     data, addr = sock.recvfrom(1024)  # Buffer size is 1024 bytes
 
     if data[0] == INIT_PACKET:
-        packet = decode_packet(data)
+        try:
+            packet = decode_packet(data)
+        except ValueError:
+            sock.sendto(bytes([VERSION_ERR]), addr)
+            continue
         filesize = packet["FileSize"]
         expected_checksum = packet["Checksum"]
         file = bytearray(filesize)
         computed_checksum = zlib.crc32(file) & 0xffffffff
-        sock.sendto(bytes([0x01]), addr)
+        sock.sendto(bytes([OK]), addr)
 
     elif data[0] == FOLLOW_UP_PACKET:
         n += 1
@@ -111,10 +127,10 @@ while True:
         computed_checksum = zlib.crc32(file) & 0xffffffff
         if s == filesize and computed_checksum == expected_checksum:
             logging.info("File is a-ok")
-            sock.sendto(bytes([0x01]), addr)
+            sock.sendto(bytes([OK]), addr)
         else:
             data_format = ">B H"
-            message = [3]
+            message = [0x02]
             missed = set(range(1, packet["PacketNumbers"])) - set(received_packet)
             message.append(len(missed))
             logging.info(missed)

@@ -14,7 +14,7 @@ import (
 )
 
 const (
-  ProtocolVersion = 1
+  ProtocolVersion = 2
   MaxPacketSize = 1024
   ServerAddress = "udp_server:12345"
   HeaderSize = 13
@@ -44,6 +44,7 @@ type Header struct {
 
 type InitPacket struct {
   MessageType uint8
+  ProtocolVersion uint8
   TransactionID uint16
   FileSize uint32
   Checksum uint32
@@ -65,6 +66,7 @@ func (fs *FileSender) PrepInitPacket () ([]byte, error) {
 
   initPacket := InitPacket{
     MessageType: MessageInit,
+    ProtocolVersion: ProtocolVersion,
     TransactionID: uint16(fs.TransactionID),
     FileSize: uint32(fs.FileSize),
     Checksum: checksum,
