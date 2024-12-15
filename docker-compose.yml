@@ -90,15 +90,6 @@ services:
       - "8501:8501"
     networks:
       - app-network
-  
-  udp_server:
-    build:
-      context: ./udptest  # This is the directory where your UDP server's Dockerfile is located
-      dockerfile: Dockerfile
-    ports:
-      - "12345:12345/udp"
-    networks:
-      - app-network
 
 volumes:
   pg_data:

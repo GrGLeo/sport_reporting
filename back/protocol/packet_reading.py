@@ -27,9 +27,9 @@ class RecMessage(Enum):
 
 
 class RespMessage(Enum):
-    OK = 0x01
-    NOT_OK = 0x02
-    VERSION_ERR = 0x05
+    OK = bytes([1])
+    NOT_OK = bytes([2])
+    VERSION_ERR = bytes([5])
 
 
 class FileWriter:
@@ -42,6 +42,7 @@ class FileWriter:
         self.bytes_written = 0
 
     def process(self, packet_number: int, payload_size: int, checksum: int, payload):
+        logging.info(f"Packet number: {packet_number}")
         compute_checksum = crc32(payload) & 0xffffffff
         if compute_checksum != checksum:
             # file is corrupt, we do not add it to our received packet and we do not write it
@@ -59,7 +60,7 @@ class FileWriter:
         compute_checksum = crc32(self.file) & 0xffffffff
         if self.bytes_written == self.file_size and compute_checksum == self.checksum:
             # File received succesfully
-            return True, None
+            return True, RespMessage.OK.value
 
         # WARN: should we send back the transactionID?
         # ErrorMessage (uint8), MissedPackets (uint16), ...PacketNumber (uint16)
@@ -75,33 +76,31 @@ class FileWriter:
 
 
 def handle_packet(processes: dict, packet):
-    logging.info("AM i CALLED")
     message = packet[0]
+    logging.info(RecMessage.INIT_PACKET.value)
     match message:
-        case RecMessage.INIT_PACKET:
-            logging.info("PACKET INIT")
+        case RecMessage.INIT_PACKET.value:
             try:
-                logging.info("Init packet received")
                 transaction_id, fw = process_init(packet)
                 processes[transaction_id] = fw
+                return RespMessage.OK.value
             except ValueError:
                 # We send back a version missmatched ack
-                pass
-        case RecMessage.FOLLOW_UP_PACKET:
-            logging.info("PACKET FOLLOW")
-            logging.info("follow up packet received")
+                return RespMessage.VERSION_ERR.value
+        case RecMessage.FOLLOW_UP_PACKET.value:
             transaction_id, packet_number, payload_size, checksum, payload_data = process_header(packet)
             fw = processes.get(transaction_id)
             fw.process(packet_number, payload_size, checksum, payload_data)
-        case RecMessage.END_PACKET:
-            logging.info("PACKET END")
-            logging.info("eof packet received")
+            return None
+        case RecMessage.END_PACKET.value:
             transaction_id, total_packet = process_eof(packet)
             fw = processes.get(transaction_id)
-            ok, data = fw.eof(packet)
+            ok, data = fw.eof(total_packet)
             if not ok:
                 # We send the num packet missing
-                pass
+                return data
+            else:
+                return RespMessage.OK.value
 
 
 def process_init(packet):

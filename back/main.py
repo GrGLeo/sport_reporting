@@ -15,5 +15,7 @@ logging.info("Listening on port 12345")
 
 processes = {}
 while True:
-    data = sock.recv(1024)
-    handle_packet(processes, data)
+    data, addr = sock.recvfrom(1024)
+    resp = handle_packet(processes, data)
+    if resp is not None:
+        sock.sendto(resp, addr)
