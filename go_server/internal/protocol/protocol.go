@@ -14,9 +14,9 @@ import (
 )
 
 const (
-  ProtocolVersion = 2
+  ProtocolVersion = 1
   MaxPacketSize = 1024
-  ServerAddress = "udp_server:12345"
+  ServerAddress = "back:12345"
   HeaderSize = 13
   MaxPayloadSize = MaxPacketSize - HeaderSize
   MessageInit = 1
@@ -25,7 +25,6 @@ const (
   MaxRetries = 5
 )
 
-// TODO: Add version 
 type FileSender struct {
   File bytes.Buffer
   UserID uuid.UUID
