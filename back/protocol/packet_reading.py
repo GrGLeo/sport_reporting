@@ -42,7 +42,6 @@ class FileWriter:
         self.bytes_written = 0
 
     def process(self, packet_number: int, payload_size: int, checksum: int, payload):
-        logging.info(f"Packet number: {packet_number}")
         compute_checksum = crc32(payload) & 0xffffffff
         if compute_checksum != checksum:
             # file is corrupt, we do not add it to our received packet and we do not write it
@@ -77,11 +76,11 @@ class FileWriter:
 
 def handle_packet(processes: dict, packet):
     message = packet[0]
-    logging.info(RecMessage.INIT_PACKET.value)
     match message:
         case RecMessage.INIT_PACKET.value:
             try:
                 transaction_id, fw = process_init(packet)
+                logging.info(f"Starting Transaction: {transaction_id}")
                 processes[transaction_id] = fw
                 return RespMessage.OK.value
             except ValueError:
@@ -100,6 +99,9 @@ def handle_packet(processes: dict, packet):
                 # We send the num packet missing
                 return data
             else:
+                logging.info(f"Ending Transaction: {transaction_id}")
+                with open(f"{transaction_id}.fit", "wb") as f:
+                    f.write(fw.file)
                 return RespMessage.OK.value
 
 
