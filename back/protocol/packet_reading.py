@@ -14,6 +14,10 @@ SERVER_PORT = 12345
 VERSION = 1
 # Packet message
 PAYLOAD_SIZE = 1011
+# Ack
+OK = 0x01
+NOT_OK = 0x02
+VERSION_ERR = 0x05
 
 
 class RecMessage(Enum):
@@ -30,7 +34,6 @@ class RespMessage(Enum):
 
 class FileWriter:
     def __init__(self, file_size, checksum, uuid):
-        self.done = False
         self.file_size = file_size
         self.checksum = checksum
         self.uuid = uuid
@@ -38,26 +41,8 @@ class FileWriter:
         self.packet_received = []
         self.bytes_written = 0
 
-    @classmethod
-    def process_init(cls, packet):
-        # MessageType (uint8), Version (uint8), TransactionID (uint16), FileSize (uint32), Checksum (uint32), UUID (16 bytes)
-        # Big-endian format: 1 byte, 1 byte,2 bytes, 4 bytes, 4 bytes, 16 bytes
-        format_string = ">B B H I I 16s"
-
-        # Unpack the data using the format string
-        _, version, transaction_id, file_size, checksum, uuid_bytes = struct.unpack(format_string, packet)
-
-        if version != VERSION:
-            # TODO: make a custom error
-            raise ValueError
-
-        packet_uuid = uuid.UUID(bytes=uuid_bytes)
-
-        # Return the decoded packet as a dictionary
-        return transaction_id, cls(file_size, checksum, packet_uuid)
-
-    def process(self, packet):
-        transaction_id, packet_number, payload_size, checksum, payload = self._process_header(packet)
+    def process(self, packet_number: int, payload_size: int, checksum: int, payload):
+        logging.info(f"Packet number: {packet_number}")
         compute_checksum = crc32(payload) & 0xffffffff
         if compute_checksum != checksum:
             # file is corrupt, we do not add it to our received packet and we do not write it
@@ -71,13 +56,10 @@ class FileWriter:
         self.bytes_written += payload_size
 
     def eof(self, total_packet):
-        header_format = ">B H H"
-        _, transaction_id, total_packet = struct.unpack(header_format, packet)
         # compute total file packet
         compute_checksum = crc32(self.file) & 0xffffffff
         if self.bytes_written == self.file_size and compute_checksum == self.checksum:
             # File received succesfully
-            self.done = True
             return True, RespMessage.OK.value
 
         # WARN: should we send back the transactionID?
@@ -92,19 +74,6 @@ class FileWriter:
         data = struct.pack(data_format, *message)
         return False, data
 
-    def _process_header(packet):
-        header_data = packet[:13]  # First 12 bytes are the header
-        payload_data = packet[13:]  # Rest is the payload
-
-        # MessageType (uint8), TransactionID (uint16), PacketNumber (uint16), PayloadSize (uint32), Checksum (uint32)
-        # Big-endian format: 1 byte, 2 bytes, 2 bytes, 4 bytes, 4 bytes
-        header_format = ">B H H I I"
-        _, transaction_id, packet_number, payload_size, checksum = struct.unpack(header_format, header_data)
-        return transaction_id, packet_number, payload_size, checksum, payload_data
-
-    def __str__(self):
-        return f"Received: {(self.bytes_written/self.file_size) * 100}%"
-
 
 def handle_packet(processes: dict, packet):
     message = packet[0]
@@ -112,7 +81,7 @@ def handle_packet(processes: dict, packet):
     match message:
         case RecMessage.INIT_PACKET.value:
             try:
-                transaction_id, fw = FileWriter.process_init(packet)
+                transaction_id, fw = process_init(packet)
                 processes[transaction_id] = fw
                 return RespMessage.OK.value
             except ValueError:
@@ -131,8 +100,36 @@ def handle_packet(processes: dict, packet):
                 # We send the num packet missing
                 return data
             else:
-                del processes[transaction_id]
                 return RespMessage.OK.value
+
+
+def process_init(packet):
+    # MessageType (uint8), Version (uint8), TransactionID (uint16), FileSize (uint32), Checksum (uint32), UUID (16 bytes)
+    # Big-endian format: 1 byte, 1 byte,2 bytes, 4 bytes, 4 bytes, 16 bytes
+    format_string = ">B B H I I 16s"
+
+    # Unpack the data using the format string
+    _, version, transaction_id, file_size, checksum, uuid_bytes = struct.unpack(format_string, packet)
+
+    if version != VERSION:
+        # TODO: make a custom error
+        raise ValueError
+
+    packet_uuid = uuid.UUID(bytes=uuid_bytes)
+
+    # Return the decoded packet as a dictionary
+    return transaction_id, FileWriter(file_size, checksum, packet_uuid)
+
+
+def process_header(packet):
+    header_data = packet[:13]  # First 12 bytes are the header
+    payload_data = packet[13:]  # Rest is the payload
+
+    # MessageType (uint8), TransactionID (uint16), PacketNumber (uint16), PayloadSize (uint32), Checksum (uint32)
+    # Big-endian format: 1 byte, 2 bytes, 2 bytes, 4 bytes, 4 bytes
+    header_format = ">B H H I I"
+    _, transaction_id, packet_number, payload_size, checksum = struct.unpack(header_format, header_data)
+    return transaction_id, packet_number, payload_size, checksum, payload_data
 
 
 def process_eof(packet):
