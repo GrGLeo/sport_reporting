@@ -100,7 +100,8 @@ def handle_packet(processes: dict, packet):
                 return data
             else:
                 logging.info(f"Ending Transaction: {transaction_id}")
-                with open(f"{transaction_id}.fit", "wb") as f:
+                with open(f"/app/back/fit_file/{transaction_id}.fit", "wb") as f:
+                    f.write(struct.pack(">16s", fw.uuid))
                     f.write(fw.file)
                 return RespMessage.OK.value
 

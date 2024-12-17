@@ -11,6 +11,7 @@ RUN pip install .
 RUN pip install -r requirements.txt
 
 RUN mkdir -p /app/back/workout
+RUN mkdir -p /app/back/fit_file
 
 EXPOSE 12345/udp
 
