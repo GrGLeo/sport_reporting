@@ -159,7 +159,6 @@ func (fs *FileSender) SendFile () error {
   packetNumber := 0 
   for {
     n, err := fs.File.Read(buffer)
-    fmt.Println(fmt.Sprintf("Bytes read: %d, Error: %v\n", n, err))
     if err != nil {
       if err == io.EOF {
         endPacket, _ := fs.PrepEndPacket(packetNumber)
@@ -183,13 +182,13 @@ func (fs *FileSender) SendFile () error {
   }
 
   // Handling EndPacket ack
-  for try := 0; try < MaxRetries; try++ {
+  for try := 1; try <= MaxRetries; try++ {
     ack = make([]byte, 516)
     n, _ := con.Read(ack)
-    fmt.Println(n)
     if ack[0] == 0x01 {
       break
     }
+    fmt.Println(fmt.Sprintf("TransactionID: %d | Fail: %d", fs.TransactionID, try))
     
     // When message is not ok, we receive MessageType|NPacketMissing|PacketMissedNumber
     if n < 2 {
@@ -207,13 +206,13 @@ func (fs *FileSender) SendFile () error {
     for i := 0; i < num; i++ {
       start := 3 + i*2
       packetMissing := binary.BigEndian.Uint16(ack[start:start+2])
-      fmt.Println(packetMissing)
+      fmt.Println(fmt.Sprintf("TransactionID: %d, Packet: %d",fs.TransactionID, packetMissing))
       packet, _ := fs.ReSendPacket(packetMissing)
       _, err = con.Write(packet)
     }
     
     // If it's a-ok we should received back "OK"
-    time.Sleep(100 * time.Millisecond)
+    time.Sleep(1 * time.Second)
   }
   return nil
 }

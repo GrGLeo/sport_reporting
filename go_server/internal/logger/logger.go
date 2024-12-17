@@ -27,7 +27,8 @@ func (gl *Glogger) Info (r *http.Request) error{
   method := strings.ToUpper(r.Method)
   url := r.URL.Path
   clientIP := r.RemoteAddr
-  fmt.Printf("\n%s |HTTP method: %s |URL: %s |client IP: %s", now, method, url, clientIP)
+  log := fmt.Sprintf("%s |HTTP method: %s |URL: %s |client IP: %s", now, method, url, clientIP)
+  fmt.Println(log)
 
   logEntry := LogEntry{
     Level: "INFO",
