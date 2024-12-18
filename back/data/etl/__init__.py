@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import pandas as pd
-from back.data.connexion import DatabaseConnection
-from back.utils.logger import ConsoleLogger
+from data.connexion import DatabaseConnection
+from utils.logger import ConsoleLogger
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 

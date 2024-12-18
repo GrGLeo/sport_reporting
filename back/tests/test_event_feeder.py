@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from back.data.etl.event_feeder import EventFeeder
-from back.api_model import EventModel
+from data.etl.event_feeder import EventFeeder
+from api_model import EventModel
 
 
 @pytest.fixture
@@ -16,7 +16,7 @@ def event_model():
     )
 
 
-@patch('back.data.connexion.DatabaseConnection')
+@patch('data.connexion.DatabaseConnection')
 def test_event_feeder(mock_db_conn, event_model):
     # Arrange: Set up the mock database connection
     mock_engine = MagicMock()

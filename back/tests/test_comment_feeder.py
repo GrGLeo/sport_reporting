@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
-from back.api_model import PostCommentModel
-from back.data.etl.comment_feeder import CommentFeeder
+from api_model import PostCommentModel
+from data.etl.comment_feeder import CommentFeeder
 
 
 def test_sanitize_comment():

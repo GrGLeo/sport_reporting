@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import text
-from back.api_model import PostCommentModel, RpeModel
-from back.utils.logger import logger
-from back.endpoints.db_query import conn
-from back.data.etl.comment_feeder import CommentFeeder
+from api_model import PostCommentModel, RpeModel
+from utils.logger import logger
+from endpoints.db_query import conn
+from data.etl.comment_feeder import CommentFeeder
 
 
 activity_router = APIRouter(prefix="/activity")

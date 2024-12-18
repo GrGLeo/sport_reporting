@@ -2,8 +2,8 @@ from datetime import time
 
 import pandas as pd
 
-from back.data.etl.activity_feeder import ActivityFeeder
-from back.utils.utilities import assign_zone, seconds_to_time
+from data.etl.activity_feeder import ActivityFeeder
+from utils.utilities import assign_zone, seconds_to_time
 
 pd.options.mode.copy_on_write = True
 

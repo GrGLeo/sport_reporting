@@ -1,4 +1,4 @@
-from back.data.etl import Feeder
+from data.etl import Feeder
 from abc import abstractmethod
 import pandas as pd
 

@@ -1,6 +1,6 @@
 import datetime
-from back.fit.utils import get_intensity, get_path
-from back.api_model import FuturWktModel
+from fit.utils import get_intensity, get_path
+from api_model import FuturWktModel
 
 from fit_tool.fit_file_builder import FitFileBuilder
 from fit_tool.profile.messages.file_id_message import FileIdMessage

@@ -3,7 +3,7 @@ import json
 import pandas as pd
 from openai import OpenAI
 from sqlalchemy import create_engine
-from back.utils.query import Query
+from utils.query import Query
 pd.set_option('display.max_columns', 50)
 
 

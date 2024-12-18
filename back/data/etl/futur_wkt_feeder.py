@@ -1,6 +1,6 @@
 import json
-from back.data.etl import Feeder
-from back.api_model import FuturWktModel
+from data.etl import Feeder
+from api_model import FuturWktModel
 import pandas as pd
 
 

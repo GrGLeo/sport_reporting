@@ -2,9 +2,9 @@ import os
 from fastapi import APIRouter, Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from back.utils.query import Query
-from back.utils.utilities import authorize_user
-from back.api_model import QueryModel
+from utils.query import Query
+from utils.utilities import authorize_user
+from api_model import QueryModel
 
 
 db_router = APIRouter(prefix="/query")

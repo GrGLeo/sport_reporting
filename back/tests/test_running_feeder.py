@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from datetime import datetime
-from back.data.etl.running_feeder import RunningFeeder, speed_to_pace, seconds_to_time  # Adjust import based on your structure
+from data.etl.running_feeder import RunningFeeder, speed_to_pace, seconds_to_time  # Adjust import based on your structure
 
 
 @pytest.fixture

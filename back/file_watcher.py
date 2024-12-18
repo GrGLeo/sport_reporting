@@ -3,23 +3,29 @@ import watchdog
 import time
 import logging
 import pandas as pd
+from uuid import UUID
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from fitparse import FitFile
-from back.utils.data_handler import get_data
-from back.data.etl.running_feeder import RunningFeeder
-from back.data.etl.cycling_feeder import CyclingFeeder
+from utils.data_handler import get_data
+from data.etl.running_feeder import RunningFeeder
+from data.etl.cycling_feeder import CyclingFeeder
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class FileWatcher(FileSystemEventHandler):
-    def on_created(self, event: watchdog.events.FileSystemEvent):
+    def on_moved(self, event: watchdog.events.FileSystemEvent):
+        logging.info("Called on modified")
         if event.is_directory:
             return
-        file_path = event.src_path
-        self.process_file(file_path)
+        logging.info(type(event))
+        file_path = event.dest_path
+        logging.info(file_path)
+        if file_path.endswith(".fit"):
+            logging.info(".fit found")
+            self.process_file(file_path)
 
     def process_file(self, file_path):
         while True:
@@ -27,7 +33,8 @@ class FileWatcher(FileSystemEventHandler):
                 with open(file_path, "rb") as f:
                     logging.info("hello")
                     user_id_bytes = f.read(16)
-                    user_id = struct.upack(">16s", user_id_bytes)[0]
+                    user_id_unpack = struct.unpack(">16s", user_id_bytes)[0]
+                    user_id = UUID(bytes=user_id_unpack)
                     data = f.read()
                 fitfile = FitFile(data)
                 records = get_data(fitfile, 'record')

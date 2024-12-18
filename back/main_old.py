@@ -7,19 +7,19 @@ from fastapi.responses import JSONResponse, FileResponse
 from fitparse import FitFile
 import pandas as pd
 from sqlalchemy import create_engine
-from back.endpoints.db_query import db_router
-from back.endpoints.comments import activity_router
-from back.data.etl.running_feeder import RunningFeeder
-from back.data.etl.event_feeder import EventFeeder
-from back.data.etl.cycling_feeder import CyclingFeeder
-from back.data.etl.threshold_feeder import ThresholdFeeder
-from back.data.etl.futur_wkt_feeder import FuturWorkoutFeeder
-from back.data.tables import Base
-from back.utils.data_handler import get_data
-from back.fit.fit_writer import WorkoutWriter
-from back.generator.generator import Generator
-from back.utils.utilities import authorize_user, generate_custom_id
-from back.api_model import (
+from endpoints.db_query import db_router
+from endpoints.comments import activity_router
+from data.etl.running_feeder import RunningFeeder
+from data.etl.event_feeder import EventFeeder
+from data.etl.cycling_feeder import CyclingFeeder
+from data.etl.threshold_feeder import ThresholdFeeder
+from data.etl.futur_wkt_feeder import FuturWorkoutFeeder
+from data.tables import Base
+from utils.data_handler import get_data
+from fit.fit_writer import WorkoutWriter
+from generator.generator import Generator
+from utils.utilities import authorize_user, generate_custom_id
+from api_model import (
     EventModel,
     ThresholdModel,
     FuturWktModel,
@@ -105,7 +105,7 @@ async def generate_wkt(generate_param: GenerateWktModel, user_id = Depends(autho
 
 @app.get("/workouts/download/{name}")
 async def download_workout(name: str, user_id: str = Depends(authorize_user)):
-    path = f"/app/back/workout/{user_id}/{name}.fit"
+    path = f"/app/workout/{user_id}/{name}.fit"
     return FileResponse(
             path,
             media_type="application/octet-stream",

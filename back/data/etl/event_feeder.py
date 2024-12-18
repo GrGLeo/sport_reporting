@@ -1,5 +1,5 @@
-from back.data.etl import Feeder
-from back.api_model import EventModel
+from data.etl import Feeder
+from api_model import EventModel
 import pandas as pd
 
 

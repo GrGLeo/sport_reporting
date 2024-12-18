@@ -1,3 +1,4 @@
+import os
 from enum import Enum
 import struct
 import uuid
@@ -61,7 +62,7 @@ class FileWriter:
             # File received succesfully
             return True, RespMessage.OK.value
 
-        # WARN: should we send back the transactionID?
+        # WARN: should we send the transactionID?
         # ErrorMessage (uint8), MissedPackets (uint16), ...PacketNumber (uint16)
         data_format = ">B H"
         message = [0x02]
@@ -84,7 +85,7 @@ def handle_packet(processes: dict, packet):
                 processes[transaction_id] = fw
                 return RespMessage.OK.value
             except ValueError:
-                # We send back a version missmatched ack
+                # We send a version missmatched ack
                 return RespMessage.VERSION_ERR.value
         case RecMessage.FOLLOW_UP_PACKET.value:
             transaction_id, packet_number, payload_size, checksum, payload_data = process_header(packet)
@@ -100,9 +101,10 @@ def handle_packet(processes: dict, packet):
                 return data
             else:
                 logging.info(f"Ending Transaction: {transaction_id}")
-                with open(f"/app/back/fit_file/{transaction_id}.fit", "wb") as f:
-                    f.write(struct.pack(">16s", fw.uuid))
+                with open(f"/app/fit_file/{transaction_id}.tmp", "wb") as f:
+                    f.write(struct.pack(">16s", fw.uuid.bytes))
                     f.write(fw.file)
+                os.rename(f"/app/fit_file/{transaction_id}.tmp", f"/app/fit_file/{transaction_id}.fit")
                 return RespMessage.OK.value
 
 

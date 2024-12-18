@@ -10,11 +10,11 @@ RUN pip install .
 
 RUN pip install -r requirements.txt
 
-RUN mkdir -p /app/back/workout
-RUN mkdir -p /app/back/fit_file
+RUN mkdir -p /app/workout
+RUN mkdir -p /app/fit_file
 
 EXPOSE 12345/udp
 
 CMD ["python", "main.py"]
-# CMD ["uvicorn", "back.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 

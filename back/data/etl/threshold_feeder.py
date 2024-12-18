@@ -1,6 +1,6 @@
 import pandas as pd
-from back.data.etl import Feeder
-from back.api_model import ThresholdModel
+from data.etl import Feeder
+from api_model import ThresholdModel
 
 
 class ThresholdFeeder(Feeder):
