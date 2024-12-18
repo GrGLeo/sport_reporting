@@ -55,9 +55,11 @@ class Feeder(ABC):
                     self.complete = True
                 except IntegrityError as e:
                     self.logger.error(f"An error occurred: {e}")
+                    self.complete = True
                     return None
                 except SQLAlchemyError as e:
                     self.logger.error(f"An error occurred: {e}")
+                    self.complete = True
                     return None
 
     def drop(self, tables: list[str]) -> None:

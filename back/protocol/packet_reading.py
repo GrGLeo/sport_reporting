@@ -100,11 +100,11 @@ def handle_packet(processes: dict, packet):
                 # We send the num packet missing
                 return data
             else:
-                logging.info(f"Ending Transaction: {transaction_id}")
                 with open(f"/app/fit_file/{transaction_id}.tmp", "wb") as f:
                     f.write(struct.pack(">16s", fw.uuid.bytes))
                     f.write(fw.file)
                 os.rename(f"/app/fit_file/{transaction_id}.tmp", f"/app/fit_file/{transaction_id}.fit")
+                logging.info(f"Ending Transaction: {transaction_id}")
                 return RespMessage.OK.value
 
 
