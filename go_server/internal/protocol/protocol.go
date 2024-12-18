@@ -29,7 +29,7 @@ type FileSender struct {
   File bytes.Buffer
   UserID uuid.UUID
   FileSize int
-  TransactionID int
+  TransactionID uint16
   PacketMap map[int][]byte
 }
 
@@ -185,7 +185,9 @@ func (fs *FileSender) SendFile () error {
   for try := 1; try <= MaxRetries; try++ {
     ack = make([]byte, 516)
     n, _ := con.Read(ack)
+    fmt.Println(fmt.Sprintf("TransactionID: %d | Byte received: %d", fs.TransactionID, n))
     if ack[0] == 0x01 {
+    fmt.Println(fmt.Sprintf("TransactionID: %d | Success", fs.TransactionID))
       break
     }
     fmt.Println(fmt.Sprintf("TransactionID: %d | Fail: %d", fs.TransactionID, try))
