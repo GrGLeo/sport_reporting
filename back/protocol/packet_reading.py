@@ -33,7 +33,7 @@ class RespMessage(Enum):
     VERSION_ERR = bytes([5])
 
 
-class FileWriter:
+class FileProcessor:
     def __init__(self, file_size, checksum, uuid):
         self.file_size = file_size
         self.checksum = checksum
@@ -75,7 +75,7 @@ class FileWriter:
         return False, data
 
 
-def handle_packet(processes: dict, packet):
+def handle_packet(processes: dict, packet, data_queue):
     message = packet[0]
     match message:
         case RecMessage.INIT_PACKET.value:
@@ -100,12 +100,12 @@ def handle_packet(processes: dict, packet):
                 # We send the num packet missing
                 return data
             else:
-                with open(f"/app/fit_file/{transaction_id}.tmp", "wb") as f:
-                    f.write(struct.pack(">16s", fw.uuid.bytes))
-                    f.write(fw.file)
-                os.rename(f"/app/fit_file/{transaction_id}.tmp", f"/app/fit_file/{transaction_id}.fit")
                 logging.info(f"Ending Transaction: {transaction_id}")
                 return RespMessage.OK.value
+                # Is it necessary to pack the uuid?
+                uuid_bytes = struct.pack(">16s", fw.uuid.bytes)
+                fit_file = uuid_bytes + fw.file
+                data_queue.put(fit_file)
 
 
 def process_init(packet):
@@ -123,7 +123,7 @@ def process_init(packet):
     packet_uuid = uuid.UUID(bytes=uuid_bytes)
 
     # Return the decoded packet as a dictionary
-    return transaction_id, FileWriter(file_size, checksum, packet_uuid)
+    return transaction_id, FileProcessor(file_size, checksum, packet_uuid)
 
 
 def process_header(packet):

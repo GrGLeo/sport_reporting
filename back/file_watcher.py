@@ -27,37 +27,42 @@ class FileWatcher(FileSystemEventHandler):
             logging.info(".fit found")
             self.process_file(file_path)
 
-    def process_file(self, file_path):
-        while True:
-            try:
-                with open(file_path, "rb") as f:
-                    logging.info("hello")
-                    user_id_bytes = f.read(16)
-                    user_id_unpack = struct.unpack(">16s", user_id_bytes)[0]
-                    user_id = UUID(bytes=user_id_unpack)
-                    data = f.read()
-                fitfile = FitFile(data)
-                records = get_data(fitfile, 'record')
-                laps = get_data(fitfile, 'lap')
-                activity = get_data(fitfile, 'session')[0]['sport']
-                activity_id = int(records[0]["timestamp"].timestamp())
+    def process_file(self):
+        pass
 
-                wkt = {
-                    f"record_{activity}": pd.DataFrame(records),
-                    f"lap_{activity}": pd.DataFrame(laps)
-                }
 
-                if activity == "running":
-                    feeder = RunningFeeder(wkt, activity_id, user_id)
-                    feeder.compute()
-                elif activity == "cycling":
-                    feeder = CyclingFeeder(wkt, activity_id, user_id)
-                    feeder.compute()
-                if feeder.complete:
-                    break
+def process_file(fit_file):
+    logging.info("hello")
+    user_id_bytes = fit_file[:16]
+    data = fit_file[16:]
+    user_id_unpack = struct.unpack(">16s", user_id_bytes)[0]
+    user_id = UUID(bytes=user_id_unpack)
+    fitfile = FitFile(data)
+    records = get_data(fitfile, 'record')
+    laps = get_data(fitfile, 'lap')
+    activity = get_data(fitfile, 'session')[0]['sport']
+    activity_id = int(records[0]["timestamp"].timestamp())
 
-            except IOError:
-                time.sleep(0.5)
+    wkt = {
+            f"record_{activity}": pd.DataFrame(records),
+            f"lap_{activity}": pd.DataFrame(laps)
+            }
+
+    if activity == "running":
+        feeder = RunningFeeder(wkt, activity_id, user_id)
+        feeder.compute()
+    elif activity == "cycling":
+        feeder = CyclingFeeder(wkt, activity_id, user_id)
+        feeder.compute()
+    if feeder.complete:
+        return
+
+
+def file_receiver(data_queue):
+    while True:
+        if not data_queue.empty():
+            fit_file = data_queue.get(block=False)
+            process_file(fit_file)
 
 
 def file_watcher(watch_directory):

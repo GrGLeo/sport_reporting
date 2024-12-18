@@ -9,7 +9,7 @@ BUFFER_SIZE = 1024 * 1000
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def udp_server():
+def udp_server(data_queue):
     # Create a UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, BUFFER_SIZE)
@@ -21,6 +21,7 @@ def udp_server():
     processes = {}
     while True:
         data, addr = sock.recvfrom(1024)
-        resp = handle_packet(processes, data)
+        resp = handle_packet(processes, data, data_queue)
         if resp is not None:
+            logging.info(resp)
             sock.sendto(resp, addr)

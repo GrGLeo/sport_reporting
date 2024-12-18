@@ -1,7 +1,7 @@
 import pytest
 import struct
 import uuid
-from protocol.packet_reading import RecMessage, RespMessage, FileWriter, process_init, process_header, process_eof, handle_packet
+from protocol.packet_reading import RecMessage, RespMessage, FileProcessor, process_init, process_header, process_eof, handle_packet
 
 
 # Helper function to create a sample packet
@@ -68,12 +68,12 @@ def test_process_eof():
     assert total_packet == 10
 
 
-# Test `FileWriter` class process method
+# Test `FileProcessor` class process method
 def test_file_writer_process():
     file_size = 2048
     checksum = 0x12345678
     file_uuid = uuid.uuid4()
-    fw = FileWriter(file_size, checksum, file_uuid)
+    fw = FileProcessor(file_size, checksum, file_uuid)
 
     # Simulate a valid packet
     packet_number = 1
@@ -88,12 +88,12 @@ def test_file_writer_process():
     assert fw.file[:payload_size] == payload_data  # Ensure the file was updated
 
 
-# Test `FileWriter` class eof method
+# Test `FileProcessor` class eof method
 def test_file_writer_eof_valid():
     file_size = 2048
     checksum = 0x12345678
     file_uuid = uuid.uuid4()
-    fw = FileWriter(file_size, checksum, file_uuid)
+    fw = FileProcessor(file_size, checksum, file_uuid)
 
     # Simulate writing the full file with correct checksum
     fw.bytes_written = file_size
@@ -112,7 +112,7 @@ def test_file_writer_eof_invalid():
     file_size = 2048
     checksum = 0x12345678
     file_uuid = uuid.uuid4()
-    fw = FileWriter(file_size, checksum, file_uuid)
+    fw = FileProcessor(file_size, checksum, file_uuid)
 
     # Simulate writing an incomplete file with incorrect checksum
     fw.bytes_written = 1024  # Incomplete file
@@ -163,7 +163,7 @@ def test_handle_packet_follow_up(processes):
     packet = struct.pack(">B H H I I", RecMessage.FOLLOW_UP_PACKET.value, transaction_id, packet_number, payload_size, checksum) + payload_data
 
     # Simulate that the file writer is initialized
-    processes[transaction_id] = FileWriter(2048, 0x12345678, uuid.uuid4())
+    processes[transaction_id] = FileProcessor(2048, 0x12345678, uuid.uuid4())
 
     handle_packet(processes, packet)
 
@@ -180,7 +180,7 @@ def test_handle_packet_end(processes):
     packet = struct.pack(">B H H", RecMessage.END_PACKET.value, transaction_id, total_packets)
 
     # Simulate that the file writer is initialized
-    processes[transaction_id] = FileWriter(2048, 0x12345678, uuid.uuid4())
+    processes[transaction_id] = FileProcessor(2048, 0x12345678, uuid.uuid4())
 
     result, data = handle_packet(processes, packet)
 
